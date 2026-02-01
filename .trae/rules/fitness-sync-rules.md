@@ -1,0 +1,6 @@
+- Refer to README.MD for project scope, goal and feature description
+- ALWAYS use OUR REUSABLE COMPONENTS and DO NOT make standalone components until it is absolutely needed.
+- Our components are cretaed using GlueStack as base AND then they are styled to match the application design.
+- ALWAYS make types for API requests, function props, etc. Store these types in /type directory and organized accordingly.
+- API requests must be declared for reusability in /api and organized accordingly.
+- Follow the HIGHEST code quality and STANDARDS of React Native, Expo, and Mobile Development.

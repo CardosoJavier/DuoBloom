@@ -152,3 +152,7 @@ Identity management and application configuration.
 - **Light:** Bg: `#F9FAFB`
 - **Dark:** Bg: `#0E172A`
 - **Global:** Primary: `#9FA0FF`
+
+### Components
+
+- Components will be build from the primitive components provided by GlueStack UI library and customize them to fit the application style.
