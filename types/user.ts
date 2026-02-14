@@ -6,6 +6,7 @@ export interface User {
   avatarUrl?: string;
   createdAt: string;
   updatedAt?: string;
+  pairCode?: string;
 }
 
 export interface SyncData {

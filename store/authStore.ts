@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success && result.data?.user) {
         set({
           isAuthenticated: true,
-          user: result.data.user as unknown as User,
+          user: result.data.user,
           needsEmailConfirmation: false,
         });
       } else {

@@ -5,6 +5,31 @@ import { AppError, ErrorCode } from "@/types/error";
 import { User } from "@/types/user";
 import { supabase } from "@/util/supabase";
 
+// Helper to map Supabase Auth User to our User type
+const mapAuthUser = (user: any): User => {
+  return {
+    id: user.id,
+    email: user.email || "",
+    firstName: user.user_metadata?.firstName || "",
+    lastName: user.user_metadata?.lastName || "",
+    createdAt: user.created_at,
+    updatedAt: user.updated_at,
+  };
+};
+
+// Helper to map DB User (public.users) to our User type
+const mapDbUser = (user: any): User => {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    createdAt: user.created_on,
+    updatedAt: user.last_updated_on,
+    pairCode: user.pair_code,
+  };
+};
+
 const mapSupabaseError = (error: any): AppError => {
   const message = error.message || "An unknown error occurred";
   let code = ErrorCode.UNKNOWN_ERROR;
@@ -49,11 +74,11 @@ export const userApi = {
         return { success: false, error: mapSupabaseError(error) };
       }
 
-      // Transform Supabase user to our internal User type if needed
+      // Transform Supabase user to our internal User type
       return {
         success: true,
         data: {
-          user: authData.user as unknown as User | null,
+          user: authData.user ? mapAuthUser(authData.user) : null,
           session: authData.session
             ? {
                 access_token: authData.session.access_token,
@@ -94,7 +119,7 @@ export const userApi = {
       return {
         success: true,
         data: {
-          user: authData.user as unknown as User | null,
+          user: authData.user ? mapAuthUser(authData.user) : null,
           session: authData.session
             ? {
                 access_token: authData.session.access_token,
@@ -166,7 +191,7 @@ export const userApi = {
       return {
         success: true,
         data: {
-          user: authData.user as unknown as User | null,
+          user: authData.user ? mapAuthUser(authData.user) : null,
           session: authData.session
             ? {
                 access_token: authData.session.access_token,
@@ -230,10 +255,20 @@ export const userApi = {
         return { success: false, error: mapSupabaseError(error) };
       }
 
+      // If we have a session, we should try to fetch the full profile to get pairCode
+      let user = data.session?.user ? mapAuthUser(data.session.user) : null;
+
+      if (user && user.id) {
+        const profileResult = await userApi.getUserProfile(user.id);
+        if (profileResult.success && profileResult.data) {
+          user = profileResult.data;
+        }
+      }
+
       return {
         success: true,
         data: {
-          user: data.session?.user as unknown as User | null,
+          user: user,
           session: data.session
             ? {
                 access_token: data.session.access_token,
@@ -259,7 +294,7 @@ export const userApi = {
   /**
    * Get public user profile from the 'users' table.
    */
-  getUserProfile: async (userId: string) => {
+  getUserProfile: async (userId: string): Promise<ApiResult<User>> => {
     try {
       const { data, error } = await supabase
         .from("users")
@@ -272,16 +307,31 @@ export const userApi = {
           "GetUserProfile API Error:",
           error.message || "Unknown error",
         );
-        return { data: null, error: error.message || "Unknown error" };
+        // Return a specific error but don't crash flow if profile is missing (though it shouldn't be)
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.UNKNOWN_ERROR,
+            message: error.message,
+            originalError: error,
+          },
+        };
       }
 
-      return { data, error: null };
+      return { success: true, data: mapDbUser(data) };
     } catch (error: any) {
       console.error(
         "GetUserProfile API Error:",
         error.message || "Unknown error",
       );
-      return { data: null, error: error.message || "Unknown error" };
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: error.message || "Unknown error",
+          originalError: error,
+        },
+      };
     }
   },
 };

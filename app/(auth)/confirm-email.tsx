@@ -1,6 +1,11 @@
 import { AuthContainer } from "@/components/auth/AuthContainer";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import {
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -55,6 +60,11 @@ export default function ConfirmEmailScreen() {
   }, [resendTimer]);
 
   const handleVerify = async () => {
+    if (!unconfirmedEmail) {
+      toast.warning("Session Expired", "Please log in again.");
+      router.replace("/(auth)/login");
+    }
+
     const validationResult = verifyEmailSchema.safeParse({ code });
 
     if (!validationResult.success) {
@@ -119,6 +129,7 @@ export default function ConfirmEmailScreen() {
           <ButtonText className="font-bold text-lg">
             {isLoading ? "Verifying..." : "Verify Email"}
           </ButtonText>
+          {isLoading && <ButtonSpinner color="white" className="ml-2" />}
         </Button>
 
         <Button
