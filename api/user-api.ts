@@ -1,5 +1,6 @@
 import { ApiResult } from "@/types/api";
-import { AuthResponse, LoginData, SignupData } from "@/types/auth";
+import { AuthResponse } from "@/types/auth";
+import { LoginData, SignupData } from "@/types/auth-schema";
 import { AppError, ErrorCode } from "@/types/error";
 import { User } from "@/types/user";
 import { supabase } from "@/util/supabase";

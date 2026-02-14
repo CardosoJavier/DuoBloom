@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
+import { signupSchema } from "@/types/auth-schema";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -36,6 +37,18 @@ export default function SignupScreen() {
   }, [error, toast, clearError]);
 
   const handleSignup = async () => {
+    const validationResult = signupSchema.safeParse({
+      firstName,
+      lastName,
+      email,
+      password,
+    });
+
+    if (!validationResult.success) {
+      toast.error("Invalid Input", validationResult.error.issues[0].message);
+      return;
+    }
+
     await signUp(email, password, firstName, lastName);
   };
 

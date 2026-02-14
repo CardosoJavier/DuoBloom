@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
+import { verifyEmailSchema } from "@/types/auth-schema";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Mail } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ export default function ConfirmEmailScreen() {
     isLoading,
     needsEmailConfirmation,
     isAuthenticated,
+    logout,
   } = useAuthStore();
   const toast = useAppToast();
 
@@ -53,11 +55,19 @@ export default function ConfirmEmailScreen() {
   }, [resendTimer]);
 
   const handleVerify = async () => {
-    if (code.length !== 8) {
-      toast.warning("Invalid Code", "Please enter a 8-digit code");
+    const validationResult = verifyEmailSchema.safeParse({ code });
+
+    if (!validationResult.success) {
+      toast.warning("Invalid Code", validationResult.error.issues[0].message);
       return;
     }
+
     await verifyEmail(code);
+  };
+
+  const handleBackToLogin = async () => {
+    await logout();
+    router.replace("/(auth)/login");
   };
 
   const handleResend = async () => {
@@ -128,7 +138,7 @@ export default function ConfirmEmailScreen() {
           size="md"
           variant="link"
           action="secondary"
-          onPress={() => router.replace("/(auth)/login")}
+          onPress={() => handleBackToLogin()}
           className="mt-4"
         >
           <ButtonIcon as={ArrowLeft} className="mr-2 text-slate-400" />

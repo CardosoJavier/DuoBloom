@@ -8,15 +8,3 @@ export interface AuthResponse {
     expires_in: number;
   } | null;
 }
-
-export interface SignupData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password?: string;
-}
-
-export interface LoginData {
-  email: string;
-  password?: string;
-}
