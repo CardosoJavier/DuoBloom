@@ -8,7 +8,7 @@ import { VStack } from "@/components/ui/vstack";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
 
 export default function SignupScreen() {
@@ -17,16 +17,17 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signUp } = useAuthStore();
+  const { signUp, needsEmailConfirmation, error } = useAuthStore();
   const router = useRouter();
 
-  const handleSignup = async () => {
-    try {
-      await signUp(email, password, firstName, lastName);
-      // Success redirection is handled by AuthProvider
-    } catch (error) {
-      console.error("Signup failed:", error);
+  useEffect(() => {
+    if (needsEmailConfirmation) {
+      router.replace("/(auth)/confirm-email");
     }
+  }, [needsEmailConfirmation]);
+
+  const handleSignup = async () => {
+    await signUp(email, password, firstName, lastName);
   };
 
   return (
@@ -40,6 +41,12 @@ export default function SignupScreen() {
             Start your fitness journey together.{" "}
           </Text>
         </VStack>
+
+        {error && (
+          <Box className="bg-red-100 p-3 rounded-md">
+            <Text className="text-red-600 text-sm">{error}</Text>
+          </Box>
+        )}
 
         <VStack space="md" className="mt-4">
           <VStack space="xs">

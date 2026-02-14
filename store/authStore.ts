@@ -1,10 +1,12 @@
 import { userApi } from "@/api/user-api";
+import { ErrorCode } from "@/types/error";
 import { User } from "@/types/user";
 import { create } from "zustand";
 
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
+  needsEmailConfirmation: boolean;
   user: User | null;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
@@ -21,20 +23,27 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
+  needsEmailConfirmation: false,
   user: null,
   error: null,
 
   checkAuth: async () => {
     try {
       set({ isLoading: true });
-      const session = await userApi.getSession();
+      const result = await userApi.getSession();
 
-      if (session?.user) {
-        // In a real app, you might want to fetch the full user profile here
-        // For now we just set authenticated
-        set({ isAuthenticated: true, user: session.user as unknown as User });
+      if (result.success && result.data?.user) {
+        set({
+          isAuthenticated: true,
+          user: result.data.user as unknown as User,
+          needsEmailConfirmation: false,
+        });
       } else {
-        set({ isAuthenticated: false, user: null });
+        set({
+          isAuthenticated: false,
+          user: null,
+          needsEmailConfirmation: false,
+        });
       }
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -46,15 +55,34 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email, password) => {
     set({ isLoading: true, error: null });
-    const response = await userApi.signIn({ email, password });
+    const result = await userApi.signIn({ email, password });
 
-    if (response.error) {
-      set({ isLoading: false, error: response.error, isAuthenticated: false });
-      throw new Error(response.error);
+    if (!result.success) {
+      if (result.error.code === ErrorCode.AUTH_EMAIL_NOT_CONFIRMED) {
+        set({
+          isLoading: false,
+          needsEmailConfirmation: true,
+          isAuthenticated: false,
+          error: null,
+        });
+      } else {
+        set({
+          isLoading: false,
+          error: result.error.message,
+          isAuthenticated: false,
+        });
+      }
+      return;
     }
 
-    if (response.session) {
-      set({ isAuthenticated: true, user: response.user, isLoading: false });
+    const { user, session } = result.data;
+    if (session) {
+      set({
+        isAuthenticated: true,
+        user: user,
+        isLoading: false,
+        needsEmailConfirmation: false,
+      });
     } else {
       set({
         isAuthenticated: false,
@@ -66,26 +94,39 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signUp: async (email, password, firstName, lastName) => {
     set({ isLoading: true, error: null });
-    const response = await userApi.signUp({
+    const result = await userApi.signUp({
       email,
       password,
       firstName,
       lastName,
     });
 
-    if (response.error) {
-      set({ isLoading: false, error: response.error, isAuthenticated: false });
-      throw new Error(response.error);
+    if (!result.success) {
+      set({
+        isLoading: false,
+        error: result.error.message,
+        isAuthenticated: false,
+      });
+      return;
     }
 
-    if (response.session) {
-      set({ isAuthenticated: true, user: response.user, isLoading: false });
+    const { user, session } = result.data;
+
+    if (session) {
+      set({
+        isAuthenticated: true,
+        user: user,
+        isLoading: false,
+        needsEmailConfirmation: false,
+      });
     } else {
       // Supabase might return no session if email confirmation is required
+      // We assume if success=true but no session, it's the confirmation flow
       set({
         isAuthenticated: false,
         isLoading: false,
-        error: "Please check your email to confirm your account.",
+        needsEmailConfirmation: true,
+        error: null,
       });
     }
   },
@@ -93,6 +134,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     set({ isLoading: true });
     await userApi.signOut();
-    set({ isAuthenticated: false, user: null, isLoading: false });
+    set({
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+      needsEmailConfirmation: false,
+    });
   },
 }));

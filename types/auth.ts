@@ -7,7 +7,6 @@ export interface AuthResponse {
     refresh_token: string;
     expires_in: number;
   } | null;
-  error?: string;
 }
 
 export interface SignupData {

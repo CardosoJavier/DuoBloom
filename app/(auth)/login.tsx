@@ -8,23 +8,24 @@ import { VStack } from "@/components/ui/vstack";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuthStore();
+  const { login, error, needsEmailConfirmation } = useAuthStore();
   const router = useRouter();
 
-  const handleLogin = async () => {
-    try {
-      await login(email, password);
-      // Success redirection is handled by AuthProvider
-    } catch (error) {
-      console.error("Login failed:", error);
+  useEffect(() => {
+    if (needsEmailConfirmation) {
+      router.replace("/(auth)/confirm-email");
     }
+  }, [needsEmailConfirmation]);
+
+  const handleLogin = async () => {
+    await login(email, password);
   };
 
   return (
@@ -36,6 +37,12 @@ export default function LoginScreen() {
           </Heading>
           <Text className="text-slate-500">Enter your details to sync up.</Text>
         </VStack>
+
+        {error && (
+          <Box className="bg-red-100 p-3 rounded-md">
+            <Text className="text-red-600 text-sm">{error}</Text>
+          </Box>
+        )}
 
         <VStack space="lg" className="mt-4">
           <View>
