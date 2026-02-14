@@ -5,6 +5,7 @@ import { Heading } from "@/components/ui/heading";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
@@ -17,14 +18,22 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signUp, needsEmailConfirmation, error } = useAuthStore();
+  const { signUp, needsEmailConfirmation, error, clearError } = useAuthStore();
   const router = useRouter();
+  const toast = useAppToast();
 
   useEffect(() => {
     if (needsEmailConfirmation) {
       router.replace("/(auth)/confirm-email");
     }
   }, [needsEmailConfirmation]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Error", error);
+      clearError();
+    }
+  }, [error, toast, clearError]);
 
   const handleSignup = async () => {
     await signUp(email, password, firstName, lastName);
@@ -41,12 +50,6 @@ export default function SignupScreen() {
             Start your fitness journey together.{" "}
           </Text>
         </VStack>
-
-        {error && (
-          <Box className="bg-red-100 p-3 rounded-md">
-            <Text className="text-red-600 text-sm">{error}</Text>
-          </Box>
-        )}
 
         <VStack space="md" className="mt-4">
           <VStack space="xs">
