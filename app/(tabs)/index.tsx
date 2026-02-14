@@ -2,11 +2,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { Box } from "@/components/ui/box";
 
 export default function HomeScreen() {
-  const { logout } = useAuth();
+  const { logout } = useAuthStore();
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">

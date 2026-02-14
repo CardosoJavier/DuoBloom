@@ -7,17 +7,21 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
 import "@/global.css";
+import { useAuthStore } from "@/store/authStore";
 
 export const unstable_settings = {
   anchor: "(tabs)",
 };
 
 function InitialLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -46,12 +50,10 @@ export default function RootLayout() {
 
   return (
     <GluestackUIProvider mode="light">
-      <AuthProvider>
-        <ThemeProvider value={DefaultTheme}>
-          <InitialLayout />
-          <StatusBar style="dark" />
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider value={DefaultTheme}>
+        <InitialLayout />
+        <StatusBar style="dark" />
+      </ThemeProvider>
     </GluestackUIProvider>
   );
 }

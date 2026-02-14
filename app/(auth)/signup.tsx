@@ -5,23 +5,24 @@ import { Heading } from "@/components/ui/heading";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
 import React, { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 
 export default function SignupScreen() {
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp } = useAuthStore();
   const router = useRouter();
 
   const handleSignup = async () => {
     try {
-      await signUp(email, password);
+      await signUp(email, password, firstName, lastName);
       // Success redirection is handled by AuthProvider
     } catch (error) {
       console.error("Signup failed:", error);
@@ -40,36 +41,49 @@ export default function SignupScreen() {
           </Text>
         </VStack>
 
-        <VStack space="lg" className="mt-4">
-          <View>
+        <VStack space="md" className="mt-4">
+          <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={User} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Enter your name"
-                value={fullName}
-                onChangeText={setFullName}
+                placeholder="First Name"
+                value={firstName}
+                onChangeText={setFirstName}
               />
             </Input>
-          </View>
+          </VStack>
 
-          <View>
+          <VStack space="xs">
+            <Input variant="soft" size="xl">
+              <InputSlot className="pl-4">
+                <InputIcon as={User} className="text-slate-400" />
+              </InputSlot>
+              <InputField
+                placeholder="Last Name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </Input>
+          </VStack>
+
+          <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={Mail} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Enter your email"
+                placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
             </Input>
-          </View>
+          </VStack>
 
-          <View>
+          <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={Lock} className="text-slate-400" />
@@ -90,7 +104,7 @@ export default function SignupScreen() {
                 />
               </InputSlot>
             </Input>
-          </View>
+          </VStack>
         </VStack>
 
         <Button

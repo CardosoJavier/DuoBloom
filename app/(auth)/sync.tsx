@@ -6,14 +6,14 @@ import { Heading } from "@/components/ui/heading";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Link as LinkIcon, Share2 } from "lucide-react-native";
 import React, { useState } from "react";
 
 export default function SyncScreen() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login } = useAuthStore();
   const [pairCode, setPairCode] = useState("");
   const myCode = "SYNC-X7Y2"; // This would come from the backend
 
