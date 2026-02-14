@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -34,16 +34,11 @@ export default function LoginScreen() {
           <Heading size="2xl" className="text-slate-800 font-bold">
             Welcome Back
           </Heading>
-          <Text className="text-slate-500">
-            Sign in to continue your journey together
-          </Text>
+          <Text className="text-slate-500">Enter your details to sync up.</Text>
         </VStack>
 
-        <VStack space="md" className="mt-4">
-          <VStack space="xs">
-            <Text className="text-sm font-medium text-slate-800 ml-1">
-              Email address
-            </Text>
+        <VStack space="lg" className="mt-4">
+          <View>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={Mail} className="text-slate-400" />
@@ -56,18 +51,15 @@ export default function LoginScreen() {
                 autoCapitalize="none"
               />
             </Input>
-          </VStack>
+          </View>
 
-          <VStack space="xs">
-            <Text className="text-sm font-medium text-slate-800 ml-1">
-              Password
-            </Text>
+          <View>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={Lock} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Enter your password"
+                placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -89,7 +81,7 @@ export default function LoginScreen() {
                 </Text>
               </Pressable>
             </Box>
-          </VStack>
+          </View>
         </VStack>
 
         <Button
