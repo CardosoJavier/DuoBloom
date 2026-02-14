@@ -4,12 +4,20 @@ import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Mail } from "lucide-react-native";
 import React from "react";
 
 export default function ConfirmEmailScreen() {
   const router = useRouter();
+
+  const { logout } = useAuthStore();
+
+  async function handleBackToLogin() {
+    await logout();
+    router.replace("/(auth)/login");
+  }
 
   return (
     <AuthContainer>
@@ -32,7 +40,7 @@ export default function ConfirmEmailScreen() {
           size="xl"
           variant="solid"
           action="secondary"
-          onPress={() => router.replace("/(auth)/login")}
+          onPress={() => handleBackToLogin()}
           className="mt-6 w-full"
         >
           <ButtonIcon as={ArrowLeft} className="mr-2" />
