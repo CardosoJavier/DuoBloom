@@ -20,7 +20,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      await login();
+      await login(email, password);
       // Success redirection is handled by AuthProvider
     } catch (error) {
       console.error("Login failed:", error);

@@ -20,7 +20,7 @@ export default function SyncScreen() {
   const handleSync = async () => {
     // Logic to pair users
     console.log("Syncing with code:", pairCode);
-    await login();
+    // await login(); // TODO: Implement pairing logic
   };
 
   return (
@@ -97,7 +97,11 @@ export default function SyncScreen() {
           <ButtonIcon as={ArrowRight} className="ml-2" />
         </Button>
 
-        <Button variant="link" size="md" onPress={() => login()}>
+        <Button
+          variant="link"
+          size="md"
+          onPress={() => router.push("/(auth)/login")}
+        >
           <ButtonText className="text-typography-400 font-medium">
             Skip for now
           </ButtonText>
