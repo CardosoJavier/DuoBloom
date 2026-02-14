@@ -121,7 +121,9 @@ export const userApi = {
   signOut: async (): Promise<ApiResult<void>> => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) return { success: false, error: mapSupabaseError(error) };
+      if (error) {
+        return { success: false, error: mapSupabaseError(error) };
+      }
       return { success: true, data: undefined };
     } catch (error: any) {
       console.error("SignOut API Error:", error);
@@ -137,22 +139,105 @@ export const userApi = {
   },
 
   /**
-   * Checks the current session status.
+   * Verifies the email using the OTP token.
    */
-  getSession: async (): Promise<ApiResult<Session | null>> => {
+  verifyEmailOtp: async (
+    email: string,
+    token: string,
+  ): Promise<ApiResult<AuthResponse>> => {
+    try {
+      const { data: authData, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: "signup",
+      });
+
+      if (error) {
+        return { success: false, error: mapSupabaseError(error) };
+      }
+
+      return {
+        success: true,
+        data: {
+          user: authData.user as unknown as User | null,
+          session: authData.session
+            ? {
+                access_token: authData.session.access_token,
+                refresh_token: authData.session.refresh_token,
+                expires_in: authData.session.expires_in,
+              }
+            : null,
+        },
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: error.message || "Unexpected error during verification",
+          originalError: error,
+        },
+      };
+    }
+  },
+
+  /**
+   * Resends the signup confirmation OTP.
+   */
+  resendOtp: async (email: string): Promise<ApiResult<void>> => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+
+      if (error) {
+        return { success: false, error: mapSupabaseError(error) };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: error.message || "Unexpected error during resend",
+          originalError: error,
+        },
+      };
+    }
+  },
+
+  /**
+   * Retrieves the current session.
+   */
+  getSession: async (): Promise<ApiResult<AuthResponse>> => {
     try {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
         return { success: false, error: mapSupabaseError(error) };
       }
-      return { success: true, data: data.session };
+
+      return {
+        success: true,
+        data: {
+          user: data.session?.user as unknown as User | null,
+          session: data.session
+            ? {
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token,
+                expires_in: data.session.expires_in,
+              }
+            : null,
+        },
+      };
     } catch (error: any) {
       console.error("GetSession API Error:", error);
       return {
         success: false,
         error: {
           code: ErrorCode.UNKNOWN_ERROR,
-          message: error.message || "Unexpected error getting session",
+          message: error.message || "Unexpected error retrieving session",
           originalError: error,
         },
       };

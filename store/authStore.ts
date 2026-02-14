@@ -7,6 +7,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   needsEmailConfirmation: boolean;
+  unconfirmedEmail: string | null;
   user: User | null;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
@@ -16,15 +17,18 @@ interface AuthState {
     firstName: string,
     lastName: string,
   ) => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: true,
   needsEmailConfirmation: false,
+  unconfirmedEmail: null,
   user: null,
   error: null,
 
@@ -66,6 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           isLoading: false,
           needsEmailConfirmation: true,
           isAuthenticated: false,
+          unconfirmedEmail: email,
           error: null,
         });
       } else {
@@ -129,9 +134,62 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: false,
         isLoading: false,
         needsEmailConfirmation: true,
+        unconfirmedEmail: email,
         error: null,
       });
     }
+  },
+
+  verifyEmail: async (token) => {
+    const { unconfirmedEmail } = get();
+    if (!unconfirmedEmail) {
+      set({ error: "No email to verify" });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    const result = await userApi.verifyEmailOtp(unconfirmedEmail, token);
+
+    if (!result.success) {
+      set({ isLoading: false, error: result.error.message });
+      return;
+    }
+
+    const { user, session } = result.data;
+    if (session) {
+      set({
+        isAuthenticated: true,
+        user: user,
+        isLoading: false,
+        needsEmailConfirmation: false,
+        unconfirmedEmail: null,
+      });
+    } else {
+      // Should not happen on successful verification usually, but safe fallback
+      set({
+        isLoading: false,
+        needsEmailConfirmation: false,
+        unconfirmedEmail: null,
+        error:
+          "Verification successful but session not established. Please login.",
+      });
+    }
+  },
+
+  resendVerificationEmail: async () => {
+    const { unconfirmedEmail } = get();
+    if (!unconfirmedEmail) {
+      set({ error: "No email to resend verification to" });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    const result = await userApi.resendOtp(unconfirmedEmail);
+
+    if (!result.success) {
+      set({ isLoading: false, error: result.error.message });
+      return;
+    }
+
+    set({ isLoading: false });
   },
 
   logout: async () => {
