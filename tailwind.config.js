@@ -102,6 +102,15 @@ module.exports = {
           900: 'rgb(var(--color-warning-900)/<alpha-value>)',
           950: 'rgb(var(--color-warning-950)/<alpha-value>)',
         },
+        lavender: {
+          500: '#9FA0FF',
+          600: '#8F90EF',
+        },
+        slate: {
+          50: '#F8FAFC',
+          400: '#94A3B8',
+          800: '#1E293B',
+        },
         info: {
           0: 'rgb(var(--color-info-0)/<alpha-value>)',
           50: 'rgb(var(--color-info-50)/<alpha-value>)',

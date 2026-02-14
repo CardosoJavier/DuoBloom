@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: () => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -18,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkAuth = async () => {
       try {
         // Mock delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -31,20 +32,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async () => {
     setIsLoading(true);
     // Mock login delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setIsAuthenticated(true);
+    setIsLoading(false);
+  };
+
+  const signUp = async (email: string, password: string) => {
+    setIsLoading(true);
+    // Mock signup delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
     setIsAuthenticated(true);
     setIsLoading(false);
   };
 
   const logout = async () => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     setIsAuthenticated(false);
     setIsLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, isLoading, login, signUp, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -53,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

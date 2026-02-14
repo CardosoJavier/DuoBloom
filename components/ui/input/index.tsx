@@ -38,8 +38,8 @@ const inputStyle = tva({
 
   variants: {
     size: {
-      xl: "h-12",
-      lg: "h-11",
+      xl: "h-14",
+      lg: "h-12",
       md: "h-10",
       sm: "h-9",
     },
@@ -53,7 +53,7 @@ const inputStyle = tva({
 
       rounded:
         "rounded-full border data-[invalid=true]:border-error-700 data-[invalid=true]:hover:border-error-700 data-[invalid=true]:data-[focus=true]:border-error-700 data-[invalid=true]:data-[focus=true]:hover:border-error-700 data-[invalid=true]:data-[disabled=true]:hover:border-error-700 data-[focus=true]:web:ring-1 data-[focus=true]:web:ring-inset data-[focus=true]:web:ring-indicator-primary data-[invalid=true]:web:ring-1 data-[invalid=true]:web:ring-inset data-[invalid=true]:web:ring-indicator-error data-[invalid=true]:data-[focus=true]:hover:web:ring-1 data-[invalid=true]:data-[focus=true]:hover:web:ring-inset data-[invalid=true]:data-[focus=true]:hover:web:ring-indicator-error data-[invalid=true]:data-[disabled=true]:hover:web:ring-1 data-[invalid=true]:data-[disabled=true]:hover:web:ring-inset data-[invalid=true]:data-[disabled=true]:hover:web:ring-indicator-error",
-      soft: "bg-background-50 rounded-xl border-0 data-[focus=true]:bg-background-100",
+      soft: "bg-slate-50 rounded-2xl border-2 border-transparent data-[focus=true]:bg-white data-[focus=true]:border-lavender-500/50",
     },
   },
 });
@@ -77,14 +77,14 @@ const inputSlotStyle = tva({
 });
 
 const inputFieldStyle = tva({
-  base: "flex-1 text-typography-900 py-0 px-3 placeholder:text-typography-500 h-full ios:leading-[0px] web:cursor-text web:data-[disabled=true]:cursor-not-allowed",
+  base: "flex-1 text-slate-800 py-0 px-3 placeholder:text-slate-400 h-full ios:leading-[0px] web:cursor-text web:data-[disabled=true]:cursor-not-allowed font-medium",
 
   parentVariants: {
     variant: {
       underlined: "web:outline-0 web:outline-none px-0",
       outline: "web:outline-0 web:outline-none",
       rounded: "web:outline-0 web:outline-none px-4",
-      soft: "web:outline-0 web:outline-none px-4",
+      soft: "web:outline-0 web:outline-none px-2",
     },
 
     size: {

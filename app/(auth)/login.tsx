@@ -1,52 +1,55 @@
-import React, { useState } from 'react';
-import { Link, useRouter } from 'expo-router';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
-import { AuthContainer } from '@/components/auth/AuthContainer';
-import { VStack } from '@/components/ui/vstack';
-import { Text } from '@/components/ui/text';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { Button, ButtonText } from '@/components/ui/button';
-import { Box } from '@/components/ui/box';
-import { Heading } from '@/components/ui/heading';
-import { Pressable } from 'react-native';
-import { useAuth } from '@/context/AuthContext';
+import { AuthContainer } from "@/components/auth/AuthContainer";
+import { Box } from "@/components/ui/box";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
+import React, { useState } from "react";
+import { Pressable } from "react-native";
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { login } = useAuth();
+  const router = useRouter();
 
   const handleLogin = async () => {
-    // Auth logic will go here in next iteration
-    console.log('Login with:', email, password);
-    await login();
+    try {
+      await login();
+      // Success redirection is handled by AuthProvider
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
     <AuthContainer>
       <VStack space="xl">
         <VStack space="xs">
-          <Heading size="3xl" className="text-typography-900">
-            Welcome back
+          <Heading size="2xl" className="text-slate-800 font-bold">
+            Welcome Back
           </Heading>
-          <Text size="md" className="text-typography-500">
-            Sign in to continue
+          <Text className="text-slate-500">
+            Sign in to continue your journey together
           </Text>
         </VStack>
 
-        <VStack space="lg" className="mt-4">
+        <VStack space="md" className="mt-4">
           <VStack space="xs">
-            <Text size="sm" className="font-medium text-typography-700 ml-1">
-              Email
+            <Text className="text-sm font-medium text-slate-800 ml-1">
+              Email address
             </Text>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Mail} className="text-typography-400" />
+                <InputIcon as={Mail} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="hello@example.com"
+                placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -56,53 +59,54 @@ export default function LoginScreen() {
           </VStack>
 
           <VStack space="xs">
-            <Box className="flex-row justify-between items-center ml-1">
-              <Text size="sm" className="font-medium text-typography-700">
-                Password
-              </Text>
-              <Pressable onPress={() => console.log('Forgot password pressed')}>
-                <Text size="xs" className="text-primary-500 font-semibold">
-                  Forgot?
-                </Text>
-              </Pressable>
-            </Box>
+            <Text className="text-sm font-medium text-slate-800 ml-1">
+              Password
+            </Text>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Lock} className="text-typography-400" />
+                <InputIcon as={Lock} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
-              <InputSlot className="pr-4" onPress={() => setShowPassword(!showPassword)}>
-                <InputIcon as={showPassword ? EyeOff : Eye} className="text-typography-400" />
+              <InputSlot
+                className="pr-4"
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <InputIcon
+                  as={showPassword ? EyeOff : Eye}
+                  className="text-slate-400"
+                />
               </InputSlot>
             </Input>
+            <Box className="items-end mt-1">
+              <Pressable onPress={() => console.log("Forgot password")}>
+                <Text className="text-sm text-lavender-500 font-medium">
+                  Forgot Password?
+                </Text>
+              </Pressable>
+            </Box>
           </VStack>
         </VStack>
 
-        <Button 
-          action="dark" 
-          size="xl" 
-          className="rounded-2xl mt-4 h-14" 
+        <Button
+          size="xl"
+          action="primary"
           onPress={handleLogin}
+          className="mt-6"
         >
-          <ButtonText className="text-lg font-bold">Sign In</ButtonText>
+          <ButtonText className="font-bold text-lg">Sign In</ButtonText>
+          <ButtonIcon as={ArrowRight} />
         </Button>
 
-        <Box className="flex-row justify-center items-center mt-2">
-          <Text size="sm" className="text-typography-500">
-            Don't have an account?{' '}
-          </Text>
-          <Link href="/(auth)/signup" asChild>
-            <Pressable>
-              <Text size="sm" className="text-primary-500 font-bold">
-                Sign up
-              </Text>
-            </Pressable>
-          </Link>
+        <Box className="flex-row justify-center mt-4">
+          <Text className="text-[#6B7280]">Don't have an account? </Text>
+          <Pressable onPress={() => router.push("/(auth)/signup")}>
+            <Text className="text-[#9FA0FF] font-bold">Sign Up</Text>
+          </Pressable>
         </Box>
       </VStack>
     </AuthContainer>
