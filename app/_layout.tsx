@@ -9,6 +9,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
 import { useAuthStore } from "@/store/authStore";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -49,11 +50,16 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <GluestackUIProvider mode="light">
-      <ThemeProvider value={DefaultTheme}>
-        <InitialLayout />
-        <StatusBar style="dark" />
-      </ThemeProvider>
-    </GluestackUIProvider>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
+        <ThemeProvider value={DefaultTheme}>
+          <InitialLayout />
+          <StatusBar style="dark" />
+        </ThemeProvider>
+      </GluestackUIProvider>
+    </KeyboardAvoidingView>
   );
 }

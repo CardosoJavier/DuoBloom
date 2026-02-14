@@ -19,6 +19,7 @@ export function AuthContainer({ children }: AuthContainerProps) {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <Center className="mt-8 mb-10">
             <Box className="w-16 h-16 bg-lavender-500/10 rounded-full justify-center items-center mb-4">
@@ -58,5 +59,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
+    paddingBottom: 50,
   },
 });

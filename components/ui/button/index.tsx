@@ -41,14 +41,14 @@ const buttonStyle = tva({
   variants: {
     action: {
       primary:
-        "bg-lavender-500 shadow-lg shadow-lavender-500/30 data-[hover=true]:bg-lavender-600 data-[active=true]:scale-95 data-[hover=true]:scale-[1.02] border-0 transition-all",
+        "bg-lavender-500 shadow-lg shadow-lavender-500/30 data-[hover=true]:bg-lavender-600 data-[active=true]:scale-95 data-[hover=true]:scale-[1.02] border-0",
       secondary:
         "bg-secondary-500 border-secondary-300 data-[hover=true]:bg-secondary-600 data-[hover=true]:border-secondary-400 data-[active=true]:bg-secondary-700 data-[active=true]:border-secondary-700 data-[focus-visible=true]:web:ring-indicator-info",
       positive:
         "bg-success-500 border-success-300 data-[hover=true]:bg-success-600 data-[hover=true]:border-success-400 data-[active=true]:bg-success-700 data-[active=true]:border-success-500 data-[focus-visible=true]:web:ring-indicator-info",
       negative:
         "bg-error-500 border-error-300 data-[hover=true]:bg-error-600 data-[hover=true]:border-error-400 data-[active=true]:bg-error-700 data-[active=true]:border-error-500 data-[focus-visible=true]:web:ring-indicator-info",
-      dark: "bg-slate-800 shadow-lg shadow-slate-800/30 data-[hover=true]:bg-slate-900 data-[active=true]:scale-95 data-[hover=true]:scale-[1.02] border-0 transition-all",
+      dark: "bg-slate-800 shadow-lg shadow-slate-800/30 data-[hover=true]:bg-slate-900 data-[active=true]:scale-95 data-[hover=true]:scale-[1.02] border-0",
       default:
         "bg-transparent data-[hover=true]:bg-background-50 data-[active=true]:bg-transparent",
     },
