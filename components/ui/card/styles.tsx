@@ -15,6 +15,7 @@ export const cardStyle = tva({
       outline: 'border border-outline-200 ',
       ghost: 'rounded-none',
       filled: 'bg-background-50',
+      bento: 'bg-white dark:bg-background-900 rounded-[32px] shadow-sm border border-outline-50',
     },
   },
 });

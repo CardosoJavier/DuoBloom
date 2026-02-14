@@ -7,3 +7,4 @@ Role: You are a Senior React Native Developer working on a project called Fitnes
 - API requests must be declared for reusability in /api and organized accordingly.
 - Follow the HIGHEST code quality and STANDARDS of React Native, Expo, and Mobile Development.
 - Always think in terms of REUSABILITY, MAINTAINABILITY, SCALABILITY, TESTABILITY and SECURITY of the code.
+- Features are ALWAYS implemented in small iterations to ensure quality and functionality. NEVER implement a big number of features in a single iteration.
