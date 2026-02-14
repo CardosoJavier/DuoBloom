@@ -52,8 +52,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           needsEmailConfirmation: false,
         });
       }
-    } catch (error) {
-      console.error("Auth check failed:", error);
+    } catch (error: any) {
+      console.error("Auth check failed:", error.message || "Unknown error");
       set({ isAuthenticated: false, user: null });
     } finally {
       set({ isLoading: false });

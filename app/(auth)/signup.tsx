@@ -1,6 +1,11 @@
 import { AuthContainer } from "@/components/auth/AuthContainer";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import {
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -19,7 +24,8 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signUp, needsEmailConfirmation, error, clearError } = useAuthStore();
+  const { signUp, needsEmailConfirmation, error, clearError, isLoading } =
+    useAuthStore();
   const router = useRouter();
   const toast = useAppToast();
 
@@ -135,9 +141,16 @@ export default function SignupScreen() {
           action="primary"
           onPress={handleSignup}
           className="mt-6"
+          isDisabled={isLoading}
         >
-          <ButtonText className="font-bold text-lg">Create Account</ButtonText>
-          <ButtonIcon as={ArrowRight} />
+          <ButtonText className="font-bold text-lg">
+            {isLoading ? "Creating Account..." : "Create Account"}
+          </ButtonText>
+          {isLoading ? (
+            <ButtonSpinner color="white" />
+          ) : (
+            <ButtonIcon as={ArrowRight} />
+          )}
         </Button>
 
         <Box className="flex-row justify-center mt-4">

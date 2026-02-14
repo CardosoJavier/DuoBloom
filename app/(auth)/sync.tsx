@@ -19,7 +19,6 @@ export default function SyncScreen() {
 
   const handleSync = async () => {
     // Logic to pair users
-    console.log("Syncing with code:", pairCode);
     // await login(); // TODO: Implement pairing logic
   };
 

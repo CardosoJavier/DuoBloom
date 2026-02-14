@@ -4,7 +4,6 @@ import { LoginData, SignupData } from "@/types/auth-schema";
 import { AppError, ErrorCode } from "@/types/error";
 import { User } from "@/types/user";
 import { supabase } from "@/util/supabase";
-import { Session } from "@supabase/supabase-js";
 
 const mapSupabaseError = (error: any): AppError => {
   const message = error.message || "An unknown error occurred";
@@ -46,6 +45,7 @@ export const userApi = {
       });
 
       if (error) {
+        console.error("SignUp API Error:", error.message || "Unknown error");
         return { success: false, error: mapSupabaseError(error) };
       }
 
@@ -64,7 +64,7 @@ export const userApi = {
         },
       };
     } catch (error: any) {
-      console.error("SignUp API Error:", error);
+      console.error("SignUp API Error:", error.message || "Unknown error");
       return {
         success: false,
         error: {
@@ -87,6 +87,7 @@ export const userApi = {
       });
 
       if (error) {
+        console.error("SignIn API Error:", error.message || "Unknown error");
         return { success: false, error: mapSupabaseError(error) };
       }
 
@@ -104,7 +105,7 @@ export const userApi = {
         },
       };
     } catch (error: any) {
-      console.error("SignIn API Error:", error);
+      console.error("SignIn API Error:", error.message || "Unknown error");
       return {
         success: false,
         error: {
@@ -123,11 +124,12 @@ export const userApi = {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
+        console.error("SignOut API Error:", error.message || "Unknown error");
         return { success: false, error: mapSupabaseError(error) };
       }
       return { success: true, data: undefined };
     } catch (error: any) {
-      console.error("SignOut API Error:", error);
+      console.error("SignOut API Error:", error.message || "Unknown error");
       return {
         success: false,
         error: {
@@ -154,6 +156,10 @@ export const userApi = {
       });
 
       if (error) {
+        console.error(
+          "VerifyEmailOtp API Error:",
+          error.message || "Unknown error",
+        );
         return { success: false, error: mapSupabaseError(error) };
       }
 
@@ -193,6 +199,7 @@ export const userApi = {
       });
 
       if (error) {
+        console.error("ResendOtp API Error:", error.message || "Unknown error");
         return { success: false, error: mapSupabaseError(error) };
       }
 
@@ -216,6 +223,10 @@ export const userApi = {
     try {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
+        console.error(
+          "GetSession API Error:",
+          error.message || "Unknown error",
+        );
         return { success: false, error: mapSupabaseError(error) };
       }
 
@@ -233,7 +244,7 @@ export const userApi = {
         },
       };
     } catch (error: any) {
-      console.error("GetSession API Error:", error);
+      console.error("GetSession API Error:", error.message || "Unknown error");
       return {
         success: false,
         error: {
@@ -256,11 +267,21 @@ export const userApi = {
         .eq("id", userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(
+          "GetUserProfile API Error:",
+          error.message || "Unknown error",
+        );
+        return { data: null, error: error.message || "Unknown error" };
+      }
+
       return { data, error: null };
     } catch (error: any) {
-      console.error("GetUserProfile API Error:", error.message);
-      return { data: null, error: error.message };
+      console.error(
+        "GetUserProfile API Error:",
+        error.message || "Unknown error",
+      );
+      return { data: null, error: error.message || "Unknown error" };
     }
   },
 };
