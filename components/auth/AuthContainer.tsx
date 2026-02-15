@@ -22,12 +22,12 @@ export function AuthContainer({ children }: AuthContainerProps) {
   const { t } = useTranslation();
 
   return (
-    <Box className="flex-1 bg-slate-50 dark:bg-background-0">
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <Box className="flex-1 bg-slate-50 dark:bg-background-0">
+        <SafeAreaView style={styles.container}>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -64,9 +64,9 @@ export function AuthContainer({ children }: AuthContainerProps) {
               </Text>
             </Center>
           </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </Box>
+        </SafeAreaView>
+      </Box>
+    </KeyboardAvoidingView>
   );
 }
 
