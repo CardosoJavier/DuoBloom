@@ -3,9 +3,13 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
 
 import { Box } from "@/components/ui/box";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "expo-router";
+import { LogOut } from "lucide-react-native";
 
 interface SyncWaitingProps {
   myCode?: string;
@@ -13,6 +17,13 @@ interface SyncWaitingProps {
 
 export const SyncWaiting = ({ myCode }: SyncWaitingProps) => {
   const { t } = useTranslation();
+  const { logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(auth)/login");
+  };
 
   return (
     <VStack space="xl" className="items-center py-8 w-full">
@@ -37,6 +48,18 @@ export const SyncWaiting = ({ myCode }: SyncWaitingProps) => {
           {t("auth.tell_them_to_enter", { code: myCode || "..." })}
         </Text>
       </VStack>
+      <Button
+        variant="link"
+        action="secondary"
+        size="md"
+        className="mt-4"
+        onPress={handleLogout}
+      >
+        <ButtonIcon as={LogOut} className="mr-2 text-slate-500" />
+        <ButtonText className="text-slate-500">
+          {t("auth.back_to_login")}
+        </ButtonText>
+      </Button>
     </VStack>
   );
 };
