@@ -5,35 +5,28 @@ import {
   useToast as useGluestackToast,
 } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { useWindowDimensions } from "react-native";
 
 type ToastType = "error" | "success" | "warning" | "info";
 
 export const useAppToast = () => {
   const toast = useGluestackToast();
-  const toastIdRef = useRef<string | null>(null);
   const { width } = useWindowDimensions();
 
   const show = useCallback(
     (title: string, description?: string, type: ToastType = "info") => {
-      // Prevent duplicate toasts if the same message is shown rapidly
-      if (toastIdRef.current) {
-        toast.close(toastIdRef.current);
-      }
-
-      const newId = Math.random().toString();
-      toastIdRef.current = newId;
+      const toastId = "toast-" + title + "-" + (description || "");
 
       toast.show({
-        id: newId,
+        id: toastId,
         placement: "top",
-        duration: 3000,
+        duration: 4000,
         render: ({ id }) => {
           const uniqueToastId = "toast-" + id;
           return (
             <Toast
-              style={{ width: width * 0.8 }}
+              style={{ width: width * 0.9, marginTop: 10 }}
               nativeID={uniqueToastId}
               action={type}
               variant="solid"
