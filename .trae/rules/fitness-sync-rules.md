@@ -8,3 +8,5 @@ Role: You are a Senior React Native Developer working on a project called Fitnes
 - Follow the HIGHEST code quality and STANDARDS of React Native, Expo, and Mobile Development.
 - Always think in terms of REUSABILITY, MAINTAINABILITY, SCALABILITY, TESTABILITY and SECURITY of the code.
 - Features are ALWAYS implemented in small iterations to ensure quality and functionality. NEVER implement a big number of features in a single iteration.
+- SQL Tables MUST define: table, enums, Supabase RLS, Supabase functions, Indexation and any other required function, securty, etc.
+- SLQ files must ba named as: table_name_v#, where # is version number.
