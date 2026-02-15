@@ -53,7 +53,7 @@ const inputStyle = tva({
 
       rounded:
         "rounded-full border data-[invalid=true]:border-error-700 data-[invalid=true]:hover:border-error-700 data-[invalid=true]:data-[focus=true]:border-error-700 data-[invalid=true]:data-[focus=true]:hover:border-error-700 data-[invalid=true]:data-[disabled=true]:hover:border-error-700 data-[focus=true]:web:ring-1 data-[focus=true]:web:ring-inset data-[focus=true]:web:ring-indicator-primary data-[invalid=true]:web:ring-1 data-[invalid=true]:web:ring-inset data-[invalid=true]:web:ring-indicator-error data-[invalid=true]:data-[focus=true]:hover:web:ring-1 data-[invalid=true]:data-[focus=true]:hover:web:ring-inset data-[invalid=true]:data-[focus=true]:hover:web:ring-indicator-error data-[invalid=true]:data-[disabled=true]:hover:web:ring-1 data-[invalid=true]:data-[disabled=true]:hover:web:ring-inset data-[invalid=true]:data-[disabled=true]:hover:web:ring-indicator-error",
-      soft: "bg-slate-100 rounded-2xl border-2 border-transparent data-[focus=true]:bg-white data-[focus=true]:border-lavender-500/50",
+      soft: "bg-slate-100 dark:bg-background-0 rounded-2xl h-14 border border-transparent focus:border-primary-300 dark:focus:border-primary-500 data-[focus=true]:bg-white dark:data-[focus=true]:bg-background-0",
     },
   },
 });
@@ -77,7 +77,7 @@ const inputSlotStyle = tva({
 });
 
 const inputFieldStyle = tva({
-  base: "flex-1 text-slate-800 py-0 px-3 placeholder:text-slate-400 h-full ios:leading-[0px] web:cursor-text web:data-[disabled=true]:cursor-not-allowed font-medium",
+  base: "flex-1 text-slate-800 dark:text-typography-0 py-0 px-3 placeholder:text-slate-400 dark:placeholder:text-typography-400 h-full ios:leading-[0px] web:cursor-text web:data-[disabled=true]:cursor-not-allowed font-medium",
 
   parentVariants: {
     variant: {

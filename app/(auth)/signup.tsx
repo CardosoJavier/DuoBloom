@@ -67,17 +67,25 @@ export default function SignupScreen() {
     <AuthContainer>
       <VStack space="xl">
         <VStack space="xs">
-          <Heading size="2xl" className="text-slate-900 font-bold">
+          <Heading
+            size="2xl"
+            className="text-slate-900 dark:text-typography-0 font-bold"
+          >
             {t("auth.signup_title")}
           </Heading>
-          <Text className="text-slate-500">{t("auth.signup_subtitle")} </Text>
+          <Text className="text-slate-500 dark:text-typography-400">
+            {t("auth.signup_subtitle")}{" "}
+          </Text>
         </VStack>
 
         <VStack space="md" className="mt-4">
           <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={User} className="text-slate-400" />
+                <InputIcon
+                  as={User}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.first_name")}
@@ -90,7 +98,10 @@ export default function SignupScreen() {
           <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={User} className="text-slate-400" />
+                <InputIcon
+                  as={User}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.last_name")}
@@ -103,7 +114,10 @@ export default function SignupScreen() {
           <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Mail} className="text-slate-400" />
+                <InputIcon
+                  as={Mail}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.email")}
@@ -118,7 +132,10 @@ export default function SignupScreen() {
           <VStack space="xs">
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Lock} className="text-slate-400" />
+                <InputIcon
+                  as={Lock}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.password")}
@@ -132,7 +149,7 @@ export default function SignupScreen() {
               >
                 <InputIcon
                   as={showPassword ? EyeOff : Eye}
-                  className="text-slate-400"
+                  className="text-slate-400 dark:text-typography-400"
                 />
               </InputSlot>
             </Input>
@@ -157,7 +174,9 @@ export default function SignupScreen() {
         </Button>
 
         <Box className="flex-row justify-center mt-4">
-          <Text className="text-slate-500">{t("auth.have_account_text")} </Text>
+          <Text className="text-slate-500 dark:text-typography-400">
+            {t("auth.have_account_text")}{" "}
+          </Text>
           <Pressable onPress={() => router.push("/(auth)/login")}>
             <Text className="text-lavender-500 font-bold">
               {t("common.login")}

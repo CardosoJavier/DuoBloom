@@ -15,6 +15,9 @@ To gamify and simplify the process of getting healthy together. Unlike solitary 
 - **Aesthetic:** "Bento-grid" layouts, rounded corners (`rounded-[32px]`), and a soft, pastel color palette (Lavender primary) mixed with high-contrast slate text.
 - **Interaction:** Smooth Framer Motion transitions, context-aware dialogs, and playful micro-interactions (confetti, liquid fills).
 - **Theme:** Fully responsive Light and Dark modes.
+  - **Dark Mode Palette:**
+    - Background: `#0E172A`
+    - Widget Background: `#1E293B`
 
 ### 7. Internationalization (i18n)
 

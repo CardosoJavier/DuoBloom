@@ -63,17 +63,25 @@ export default function LoginScreen() {
     <AuthContainer>
       <VStack space="xl">
         <VStack space="xs">
-          <Heading size="2xl" className="text-slate-800 font-bold">
+          <Heading
+            size="2xl"
+            className="text-slate-800 dark:text-typography-0 font-bold"
+          >
             {t("auth.signin_title")}
           </Heading>
-          <Text className="text-slate-500">{t("auth.signin_subtitle")}</Text>
+          <Text className="text-slate-500 dark:text-typography-400">
+            {t("auth.signin_subtitle")}
+          </Text>
         </VStack>
 
         <VStack space="lg" className="mt-4">
           <View>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Mail} className="text-slate-400" />
+                <InputIcon
+                  as={Mail}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.email")}
@@ -88,7 +96,10 @@ export default function LoginScreen() {
           <View>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={Lock} className="text-slate-400" />
+                <InputIcon
+                  as={Lock}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder={t("common.password")}
@@ -102,7 +113,7 @@ export default function LoginScreen() {
               >
                 <InputIcon
                   as={showPassword ? EyeOff : Eye}
-                  className="text-slate-400"
+                  className="text-slate-400 dark:text-typography-400"
                 />
               </InputSlot>
             </Input>
@@ -134,7 +145,9 @@ export default function LoginScreen() {
         </Button>
 
         <Box className="flex-row justify-center mt-4">
-          <Text className="text-slate-500">{t("auth.no_account_text")} </Text>
+          <Text className="text-slate-500 dark:text-typography-400">
+            {t("auth.no_account_text")}{" "}
+          </Text>
           <Pressable onPress={() => router.push("/(auth)/signup")}>
             <Text className="text-lavender-500 font-bold">
               {t("common.signup")}

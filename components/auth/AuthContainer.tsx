@@ -17,7 +17,7 @@ export function AuthContainer({ children }: AuthContainerProps) {
   const { t } = useTranslation();
 
   return (
-    <Box className="flex-1 bg-slate-50">
+    <Box className="flex-1 bg-slate-50 dark:bg-background-0">
       <SafeAreaView style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -28,10 +28,13 @@ export function AuthContainer({ children }: AuthContainerProps) {
             <Box className="w-16 h-16 bg-lavender-500/10 rounded-full justify-center items-center mb-4">
               <Heart size={32} color="#9FA0FF" fill="#9FA0FF" />
             </Box>
-            <Heading size="3xl" className="text-slate-900 font-bold">
+            <Heading
+              size="3xl"
+              className="text-slate-900 dark:text-typography-100 font-bold"
+            >
               DuoBloom
             </Heading>
-            <Text className="text-slate-500 text-lg">
+            <Text className="text-slate-500 dark:text-typography-500 text-lg">
               {t("common.tagline")}
             </Text>
           </Center>
@@ -39,7 +42,7 @@ export function AuthContainer({ children }: AuthContainerProps) {
           <Box className="px-6">
             <Card
               variant="bento"
-              className="bg-white p-8 shadow-2xl shadow-slate-200 border-0"
+              className="bg-white dark:bg-background-50 p-8 shadow-2xl shadow-slate-200 dark:shadow-none border-0"
               style={{ borderRadius: 48 }}
             >
               {children}
@@ -47,7 +50,7 @@ export function AuthContainer({ children }: AuthContainerProps) {
           </Box>
 
           <Center className="mt-12 mb-8">
-            <Text className="text-slate-400 text-sm">
+            <Text className="text-slate-400 dark:text-typography-400 text-sm">
               {t("common.footer")}
             </Text>
           </Center>

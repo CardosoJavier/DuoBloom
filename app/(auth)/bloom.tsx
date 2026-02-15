@@ -28,31 +28,37 @@ export default function BloomScreen() {
     <AuthContainer>
       <VStack space="xl">
         <VStack space="xs">
-          <Heading size="3xl" className="text-typography-900">
+          <Heading
+            size="3xl"
+            className="text-slate-900 dark:text-typography-0 font-bold"
+          >
             {t("auth.bloom_title")}
           </Heading>
-          <Text size="md" className="text-typography-500">
+          <Text size="md" className="text-slate-500 dark:text-typography-400">
             {t("auth.bloom_subtitle")}
           </Text>
         </VStack>
 
         <VStack space="md" className="mt-4">
-          <Box className="bg-primary-50 p-6 rounded-2xl items-center border border-primary-100">
+          <Box className="bg-primary-50 dark:bg-background-0 p-6 rounded-2xl items-center border border-primary-100 dark:border-slate-700">
             <Text
               size="xs"
-              className="text-primary-600 font-bold uppercase tracking-wider mb-2"
+              className="text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider mb-2"
             >
               {t("auth.pair_code")}
             </Text>
             <Heading
               size="2xl"
-              className="text-primary-700 font-mono tracking-[4px]"
+              className="text-primary-700 dark:text-primary-300 font-mono tracking-[4px]"
             >
               {myCode}
             </Heading>
             <Button variant="link" size="sm" className="mt-2">
-              <ButtonIcon as={Share2} className="text-primary-500 mr-2" />
-              <ButtonText className="text-primary-500 font-semibold">
+              <ButtonIcon
+                as={Share2}
+                className="text-primary-500 dark:text-primary-400 mr-2"
+              />
+              <ButtonText className="text-primary-500 dark:text-primary-400 font-semibold">
                 {t("auth.share_code")}
               </ButtonText>
             </Button>
@@ -62,7 +68,7 @@ export default function BloomScreen() {
             <Divider className="flex-1" />
             <Text
               size="xs"
-              className="px-4 text-typography-400 font-bold uppercase"
+              className="px-4 text-slate-400 dark:text-typography-400 font-bold uppercase"
             >
               OR
             </Text>
@@ -70,12 +76,18 @@ export default function BloomScreen() {
           </Box>
 
           <VStack space="xs">
-            <Text size="sm" className="font-medium text-typography-700 ml-1">
+            <Text
+              size="sm"
+              className="font-medium text-slate-700 dark:text-typography-200 ml-1"
+            >
               {t("auth.enter_partner_code")}
             </Text>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
-                <InputIcon as={LinkIcon} className="text-typography-400" />
+                <InputIcon
+                  as={LinkIcon}
+                  className="text-slate-400 dark:text-typography-400"
+                />
               </InputSlot>
               <InputField
                 placeholder="BLOOM-XXXX"
@@ -88,7 +100,7 @@ export default function BloomScreen() {
         </VStack>
 
         <Button
-          action="dark"
+          action="primary"
           size="xl"
           className="rounded-2xl mt-4 h-14"
           onPress={handleBloom}
@@ -105,7 +117,7 @@ export default function BloomScreen() {
           size="md"
           onPress={() => router.push("/(auth)/login")}
         >
-          <ButtonText className="text-typography-400 font-medium">
+          <ButtonText className="text-slate-400 dark:text-typography-400 font-medium">
             Skip for now
           </ButtonText>
         </Button>

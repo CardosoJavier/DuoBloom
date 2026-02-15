@@ -100,22 +100,29 @@ export default function ConfirmEmailScreen() {
         </Box>
 
         <VStack space="xs" className="items-center">
-          <Heading size="2xl" className="text-slate-900 font-bold text-center">
+          <Heading
+            size="2xl"
+            className="text-slate-900 dark:text-typography-0 font-bold text-center"
+          >
             {t("auth.verify_title")}
           </Heading>
-          <Text className="text-slate-500 text-center">
+          <Text className="text-slate-500 dark:text-typography-400 text-center">
             {t("auth.verify_subtitle", {
               email: unconfirmedEmail || t("common.email"),
             })}
           </Text>
         </VStack>
 
-        <Input size="xl" variant="outline" className="w-full text-center">
+        <Input
+          size="xl"
+          variant="outline"
+          className="w-full text-center dark:bg-background-0"
+        >
           <InputField
             placeholder="00000000"
             keyboardType="number-pad"
             maxLength={8}
-            className="text-center text-2xl tracking-widest font-bold"
+            className="text-center text-2xl tracking-widest font-bold dark:text-typography-0"
             value={code}
             onChangeText={setCode}
           />
@@ -157,8 +164,11 @@ export default function ConfirmEmailScreen() {
           onPress={() => handleBackToLogin()}
           className="mt-4"
         >
-          <ButtonIcon as={ArrowLeft} className="mr-2 text-slate-400" />
-          <ButtonText className="text-slate-400">
+          <ButtonIcon
+            as={ArrowLeft}
+            className="mr-2 text-slate-400 dark:text-typography-400"
+          />
+          <ButtonText className="text-slate-400 dark:text-typography-400">
             {t("auth.back_to_login")}
           </ButtonText>
         </Button>
