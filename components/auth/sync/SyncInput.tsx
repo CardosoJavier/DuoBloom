@@ -1,7 +1,8 @@
+import * as Clipboard from "expo-clipboard";
+import { useRouter } from "expo-router";
+import { ArrowRight, Copy, Heart, LogOut, User } from "lucide-react-native";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Copy, Heart, User } from "lucide-react-native";
-import * as Clipboard from "expo-clipboard";
 
 import { Box } from "@/components/ui/box";
 import {
@@ -15,6 +16,7 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
+import { useAuthStore } from "@/store/authStore";
 
 interface SyncInputProps {
   myCode?: string;
@@ -26,12 +28,19 @@ export const SyncInput = ({ myCode, onConnect, isLoading }: SyncInputProps) => {
   const { t } = useTranslation();
   const toast = useAppToast();
   const [partnerCode, setPartnerCode] = useState("");
+  const { logout } = useAuthStore();
+  const router = useRouter();
 
   const copyToClipboard = async () => {
     if (myCode) {
       await Clipboard.setStringAsync(myCode);
       toast.success(t("common.success"), "Code copied to clipboard");
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(auth)/login");
   };
 
   return (
@@ -114,6 +123,19 @@ export const SyncInput = ({ myCode, onConnect, isLoading }: SyncInputProps) => {
               <ButtonIcon as={ArrowRight} className="ml-2" />
             </>
           )}
+        </Button>
+
+        <Button
+          variant="link"
+          action="secondary"
+          size="md"
+          className="mt-4"
+          onPress={handleLogout}
+        >
+          <ButtonIcon as={LogOut} className="mr-2 text-slate-500" />
+          <ButtonText className="text-slate-500">
+            {t("auth.back_to_login")}
+          </ButtonText>
         </Button>
       </VStack>
     </>

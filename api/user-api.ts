@@ -275,9 +275,10 @@ export const userApi = {
       let user = data.session?.user ? mapAuthUser(data.session.user) : null;
 
       if (user && user.id) {
+        // Fetch full profile from public.users to get pairCode
         const profileResult = await userApi.getUserProfile(user.id);
         if (profileResult.success && profileResult.data) {
-          user = profileResult.data;
+          user = { ...user, ...profileResult.data };
         }
       }
 
@@ -324,14 +325,7 @@ export const userApi = {
           error.message || "Unknown error",
         );
         // Return a specific error but don't crash flow if profile is missing (though it shouldn't be)
-        return {
-          success: false,
-          error: {
-            code: ErrorCode.UNKNOWN_ERROR,
-            message: error.message,
-            originalError: error,
-          },
-        };
+        return { success: false, error: mapSupabaseError(error) };
       }
 
       return { success: true, data: mapDbUser(data) };

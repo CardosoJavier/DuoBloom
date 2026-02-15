@@ -5,7 +5,8 @@ import { create } from "zustand";
 
 interface AuthState {
   isAuthenticated: boolean;
-  isLoading: boolean;
+  isInitializing: boolean; // Initial app load check
+  isLoading: boolean; // Action loading (login, signup, etc)
   needsEmailConfirmation: boolean;
   unconfirmedEmail: string | null;
   user: User | null;
@@ -24,12 +25,15 @@ interface AuthState {
   resendVerificationEmail: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  checkSyncStatus: () => Promise<boolean>;
+  refreshUser: () => Promise<void>;
   clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
-  isLoading: true,
+  isInitializing: true,
+  isLoading: false,
   needsEmailConfirmation: false,
   unconfirmedEmail: null,
   user: null,
@@ -37,9 +41,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
+  refreshUser: async () => {
+    const { user } = get();
+    if (!user) return;
+
+    try {
+      const result = await userApi.getUserProfile(user.id);
+      if (result.success && result.data) {
+        set({ user: { ...user, ...result.data } });
+      }
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+    }
+  },
+
   checkAuth: async () => {
     try {
-      set({ isLoading: true });
+      set({ isInitializing: true });
       const result = await userApi.getSession();
 
       if (result.success && result.data?.user) {
@@ -59,8 +77,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.error("Auth check failed:", error.message || "Unknown error");
       set({ isAuthenticated: false, user: null });
     } finally {
-      set({ isLoading: false });
+      set({ isInitializing: false });
     }
+  },
+
+  checkSyncStatus: async () => {
+    const { user } = get();
+    if (!user) return false;
+
+    // Check if user has a relationship
+    const { syncApi } = await import("@/api/sync-api");
+    const result = await syncApi.getRelationship(user.id);
+
+    return result.success && !!result.data;
   },
 
   login: async (email, password) => {
@@ -88,6 +117,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const { user, session } = result.data;
     if (session) {
+      // Fetch full profile to get pairCode immediately after login
+      if (user) {
+        const profileResult = await userApi.getUserProfile(user.id);
+        if (profileResult.success && profileResult.data) {
+          // Merge profile data
+          Object.assign(user, profileResult.data);
+        }
+      }
+
       set({
         isAuthenticated: true,
         user: user,
@@ -126,6 +164,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { user, session } = result.data;
 
     if (session) {
+      // Fetch full profile to get pairCode immediately after signup
+      if (user) {
+        const profileResult = await userApi.getUserProfile(user.id);
+        if (profileResult.success && profileResult.data) {
+          Object.assign(user, profileResult.data);
+        }
+      }
+
       set({
         isAuthenticated: true,
         user: user,

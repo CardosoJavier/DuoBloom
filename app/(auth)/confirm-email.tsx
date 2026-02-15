@@ -25,12 +25,11 @@ export default function ConfirmEmailScreen() {
     unconfirmedEmail,
     verifyEmail,
     resendVerificationEmail,
-    clearError,
-    error,
     isLoading,
     needsEmailConfirmation,
     isAuthenticated,
     logout,
+    refreshUser,
   } = useAuthStore();
   const toast = useAppToast();
 
@@ -74,6 +73,8 @@ export default function ConfirmEmailScreen() {
     const result = await verifyEmail(code);
     if (!result.success && result.error) {
       toast.error(t("common.error"), t(result.error));
+    } else {
+      await refreshUser();
     }
   };
 
