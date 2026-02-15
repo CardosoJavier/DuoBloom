@@ -10,12 +10,14 @@ import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowRight, Link as LinkIcon, Share2 } from "lucide-react-native";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function SyncScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuthStore();
   const [pairCode, setPairCode] = useState("");
-  const myCode = "SYNC-X7Y2"; // This would come from the backend
+  const myCode = "BLOOM-X7Y2"; // This would come from the backend
 
   const handleSync = async () => {
     // Logic to pair users
@@ -27,10 +29,10 @@ export default function SyncScreen() {
       <VStack space="xl">
         <VStack space="xs">
           <Heading size="3xl" className="text-typography-900">
-            Sync with Partner
+            {t("auth.sync_title")}
           </Heading>
           <Text size="md" className="text-typography-500">
-            Connect with your partner to share progress
+            {t("auth.sync_subtitle")}
           </Text>
         </VStack>
 
@@ -40,7 +42,7 @@ export default function SyncScreen() {
               size="xs"
               className="text-primary-600 font-bold uppercase tracking-wider mb-2"
             >
-              Your Pair Code
+              {t("auth.pair_code")}
             </Text>
             <Heading
               size="2xl"
@@ -51,7 +53,7 @@ export default function SyncScreen() {
             <Button variant="link" size="sm" className="mt-2">
               <ButtonIcon as={Share2} className="text-primary-500 mr-2" />
               <ButtonText className="text-primary-500 font-semibold">
-                Share Code
+                {t("auth.share_code")}
               </ButtonText>
             </Button>
           </Box>
@@ -69,14 +71,14 @@ export default function SyncScreen() {
 
           <VStack space="xs">
             <Text size="sm" className="font-medium text-typography-700 ml-1">
-              Enter Partner's Code
+              {t("auth.enter_partner_code")}
             </Text>
             <Input variant="soft" size="xl">
               <InputSlot className="pl-4">
                 <InputIcon as={LinkIcon} className="text-typography-400" />
               </InputSlot>
               <InputField
-                placeholder="SYNC-XXXX"
+                placeholder="BLOOM-XXXX"
                 value={pairCode}
                 onChangeText={setPairCode}
                 autoCapitalize="characters"
@@ -92,7 +94,9 @@ export default function SyncScreen() {
           onPress={handleSync}
           disabled={!pairCode}
         >
-          <ButtonText className="text-lg font-bold">Connect Partner</ButtonText>
+          <ButtonText className="text-lg font-bold">
+            {t("auth.connect_partner")}
+          </ButtonText>
           <ButtonIcon as={ArrowRight} className="ml-2" />
         </Button>
 

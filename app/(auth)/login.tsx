@@ -16,9 +16,11 @@ import { loginSchema } from "@/types/auth-schema";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -59,9 +61,9 @@ export default function LoginScreen() {
       <VStack space="xl">
         <VStack space="xs">
           <Heading size="2xl" className="text-slate-800 font-bold">
-            Welcome Back
+            {t("auth.signin_title")}
           </Heading>
-          <Text className="text-slate-500">Enter your details to sync up.</Text>
+          <Text className="text-slate-500">{t("auth.signin_subtitle")}</Text>
         </VStack>
 
         <VStack space="lg" className="mt-4">
@@ -71,7 +73,7 @@ export default function LoginScreen() {
                 <InputIcon as={Mail} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Email"
+                placeholder={t("common.email")}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -86,7 +88,7 @@ export default function LoginScreen() {
                 <InputIcon as={Lock} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Password"
+                placeholder={t("common.password")}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -104,7 +106,7 @@ export default function LoginScreen() {
             <Box className="items-end mt-1">
               <Pressable onPress={() => {}}>
                 <Text className="text-sm text-lavender-500 font-medium">
-                  Forgot Password?
+                  {t("auth.forgot_password")}
                 </Text>
               </Pressable>
             </Box>
@@ -119,7 +121,7 @@ export default function LoginScreen() {
           isDisabled={isLoading}
         >
           <ButtonText className="font-bold text-lg">
-            {isLoading ? "Signing In..." : "Sign In"}
+            {isLoading ? t("auth.signing_in") : t("common.login")}
           </ButtonText>
           {isLoading ? (
             <ButtonSpinner color="white" />
@@ -129,9 +131,11 @@ export default function LoginScreen() {
         </Button>
 
         <Box className="flex-row justify-center mt-4">
-          <Text className="text-[#6B7280]">Don't have an account? </Text>
+          <Text className="text-slate-500">{t("auth.no_account_text")} </Text>
           <Pressable onPress={() => router.push("/(auth)/signup")}>
-            <Text className="text-[#9FA0FF] font-bold">Sign Up</Text>
+            <Text className="text-lavender-500 font-bold">
+              {t("common.signup")}
+            </Text>
           </Pressable>
         </Box>
       </VStack>

@@ -5,6 +5,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Heart } from "lucide-react-native";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,6 +14,8 @@ interface AuthContainerProps {
 }
 
 export function AuthContainer({ children }: AuthContainerProps) {
+  const { t } = useTranslation();
+
   return (
     <Box className="flex-1 bg-slate-50">
       <SafeAreaView style={styles.container}>
@@ -26,9 +29,11 @@ export function AuthContainer({ children }: AuthContainerProps) {
               <Heart size={32} color="#9FA0FF" fill="#9FA0FF" />
             </Box>
             <Heading size="3xl" className="text-slate-900 font-bold">
-              Sync
+              DuoBloom
             </Heading>
-            <Text className="text-slate-500 text-lg">Fitness for Couples</Text>
+            <Text className="text-slate-500 text-lg">
+              {t("common.tagline")}
+            </Text>
           </Center>
 
           <Box className="px-6">
@@ -43,7 +48,7 @@ export function AuthContainer({ children }: AuthContainerProps) {
 
           <Center className="mt-12 mb-8">
             <Text className="text-slate-400 text-sm">
-              Designed for partners to grow together.
+              {t("common.footer")}
             </Text>
           </Center>
         </ScrollView>

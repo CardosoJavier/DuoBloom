@@ -16,9 +16,11 @@ import { signupSchema } from "@/types/auth-schema";
 import { useRouter } from "expo-router";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
 
 export default function SignupScreen() {
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -63,11 +65,9 @@ export default function SignupScreen() {
       <VStack space="xl">
         <VStack space="xs">
           <Heading size="2xl" className="text-slate-900 font-bold">
-            Create Account
+            {t("auth.signup_title")}
           </Heading>
-          <Text className="text-slate-500">
-            Start your fitness journey together.{" "}
-          </Text>
+          <Text className="text-slate-500">{t("auth.signup_subtitle")} </Text>
         </VStack>
 
         <VStack space="md" className="mt-4">
@@ -77,7 +77,7 @@ export default function SignupScreen() {
                 <InputIcon as={User} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="First Name"
+                placeholder={t("common.first_name")}
                 value={firstName}
                 onChangeText={setFirstName}
               />
@@ -90,7 +90,7 @@ export default function SignupScreen() {
                 <InputIcon as={User} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Last Name"
+                placeholder={t("common.last_name")}
                 value={lastName}
                 onChangeText={setLastName}
               />
@@ -103,7 +103,7 @@ export default function SignupScreen() {
                 <InputIcon as={Mail} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Email"
+                placeholder={t("common.email")}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -118,7 +118,7 @@ export default function SignupScreen() {
                 <InputIcon as={Lock} className="text-slate-400" />
               </InputSlot>
               <InputField
-                placeholder="Create a password"
+                placeholder={t("common.password")}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -144,7 +144,7 @@ export default function SignupScreen() {
           isDisabled={isLoading}
         >
           <ButtonText className="font-bold text-lg">
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading ? t("auth.signing_up") : t("common.signup")}
           </ButtonText>
           {isLoading ? (
             <ButtonSpinner color="white" />
@@ -154,9 +154,11 @@ export default function SignupScreen() {
         </Button>
 
         <Box className="flex-row justify-center mt-4">
-          <Text className="text-[#6B7280]">Already have an account? </Text>
+          <Text className="text-slate-500">{t("auth.have_account_text")} </Text>
           <Pressable onPress={() => router.push("/(auth)/login")}>
-            <Text className="text-[#9FA0FF] font-bold">Sign In</Text>
+            <Text className="text-lavender-500 font-bold">
+              {t("common.login")}
+            </Text>
           </Pressable>
         </Box>
       </VStack>

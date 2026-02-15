@@ -1,0 +1,51 @@
+{
+  "common": {
+    "welcome": "Welcome to DuoBloom",
+    "sync": "Bloom",
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "verify": "Verify",
+    "back": "Back",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "tagline": "Fitness for Couples",
+    "footer": "Designed for partners to grow together."
+  },
+  "habits": {
+    "strike_count": "You're on a {{count}}-day streak!",
+    "strike_count_one": "You're on a {{count}}-day streak!",
+    "strike_count_other": "You're on a {{count}}-day streak!"
+  },
+  "nutrition": {
+    "calories_goal": "Daily Goal: {{count}} kcal"
+  },
+  "auth": {
+    "signin_title": "Welcome Back",
+    "signin_subtitle": "Sign in to continue blooming together.",
+    "signup_title": "Create Account",
+    "signup_subtitle": "Start your journey to better health together.",
+    "verify_title": "Check your email",
+    "verify_subtitle": "We've sent a 8-digit confirmation code to {{email}}. Please enter the code below to verify your account.",
+    "verify_button": "Verify Email",
+    "verifying": "Verifying...",
+    "resend_code": "Resend Code",
+    "resend_timer": "Resend code in {{count}}s",
+    "back_to_login": "Back to Login",
+    "have_account_text": "Already have an account?",
+    "no_account_text": "Don't have an account?",
+    "signing_in": "Signing In...",
+    "signing_up": "Signing Up...",
+    "forgot_password": "Forgot Password?",
+    "sync_title": "Bloom with Partner",
+    "sync_subtitle": "Connect with your partner to share progress",
+    "pair_code": "Your Pair Code",
+    "share_code": "Share Code",
+    "enter_partner_code": "Enter Partner's Code",
+    "connect_partner": "Connect Partner"
+  }
+}

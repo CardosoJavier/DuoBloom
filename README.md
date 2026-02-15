@@ -1,6 +1,6 @@
-# Application Overview
+# DuoBloom
 
-## Name: Sync
+## Name: DuoBloom
 
 ### Core Concept
 
@@ -8,13 +8,22 @@ A neo-minimalist fitness tracking application designed specifically for couples.
 
 ### Goal
 
-To gamify and simplify the process of getting healthy together. Unlike solitary fitness apps, Sync relies on shared accountability. It allows partners to visualize each other's hydration, nutrition streaks, workout logs, and body transformation progress in real-time, fostering a supportive environment ("Vibes") rather than a competitive one.
+To gamify and simplify the process of getting healthy together. Unlike solitary fitness apps, DuoBloom relies on shared accountability. It allows partners to visualize each other's hydration, nutrition streaks, workout logs, and body transformation progress in real-time, fostering a supportive environment ("Vibes") rather than a competitive one.
 
 ### Design Language
 
 - **Aesthetic:** "Bento-grid" layouts, rounded corners (`rounded-[32px]`), and a soft, pastel color palette (Lavender primary) mixed with high-contrast slate text.
 - **Interaction:** Smooth Framer Motion transitions, context-aware dialogs, and playful micro-interactions (confetti, liquid fills).
 - **Theme:** Fully responsive Light and Dark modes.
+
+### 7. Internationalization (i18n)
+
+DuoBloom supports multiple languages to cater to a diverse user base.
+
+- **Supported Languages:** English (en) and Spanish (es).
+- **Default Language:** English (en).
+- **Setup:** Uses `expo-localization`, `i18next`, and `react-i18next`.
+- **Resource Files:** Located in `/i18n` folder (`en.json` and `es.json`).
 
 ---
 
@@ -33,11 +42,11 @@ The entry point to the application, designed to feel welcoming and energetic.
 The following steps describe how couples accounts are linked to each other.
 
 1.  Users create an account by filling the sign up form.
-2.  After valid form values are provided, user is redirected to “sync” page.
-3.  At “sync” page, user gets their unique account “sync” code
+2.  After valid form values are provided, user is redirected to “bloom” page.
+3.  At “bloom” page, user gets their unique account “bloom” code
 4.  Below their unique code, there is an input text where users enters their partner code
 5.  Once entered, a “wait screen” is displayed until both users in the couple enter each other's code.
-6.  Then, a “confirm sync” screen is displayed, where each user MUST click enter.
+6.  Then, a “confirm bloom” screen is displayed, where each user MUST click enter.
 
 ### 2. Tab 1: Dashboard (The Today)
 

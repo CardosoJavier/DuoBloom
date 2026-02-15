@@ -1,0 +1,51 @@
+{
+  "common": {
+    "welcome": "Bienvenido a DuoBloom",
+    "sync": "Bloom",
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "email": "Correo",
+    "password": "Contraseña",
+    "first_name": "Nombre",
+    "last_name": "Apellido",
+    "verify": "Verificar",
+    "back": "Atrás",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "tagline": "Fitness para Parejas",
+    "footer": "Diseñado para que las parejas crezcan juntas."
+  },
+  "habits": {
+    "strike_count": "¡Llevas una racha de {{count}} días!",
+    "strike_count_one": "¡Llevas una racha de {{count}} día!",
+    "strike_count_other": "¡Llevas una racha de {{count}} días!"
+  },
+  "nutrition": {
+    "calories_goal": "Meta Diaria: {{count}} kcal"
+  },
+  "auth": {
+    "signin_title": "Bienvenido de nuevo",
+    "signin_subtitle": "Inicia sesión para seguir floreciendo juntos.",
+    "signup_title": "Crear Cuenta",
+    "signup_subtitle": "Comienza tu viaje hacia una mejor salud en pareja.",
+    "verify_title": "Revisa tu correo",
+    "verify_subtitle": "Hemos enviado un código de 8 dígitos a {{email}}. Por favor ingresa el código abajo para verificar tu cuenta.",
+    "verify_button": "Verificar Correo",
+    "verifying": "Verificando...",
+    "resend_code": "Reenviar Código",
+    "resend_timer": "Reenviar código en {{count}}s",
+    "back_to_login": "Volver a Iniciar Sesión",
+    "have_account_text": "¿Ya tienes una cuenta?",
+    "no_account_text": "¿No tienes una cuenta?",
+    "signing_in": "Iniciando Sesión...",
+    "signing_up": "Registrando...",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "sync_title": "Bloom con tu Pareja",
+    "sync_subtitle": "Conéctate con tu pareja para compartir el progreso",
+    "pair_code": "Tu Código de Pareja",
+    "share_code": "Compartir Código",
+    "enter_partner_code": "Ingresar Código de Pareja",
+    "connect_partner": "Conectar Pareja"
+  }
+}

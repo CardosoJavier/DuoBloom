@@ -16,8 +16,10 @@ import { verifyEmailSchema } from "@/types/auth-schema";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Mail } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function ConfirmEmailScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const {
     unconfirmedEmail,
@@ -96,14 +98,12 @@ export default function ConfirmEmailScreen() {
 
         <VStack space="xs" className="items-center">
           <Heading size="2xl" className="text-slate-900 font-bold text-center">
-            Check your email
+            {t("auth.verify_title")}
           </Heading>
           <Text className="text-slate-500 text-center">
-            We've sent a 8-digit confirmation code to{" "}
-            <Text className="font-bold text-slate-700">
-              {unconfirmedEmail || "your email"}
-            </Text>
-            . Please enter the code below to verify your account.
+            {t("auth.verify_subtitle", {
+              email: unconfirmedEmail || t("common.email"),
+            })}
           </Text>
         </VStack>
 
@@ -127,7 +127,7 @@ export default function ConfirmEmailScreen() {
           isDisabled={isLoading || code.length !== 8}
         >
           <ButtonText className="font-bold text-lg">
-            {isLoading ? "Verifying..." : "Verify Email"}
+            {isLoading ? t("auth.verifying") : t("auth.verify_button")}
           </ButtonText>
           {isLoading && <ButtonSpinner color="white" className="ml-2" />}
         </Button>
@@ -141,7 +141,9 @@ export default function ConfirmEmailScreen() {
           className="mt-2"
         >
           <ButtonText className="text-slate-500">
-            {resendTimer > 0 ? `Resend code in ${resendTimer}s` : "Resend Code"}
+            {resendTimer > 0
+              ? t("auth.resend_timer", { count: resendTimer })
+              : t("auth.resend_code")}
           </ButtonText>
         </Button>
 
@@ -153,7 +155,9 @@ export default function ConfirmEmailScreen() {
           className="mt-4"
         >
           <ButtonIcon as={ArrowLeft} className="mr-2 text-slate-400" />
-          <ButtonText className="text-slate-400">Back to Login</ButtonText>
+          <ButtonText className="text-slate-400">
+            {t("auth.back_to_login")}
+          </ButtonText>
         </Button>
       </VStack>
     </AuthContainer>

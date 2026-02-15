@@ -1,6 +1,6 @@
-# Standardized Error Handling in Fitness Sync
+# DuoBloom Error Handling Standards
 
-This document outlines the standardized error handling strategy used in the Fitness Sync application.
+This document outlines the standardized error handling strategy used in the DuoBloom application.
 
 ## Overview
 
