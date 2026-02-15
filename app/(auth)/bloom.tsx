@@ -12,14 +12,14 @@ import { ArrowRight, Link as LinkIcon, Share2 } from "lucide-react-native";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function SyncScreen() {
+export default function BloomScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuthStore();
   const [pairCode, setPairCode] = useState("");
   const myCode = "BLOOM-X7Y2"; // This would come from the backend
 
-  const handleSync = async () => {
+  const handleBloom = async () => {
     // Logic to pair users
     // await login(); // TODO: Implement pairing logic
   };
@@ -29,10 +29,10 @@ export default function SyncScreen() {
       <VStack space="xl">
         <VStack space="xs">
           <Heading size="3xl" className="text-typography-900">
-            {t("auth.sync_title")}
+            {t("auth.bloom_title")}
           </Heading>
           <Text size="md" className="text-typography-500">
-            {t("auth.sync_subtitle")}
+            {t("auth.bloom_subtitle")}
           </Text>
         </VStack>
 
@@ -91,7 +91,7 @@ export default function SyncScreen() {
           action="dark"
           size="xl"
           className="rounded-2xl mt-4 h-14"
-          onPress={handleSync}
+          onPress={handleBloom}
           disabled={!pairCode}
         >
           <ButtonText className="text-lg font-bold">

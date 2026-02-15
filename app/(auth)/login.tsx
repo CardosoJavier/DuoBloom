@@ -37,7 +37,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (error) {
-      toast.error("Error", error);
+      toast.error(t("common.error"), t(error));
       clearError();
     }
   }, [error, toast, clearError]);
@@ -49,7 +49,10 @@ export default function LoginScreen() {
     });
 
     if (!validationResult.success) {
-      toast.error("Invalid Input", validationResult.error.issues[0].message);
+      toast.error(
+        t("common.warning"),
+        t(validationResult.error.issues[0].message),
+      );
       return;
     }
 

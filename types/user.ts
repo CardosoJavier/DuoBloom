@@ -9,6 +9,6 @@ export interface User {
   pairCode?: string;
 }
 
-export interface SyncData {
+export interface BloomData {
   partnerCode: string;
 }

@@ -39,14 +39,14 @@ export default function ConfirmEmailScreen() {
 
   useEffect(() => {
     if (!needsEmailConfirmation && isAuthenticated) {
-      toast.success("Success", "Email verified successfully");
+      toast.success(t("common.success"), t("auth.email_verified"));
       router.replace("/(tabs)");
     }
   }, [needsEmailConfirmation, isAuthenticated]);
 
   useEffect(() => {
     if (error) {
-      toast.error("Error", error);
+      toast.error(t("common.error"), t(error));
       clearError();
     }
   }, [error, toast, clearError]);
@@ -63,14 +63,17 @@ export default function ConfirmEmailScreen() {
 
   const handleVerify = async () => {
     if (!unconfirmedEmail) {
-      toast.warning("Session Expired", "Please log in again.");
+      toast.warning(t("common.warning"), t("auth.session_expired"));
       router.replace("/(auth)/login");
     }
 
     const validationResult = verifyEmailSchema.safeParse({ code });
 
     if (!validationResult.success) {
-      toast.warning("Invalid Code", validationResult.error.issues[0].message);
+      toast.warning(
+        t("common.warning"),
+        t(validationResult.error.issues[0].message),
+      );
       return;
     }
 
@@ -86,7 +89,7 @@ export default function ConfirmEmailScreen() {
     if (resendTimer > 0) return;
     await resendVerificationEmail();
     setResendTimer(30);
-    toast.success("Code Sent", "A new verification code has been sent.");
+    toast.success(t("common.success"), t("auth.code_sent"));
   };
 
   return (

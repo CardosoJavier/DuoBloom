@@ -41,11 +41,39 @@
     "signing_in": "Iniciando Sesión...",
     "signing_up": "Registrando...",
     "forgot_password": "¿Olvidaste tu contraseña?",
-    "sync_title": "Bloom con tu Pareja",
-    "sync_subtitle": "Conéctate con tu pareja para compartir el progreso",
+    "email_verified": "Correo verificado exitosamente",
+    "session_expired": "Por favor inicia sesión nuevamente.",
+    "code_sent": "Se ha enviado un nuevo código de verificación.",
+    "bloom_title": "Bloom con tu Pareja",
+    "bloom_subtitle": "Conéctate con tu pareja para compartir el progreso",
     "pair_code": "Tu Código de Pareja",
     "share_code": "Compartir Código",
     "enter_partner_code": "Ingresar Código de Pareja",
     "connect_partner": "Conectar Pareja"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email_invalid": "Correo electrónico inválido",
+    "password_required": "La contraseña es obligatoria",
+    "password_min": "La contraseña debe tener al menos 8 caracteres",
+    "password_lowercase": "La contraseña debe contener al menos una letra minúscula",
+    "password_uppercase": "La contraseña debe contener al menos una letra mayúscula",
+    "password_number": "La contraseña debe contener al menos un número",
+    "password_special": "La contraseña debe contener al menos un carácter especial",
+    "first_name_required": "El nombre es obligatorio",
+    "last_name_required": "El apellido es obligatorio",
+    "code_length": "El código de verificación debe tener 8 dígitos",
+    "code_numeric": "El código de verificación debe contener solo números"
+  },
+  "errors": {
+    "auth_invalid_credentials": "Correo o contraseña inválidos",
+    "auth_email_not_confirmed": "Correo electrónico no confirmado",
+    "auth_user_not_found": "Usuario no encontrado",
+    "auth_user_already_exists": "El usuario ya existe",
+    "auth_weak_password": "La contraseña es muy débil",
+    "auth_invalid_email": "Correo electrónico inválido",
+    "network_error": "Error de red. Por favor verifica tu conexión.",
+    "unknown_error": "Ocurrió un error desconocido",
+    "no_session": "No se creó la sesión"
   }
 }

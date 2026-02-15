@@ -36,12 +36,16 @@ const mapSupabaseError = (error: any): AppError => {
 
   if (message.includes("Invalid login credentials")) {
     code = ErrorCode.AUTH_INVALID_CREDENTIALS;
+    return { code, message: "errors.auth_invalid_credentials", originalError: error };
   } else if (message.includes("Email not confirmed")) {
     code = ErrorCode.AUTH_EMAIL_NOT_CONFIRMED;
+    return { code, message: "errors.auth_email_not_confirmed", originalError: error };
   } else if (message.includes("User already registered")) {
     code = ErrorCode.AUTH_USER_ALREADY_EXISTS;
+    return { code, message: "errors.auth_user_already_exists", originalError: error };
   } else if (message.includes("Password should be")) {
     code = ErrorCode.AUTH_WEAK_PASSWORD;
+    return { code, message: "errors.auth_weak_password", originalError: error };
   }
 
   return {
