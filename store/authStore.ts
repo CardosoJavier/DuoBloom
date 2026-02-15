@@ -10,15 +10,18 @@ interface AuthState {
   unconfirmedEmail: string | null;
   user: User | null;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   signUp: (
     email: string,
     password: string,
     firstName: string,
     lastName: string,
-  ) => Promise<void>;
-  verifyEmail: (token: string) => Promise<void>;
-  resendVerificationEmail: () => Promise<void>;
+  ) => Promise<{ success: boolean; error?: string }>;
+  verifyEmail: (token: string) => Promise<{ success: boolean; error?: string }>;
+  resendVerificationEmail: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearError: () => void;
@@ -80,7 +83,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: false,
         });
       }
-      return;
+      return { success: false, error: result.error.message };
     }
 
     const { user, session } = result.data;
@@ -91,12 +94,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         needsEmailConfirmation: false,
       });
+      return { success: true };
     } else {
       set({
         isAuthenticated: false,
         isLoading: false,
         error: "No session created",
       });
+      return { success: false, error: "No session created" };
     }
   },
 
@@ -115,7 +120,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: result.error.message,
         isAuthenticated: false,
       });
-      return;
+      return { success: false, error: result.error.message };
     }
 
     const { user, session } = result.data;
@@ -127,6 +132,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         needsEmailConfirmation: false,
       });
+      return { success: true };
     } else {
       // Supabase might return no session if email confirmation is required
       // We assume if success=true but no session, it's the confirmation flow
@@ -137,6 +143,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         unconfirmedEmail: email,
         error: null,
       });
+      return { success: true };
     }
   },
 
@@ -144,14 +151,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { unconfirmedEmail } = get();
     if (!unconfirmedEmail) {
       set({ error: "No email to verify" });
-      return;
+      return { success: false, error: "No email to verify" };
     }
     set({ isLoading: true, error: null });
     const result = await userApi.verifyEmailOtp(unconfirmedEmail, token);
 
     if (!result.success) {
       set({ isLoading: false, error: result.error.message });
-      return;
+      return { success: false, error: result.error.message };
     }
 
     const { user, session } = result.data;
@@ -163,15 +170,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         needsEmailConfirmation: false,
         unconfirmedEmail: null,
       });
+      return { success: true };
     } else {
       // Should not happen on successful verification usually, but safe fallback
+      const errorMsg =
+        "Verification successful but session not established. Please login.";
       set({
         isLoading: false,
         needsEmailConfirmation: false,
         unconfirmedEmail: null,
-        error:
-          "Verification successful but session not established. Please login.",
+        error: errorMsg,
       });
+      return { success: false, error: errorMsg };
     }
   },
 
@@ -179,17 +189,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { unconfirmedEmail } = get();
     if (!unconfirmedEmail) {
       set({ error: "No email to resend verification to" });
-      return;
+      return { success: false, error: "No email to resend verification to" };
     }
     set({ isLoading: true, error: null });
     const result = await userApi.resendOtp(unconfirmedEmail);
 
     if (!result.success) {
       set({ isLoading: false, error: result.error.message });
-      return;
+      return { success: false, error: result.error.message };
     }
 
     set({ isLoading: false });
+    return { success: true };
   },
 
   logout: async () => {

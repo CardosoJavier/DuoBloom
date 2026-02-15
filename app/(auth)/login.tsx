@@ -35,13 +35,6 @@ export default function LoginScreen() {
     }
   }, [needsEmailConfirmation]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(t("common.error"), t(error));
-      clearError();
-    }
-  }, [error, toast, clearError]);
-
   const handleLogin = async () => {
     const validationResult = loginSchema.safeParse({
       email,
@@ -56,7 +49,10 @@ export default function LoginScreen() {
       return;
     }
 
-    await login(email, password);
+    const result = await login(email, password);
+    if (!result.success && result.error) {
+      toast.error(t("common.error"), t(result.error));
+    }
   };
 
   return (

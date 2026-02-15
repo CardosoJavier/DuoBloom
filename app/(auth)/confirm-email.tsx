@@ -45,13 +45,6 @@ export default function ConfirmEmailScreen() {
   }, [needsEmailConfirmation, isAuthenticated]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(t("common.error"), t(error));
-      clearError();
-    }
-  }, [error, toast, clearError]);
-
-  useEffect(() => {
     let interval: any;
     if (resendTimer > 0) {
       interval = setInterval(() => {
@@ -65,6 +58,7 @@ export default function ConfirmEmailScreen() {
     if (!unconfirmedEmail) {
       toast.warning(t("common.warning"), t("auth.session_expired"));
       router.replace("/(auth)/login");
+      return;
     }
 
     const validationResult = verifyEmailSchema.safeParse({ code });
@@ -77,7 +71,10 @@ export default function ConfirmEmailScreen() {
       return;
     }
 
-    await verifyEmail(code);
+    const result = await verifyEmail(code);
+    if (!result.success && result.error) {
+      toast.error(t("common.error"), t(result.error));
+    }
   };
 
   const handleBackToLogin = async () => {
@@ -87,9 +84,13 @@ export default function ConfirmEmailScreen() {
 
   const handleResend = async () => {
     if (resendTimer > 0) return;
-    await resendVerificationEmail();
-    setResendTimer(30);
-    toast.success(t("common.success"), t("auth.code_sent"));
+    const result = await resendVerificationEmail();
+    if (result.success) {
+      setResendTimer(30);
+      toast.success(t("common.success"), t("auth.code_sent"));
+    } else if (result.error) {
+      toast.error(t("common.error"), t(result.error));
+    }
   };
 
   return (

@@ -37,13 +37,6 @@ export default function SignupScreen() {
     }
   }, [needsEmailConfirmation]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(t("common.error"), t(error));
-      clearError();
-    }
-  }, [error, toast, clearError]);
-
   const handleSignup = async () => {
     const validationResult = signupSchema.safeParse({
       firstName,
@@ -60,7 +53,10 @@ export default function SignupScreen() {
       return;
     }
 
-    await signUp(email, password, firstName, lastName);
+    const result = await signUp(email, password, firstName, lastName);
+    if (!result.success && result.error) {
+      toast.error(t("common.error"), t(result.error));
+    }
   };
 
   return (
