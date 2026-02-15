@@ -21,6 +21,8 @@ function InitialLayout() {
   const segments = useSegments();
   const router = useRouter();
 
+  const colorScheme = useColorScheme();
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -39,10 +41,17 @@ function InitialLayout() {
     }
   }, [isAuthenticated, isLoading, segments]);
 
+  const backgroundColor = colorScheme === "dark" ? "#0E172A" : "#F8FAFC";
+
   return (
-    <Stack>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <Stack
+      screenOptions={{
+        contentStyle: { backgroundColor },
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
     </Stack>
   );
 }
@@ -51,16 +60,11 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
-        <ThemeProvider value={DefaultTheme}>
-          <InitialLayout />
-          <StatusBar style="dark" />
-        </ThemeProvider>
-      </GluestackUIProvider>
-    </KeyboardAvoidingView>
+    <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
+      <ThemeProvider value={DefaultTheme}>
+        <InitialLayout />
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      </ThemeProvider>
+    </GluestackUIProvider>
   );
 }
