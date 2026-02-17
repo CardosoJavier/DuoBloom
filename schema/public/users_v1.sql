@@ -34,11 +34,14 @@ CREATE INDEX IF NOT EXISTS "idx_users_pair_code" ON "users" ("pair_code");
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
 
 -- Policy: View (SELECT)
--- Users can see their own profile
-CREATE POLICY "Users can view own profile"
+-- Users can see their own profile AND their partner's profile.
+-- This relies on the get_partner_id() function defined in the relationships schema.
+CREATE POLICY "Users can view own and partner's profile"
 ON "users"
 FOR SELECT
-USING (auth.uid() = id);
+USING (
+  auth.uid() = id OR id = public.get_partner_id(auth.uid())
+);
 
 -- Policy: Update
 -- Users can update their own profile

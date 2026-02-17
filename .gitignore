@@ -6,6 +6,7 @@ node_modules/
 .env
 /coverage
 /backlog
+updates.sql
 
 # Expo
 .expo/
