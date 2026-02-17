@@ -78,7 +78,8 @@
     "danger_zone": "Zona de Peligro",
     "delete_account": "Eliminar Cuenta",
     "email_update_warning": "Actualizar tu correo requerirá nueva verificación.",
-    "change_password": "Cambiar Contraseña"
+    "change_password": "Cambiar Contraseña",
+      "unlink_partner": "Desvincular Pareja"
   },
   "settings": {
     "language": "Idioma",

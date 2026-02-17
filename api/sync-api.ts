@@ -186,4 +186,39 @@ export const syncApi = {
       };
     }
   },
+
+  /**
+   * Deletes the relationship for the user.
+   */
+  unlinkPartner: async (userId: string): Promise<ApiResult<null>> => {
+    try {
+      const { error } = await supabase
+        .from("relationships")
+        .delete()
+        .or(`user_one_id.eq.${userId},user_two_id.eq.${userId}`);
+
+      if (error) {
+        console.error("Unlink Partner Error:", error.message);
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.UNKNOWN_ERROR,
+            message: error.message,
+            originalError: error,
+          },
+        };
+      }
+
+      return { success: true, data: null };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: error.message || "Unexpected error during unlinking",
+          originalError: error,
+        },
+      };
+    }
+  },
 };

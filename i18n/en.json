@@ -78,7 +78,8 @@
     "danger_zone": "Danger Zone",
     "delete_account": "Delete Account",
     "email_update_warning": "Updating your email will require re-verification.",
-    "change_password": "Change Password"
+    "change_password": "Change Password",
+    "unlink_partner": "Unlink Partner"
   },
   "settings": {
     "language": "Language",

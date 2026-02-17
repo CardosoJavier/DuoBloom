@@ -1,6 +1,6 @@
-import { userApi } from "@/api/user-api";
+import { syncApi } from "@/api/sync-api";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -8,14 +8,8 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAuthStore } from "@/store/authStore";
-import {
-  AlertTriangle,
-  Camera,
-  Mail,
-  User,
-  X,
-} from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { AlertTriangle, Camera, Mail, User, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, TouchableOpacity } from "react-native";
@@ -40,6 +34,33 @@ export default function EditProfileScreen() {
       Alert.alert("Success", "Profile updated successfully");
       router.back();
     }, 1000);
+  };
+
+  const handleUnlink = () => {
+    Alert.alert(t("profile.unlink_partner"), t("common.are_you_sure"), [
+      {
+        text: t("common.cancel"),
+        style: "cancel",
+      },
+      {
+        text: t("common.confirm"),
+        style: "destructive",
+        onPress: async () => {
+          if (!user?.id) return;
+          const result = await syncApi.unlinkPartner(user.id);
+          if (result.success) {
+            await refreshUser();
+            router.back();
+            Alert.alert(
+              t("common.success"),
+              t("profile.unlink_success_message"),
+            ); // Assuming this key exists
+          } else {
+            Alert.alert(t("common.error"), result.error?.message);
+          }
+        },
+      },
+    ]);
   };
 
   return (
@@ -76,12 +97,15 @@ export default function EditProfileScreen() {
                 <Text className="text-slate-400 font-medium ml-1">
                   {t("auth.full_name")}
                 </Text>
-                <Input size="xl" className="border-slate-700 bg-slate-800/50 rounded-xl h-14">
+                <Input
+                  size="xl"
+                  className="border-slate-700 bg-slate-800/50 rounded-xl h-14"
+                >
                   <InputSlot className="pl-4">
                     <InputIcon as={User} className="text-slate-500" />
                   </InputSlot>
                   <InputField
-                    className="text-white placeholder:text-slate-600"
+                    className="placeholder:text-slate-600"
                     placeholder="Alex Doe"
                     value={`${firstName} ${lastName}`}
                     onChangeText={(text) => {
@@ -97,7 +121,10 @@ export default function EditProfileScreen() {
                 <Text className="text-slate-400 font-medium ml-1">
                   {t("auth.email_address")}
                 </Text>
-                <Input size="xl" className="border-slate-700 bg-slate-800/50 rounded-xl h-14">
+                <Input
+                  size="xl"
+                  className="border-slate-700 bg-slate-800/50 rounded-xl h-14"
+                >
                   <InputSlot className="pl-4">
                     <InputIcon as={Mail} className="text-slate-500" />
                   </InputSlot>
@@ -115,18 +142,18 @@ export default function EditProfileScreen() {
                 </Text>
               </VStack>
 
-               <VStack space="xs" className="mt-2">
-                 <HStack className="justify-between items-center mb-2">
-                    <Text className="text-white font-medium text-lg">
-                      {t("profile.change_password")}
-                    </Text>
-                     <Button variant="link" size="sm">
-                      <ButtonText className="text-indigo-400 font-medium">
-                        {t("common.edit")}
-                      </ButtonText>
-                    </Button>
-                 </HStack>
-               </VStack>
+              <VStack space="xs" className="mt-2">
+                <HStack className="justify-between items-center mb-2">
+                  <Text className="text-white font-medium text-lg">
+                    {t("profile.change_password")}
+                  </Text>
+                  <Button variant="link" size="sm">
+                    <ButtonText className="text-indigo-400 font-medium">
+                      {t("common.edit")}
+                    </ButtonText>
+                  </Button>
+                </HStack>
+              </VStack>
 
               <Button
                 size="xl"
@@ -135,9 +162,11 @@ export default function EditProfileScreen() {
                 isDisabled={isSaving}
               >
                 {isSaving ? (
-                   <ButtonText>{t("common.saving")}</ButtonText>
+                  <ButtonText>{t("common.saving")}</ButtonText>
                 ) : (
-                  <ButtonText className="font-bold">{t("profile.save_changes")}</ButtonText>
+                  <ButtonText className="font-bold">
+                    {t("profile.save_changes")}
+                  </ButtonText>
                 )}
               </Button>
             </VStack>
@@ -151,9 +180,19 @@ export default function EditProfileScreen() {
                 </Text>
               </HStack>
               <Button
-                 variant="outline"
-                 action="negative"
-                 className="border-red-500/50 rounded-xl h-12 justify-start pl-4"
+                variant="outline"
+                action="negative"
+                onPress={handleUnlink}
+                className="border-red-500/50 rounded-xl h-12 justify-start pl-4"
+              >
+                <ButtonText className="text-red-500 text-sm">
+                  {t("profile.unlink_partner")}
+                </ButtonText>
+              </Button>
+              <Button
+                variant="outline"
+                action="negative"
+                className="border-red-500/50 rounded-xl h-12 justify-start pl-4"
               >
                 <ButtonText className="text-red-500 text-sm">
                   {t("profile.delete_account")}
