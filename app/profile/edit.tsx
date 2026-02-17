@@ -129,7 +129,7 @@ export default function EditProfileScreen() {
                     <InputIcon as={Mail} className="text-slate-500" />
                   </InputSlot>
                   <InputField
-                    className="text-white placeholder:text-slate-600"
+                    className="text-slate-600"
                     placeholder="alex@example.com"
                     value={email}
                     onChangeText={setEmail}

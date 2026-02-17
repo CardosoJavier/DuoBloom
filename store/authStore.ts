@@ -5,8 +5,8 @@ import { create } from "zustand";
 
 interface AuthState {
   isAuthenticated: boolean;
-  isInitializing: boolean; // Initial app load check
-  isLoading: boolean; // Action loading (login, signup, etc)
+  isInitializing: boolean;
+  isLoading: boolean;
   needsEmailConfirmation: boolean;
   unconfirmedEmail: string | null;
   user: User | null;

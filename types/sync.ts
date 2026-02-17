@@ -25,4 +25,4 @@ export interface Relationship {
   created_at: string;
 }
 
-export type SyncStep = "initializing" | "input" | "waiting" | "found";
+export type SyncStep = "input" | "waiting" | "found";

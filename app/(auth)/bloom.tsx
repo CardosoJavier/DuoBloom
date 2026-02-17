@@ -20,9 +20,6 @@ export default function BloomScreen() {
   return (
     <AuthContainer>
       <VStack space="xl" className="items-center w-full">
-        {step === "initializing" && (
-          <SyncInput myCode={myCode} onConnect={connect} isLoading={true} />
-        )}
         {step === "input" && (
           <SyncInput
             myCode={myCode}

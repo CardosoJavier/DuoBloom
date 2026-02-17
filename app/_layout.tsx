@@ -7,7 +7,6 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { LoadingSplash } from "@/components/ui/LoadingSplash";
 import "@/global.css";
 import "@/i18n";
 import { useAuthStore } from "@/store/authStore";
@@ -62,10 +61,6 @@ function InitialLayout() {
 
   const backgroundColor = colorScheme === "dark" ? "#0E172A" : "#F8FAFC";
 
-  if (isInitializing || (isAuthenticated && isCheckingSync)) {
-    return <LoadingSplash />;
-  }
-
   return (
     <Stack
       screenOptions={{
@@ -76,7 +71,10 @@ function InitialLayout() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="profile/edit" options={{ presentation: "modal" }} />
-      <Stack.Screen name="profile/settings" options={{ presentation: "modal" }} />
+      <Stack.Screen
+        name="profile/settings"
+        options={{ presentation: "modal" }}
+      />
     </Stack>
   );
 }

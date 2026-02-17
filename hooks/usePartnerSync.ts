@@ -12,7 +12,7 @@ export const usePartnerSync = () => {
   const toast = useAppToast();
   const { t } = useTranslation();
 
-  const [step, setStep] = useState<SyncStep>("initializing");
+  const [step, setStep] = useState<SyncStep>("input");
   const [isLoading, setIsLoading] = useState(false);
   const [partnerName, setPartnerName] = useState<string>("");
   const [requestId, setRequestId] = useState<string | null>(null);
