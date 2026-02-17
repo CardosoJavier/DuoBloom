@@ -14,7 +14,9 @@
     "success": "Éxito",
     "warning": "Advertencia",
     "tagline": "Fitness para Parejas",
-    "footer": "Diseñado para que las parejas crezcan juntas."
+    "footer": "Diseñado para que las parejas crezcan juntas.",
+    "edit": "Editar",
+    "saving": "Guardando..."
   },
   "habits": {
     "strike_count": "¡Llevas una racha de {{count}} días!",
@@ -57,7 +59,33 @@
     "pair_code": "Tu Código de Pareja",
     "share_code": "Compartir Código",
     "enter_partner_code": "Ingresar Código de Pareja",
-    "connect_partner": "Conectar Pareja"
+    "connect_partner": "Conectar Pareja",
+    "logout": "Cerrar Sesión",
+    "full_name": "Nombre Completo",
+    "email_address": "Correo Electrónico",
+    "partner_code": "Código de Pareja",
+    "share_code_description": "Comparte este código con tu pareja para vincular cuentas.",
+    "code_copied": "Código copiado al portapapeles"
+  },
+  "profile": {
+    "member_since": "Miembro desde {{year}}",
+    "no_partner": "Sin Pareja",
+    "connected": "Conectado",
+    "not_connected": "No Conectado",
+    "edit_profile": "Editar Perfil",
+    "app_settings": "Configuración",
+    "save_changes": "Guardar Cambios",
+    "danger_zone": "Zona de Peligro",
+    "delete_account": "Eliminar Cuenta",
+    "email_update_warning": "Actualizar tu correo requerirá nueva verificación.",
+    "change_password": "Cambiar Contraseña"
+  },
+  "settings": {
+    "language": "Idioma",
+    "appearance": "Apariencia",
+    "light_mode": "Modo Claro",
+    "dark_mode": "Modo Oscuro",
+    "system_default": "Predeterminado del Sistema"
   },
   "validation": {
     "required": "Este campo es obligatorio",

@@ -14,7 +14,9 @@
     "success": "Success",
     "warning": "Warning",
     "tagline": "Fitness for Couples",
-    "footer": "Designed for partners to grow together."
+    "footer": "Designed for partners to grow together.",
+    "edit": "Edit",
+    "saving": "Saving..."
   },
   "habits": {
     "strike_count": "You're on a {{count}}-day streak!",
@@ -57,7 +59,33 @@
     "pair_code": "Your Pair Code",
     "share_code": "Share Code",
     "enter_partner_code": "Enter Partner's Code",
-    "connect_partner": "Connect Partner"
+    "connect_partner": "Connect Partner",
+    "logout": "Log Out",
+    "full_name": "Full Name",
+    "email_address": "Email Address",
+    "partner_code": "Partner Code",
+    "share_code_description": "Share this code with your partner to link accounts.",
+    "code_copied": "Code copied to clipboard"
+  },
+  "profile": {
+    "member_since": "Member since {{year}}",
+    "no_partner": "No Partner",
+    "connected": "Connected",
+    "not_connected": "Not Connected",
+    "edit_profile": "Edit Profile",
+    "app_settings": "App Settings",
+    "save_changes": "Save Changes",
+    "danger_zone": "Danger Zone",
+    "delete_account": "Delete Account",
+    "email_update_warning": "Updating your email will require re-verification.",
+    "change_password": "Change Password"
+  },
+  "settings": {
+    "language": "Language",
+    "appearance": "Appearance",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "system_default": "System Default"
   },
   "validation": {
     "required": "This field is required",
