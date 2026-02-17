@@ -16,7 +16,11 @@
     "tagline": "Fitness para Parejas",
     "footer": "Diseñado para que las parejas crezcan juntas.",
     "edit": "Editar",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "info": "Información",
+    "are_you_sure": "¿Estás seguro?",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   },
   "habits": {
     "strike_count": "¡Llevas una racha de {{count}} días!",
@@ -79,7 +83,8 @@
     "delete_account": "Eliminar Cuenta",
     "email_update_warning": "Actualizar tu correo requerirá nueva verificación.",
     "change_password": "Cambiar Contraseña",
-      "unlink_partner": "Desvincular Pareja"
+    "unlink_partner": "Desvincular Pareja",
+    "unlink_success_message": "Has sido desvinculado de tu pareja exitosamente."
   },
   "settings": {
     "language": "Idioma",

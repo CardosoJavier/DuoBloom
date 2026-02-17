@@ -16,7 +16,11 @@
     "tagline": "Fitness for Couples",
     "footer": "Designed for partners to grow together.",
     "edit": "Edit",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "info": "Info",
+    "are_you_sure": "Are you sure?",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "habits": {
     "strike_count": "You're on a {{count}}-day streak!",
@@ -79,7 +83,8 @@
     "delete_account": "Delete Account",
     "email_update_warning": "Updating your email will require re-verification.",
     "change_password": "Change Password",
-    "unlink_partner": "Unlink Partner"
+    "unlink_partner": "Unlink Partner",
+    "unlink_success_message": "You have been successfully unlinked from your partner."
   },
   "settings": {
     "language": "Language",

@@ -182,8 +182,8 @@ export default function EditProfileScreen() {
               <Button
                 variant="outline"
                 action="negative"
-                onPress={handleUnlink}
                 className="border-red-500/50 rounded-xl h-12 justify-start pl-4"
+                onPress={handleUnlink}
               >
                 <ButtonText className="text-red-500 text-sm">
                   {t("profile.unlink_partner")}
