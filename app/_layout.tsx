@@ -70,10 +70,10 @@ function InitialLayout() {
 }
 
 export default function RootLayout() {
-  const { colorScheme, isThemeHydrated, hydrateTheme } = useAppStore();
+  const { colorScheme, isThemeHydrated, hydrate } = useAppStore();
 
   useEffect(() => {
-    hydrateTheme();
+    hydrate();
   }, []);
 
   if (!isThemeHydrated) {

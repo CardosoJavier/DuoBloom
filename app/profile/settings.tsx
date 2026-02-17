@@ -14,8 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function AppSettingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { theme, setTheme } = useAppStore();
-  const currentLanguage = i18n.language;
+  const { theme, setTheme, language, setLanguage } = useAppStore();
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -46,37 +45,37 @@ export default function AppSettingsScreen() {
               </Text>
               <HStack space="md">
                 <TouchableOpacity
-                  onPress={() => changeLanguage("en")}
+                  onPress={() => setLanguage("en")}
                   className={`flex-1 p-4 rounded-xl border ${
-                    currentLanguage === "en"
+                    language === "en"
                       ? "bg-indigo-500/20 border-indigo-500"
                       : "bg-slate-800 border-slate-700"
                   } flex-row justify-between items-center`}
                 >
                   <Text
-                    className={`${currentLanguage === "en" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
+                    className={`${language === "en" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
                   >
                     English
                   </Text>
-                  {currentLanguage === "en" && (
+                  {language === "en" && (
                     <Icon as={Check} size="sm" className="text-indigo-400" />
                   )}
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => changeLanguage("es")}
+                  onPress={() => setLanguage("es")}
                   className={`flex-1 p-4 rounded-xl border ${
-                    currentLanguage === "es"
+                    language === "es"
                       ? "bg-indigo-500/20 border-indigo-500"
                       : "bg-slate-800 border-slate-700"
                   } flex-row justify-between items-center`}
                 >
                   <Text
-                    className={`${currentLanguage === "es" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
+                    className={`${language === "es" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
                   >
                     Español
                   </Text>
-                  {currentLanguage === "es" && (
+                  {language === "es" && (
                     <Icon as={Check} size="sm" className="text-indigo-400" />
                   )}
                 </TouchableOpacity>
