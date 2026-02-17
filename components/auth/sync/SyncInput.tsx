@@ -92,7 +92,7 @@ export const SyncInput = ({ myCode, onConnect, isLoading }: SyncInputProps) => {
         </Box>
 
         <VStack space="xs" className="mt-2">
-          <Input variant="soft" size="xl" className="w-full">
+          <Input variant="soft" size="xl" className="w-full" isDisabled={isLoading}>
             <InputSlot className="pl-4">
               <InputIcon as={Heart} className="text-rose-400" />
             </InputSlot>

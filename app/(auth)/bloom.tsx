@@ -1,10 +1,10 @@
-import React from "react";
 import { AuthContainer } from "@/components/auth/AuthContainer";
-import { VStack } from "@/components/ui/vstack";
-import { usePartnerSync } from "@/hooks/usePartnerSync";
+import { SyncFound } from "@/components/auth/sync/SyncFound";
 import { SyncInput } from "@/components/auth/sync/SyncInput";
 import { SyncWaiting } from "@/components/auth/sync/SyncWaiting";
-import { SyncFound } from "@/components/auth/sync/SyncFound";
+import { VStack } from "@/components/ui/vstack";
+import { usePartnerSync } from "@/hooks/usePartnerSync";
+import React from "react";
 
 export default function BloomScreen() {
   const {
@@ -20,6 +20,9 @@ export default function BloomScreen() {
   return (
     <AuthContainer>
       <VStack space="xl" className="items-center w-full">
+        {step === "initializing" && (
+          <SyncInput myCode={myCode} onConnect={connect} isLoading={true} />
+        )}
         {step === "input" && (
           <SyncInput
             myCode={myCode}
