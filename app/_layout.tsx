@@ -4,11 +4,10 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
 import "@/i18n";
+import { useAppStore } from "@/store/appStore";
 import { useAuthStore } from "@/store/authStore";
 
 export const unstable_settings = {
@@ -21,13 +20,10 @@ function InitialLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  const colorScheme = useColorScheme();
-
   const [isCheckingSync, setIsCheckingSync] = useState(true);
 
   useEffect(() => {
     checkAuth().finally(() => {
-      // Once auth check is done, we can check sync status if authenticated
       setIsCheckingSync(false);
     });
   }, []);
@@ -39,18 +35,15 @@ function InitialLayout() {
       const inAuthGroup = segments[0] === "(auth)";
 
       if (!isAuthenticated && !inAuthGroup) {
-        // Redirect to the login page if not authenticated
         router.replace("/(auth)/login");
       } else if (isAuthenticated) {
         const isSynced = await checkSyncStatus();
 
         if (!isSynced) {
-          // If not synced, force to bloom screen
           if (segments[1] !== "bloom") {
             router.replace("/(auth)/bloom");
           }
         } else if (inAuthGroup) {
-          // If synced and in auth group, go to tabs
           router.replace("/(tabs)");
         }
       }
@@ -59,12 +52,9 @@ function InitialLayout() {
     handleNavigation();
   }, [isAuthenticated, isInitializing, isCheckingSync, segments]);
 
-  const backgroundColor = colorScheme === "dark" ? "#0E172A" : "#F8FAFC";
-
   return (
     <Stack
       screenOptions={{
-        contentStyle: { backgroundColor },
         headerShown: false,
       }}
     >
@@ -80,10 +70,18 @@ function InitialLayout() {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme, isThemeHydrated, hydrateTheme } = useAppStore();
+
+  useEffect(() => {
+    hydrateTheme();
+  }, []);
+
+  if (!isThemeHydrated) {
+    return null; // Or a loading spinner
+  }
 
   return (
-    <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
+    <GluestackUIProvider mode={colorScheme}>
       <ThemeProvider value={DefaultTheme}>
         <InitialLayout />
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />

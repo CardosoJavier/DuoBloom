@@ -1,31 +1,20 @@
-import { Box } from "@/components/ui/box";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import {
-  Check,
-  Globe,
-  Languages,
-  Moon,
-  Monitor,
-  Sun,
-  X,
-} from "lucide-react-native";
+import { useAppStore } from "@/store/appStore";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Check, Globe, Monitor, Moon, Sun, X } from "lucide-react-native";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { TouchableOpacity, ScrollView } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AppSettingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  
-  // TODO: Connect to a real settings store
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const { theme, setTheme } = useAppStore();
   const currentLanguage = i18n.language;
 
   const changeLanguage = (lang: string) => {
@@ -37,7 +26,7 @@ export default function AppSettingsScreen() {
       <VStack className="flex-1 p-6" space="xl">
         {/* Header */}
         <HStack className="justify-between items-center">
-           <HStack space="sm" className="items-center">
+          <HStack space="sm" className="items-center">
             <Icon as={Globe} className="text-white" />
             <Heading className="text-white text-xl">
               {t("profile.app_settings")}
@@ -50,7 +39,6 @@ export default function AppSettingsScreen() {
 
         <ScrollView showsVerticalScrollIndicator={false}>
           <VStack space="2xl" className="mt-4">
-            
             {/* Language */}
             <VStack space="md">
               <Text className="text-slate-400 font-medium text-xs uppercase tracking-wider ml-1">
@@ -65,7 +53,9 @@ export default function AppSettingsScreen() {
                       : "bg-slate-800 border-slate-700"
                   } flex-row justify-between items-center`}
                 >
-                  <Text className={`${currentLanguage === "en" ? "text-indigo-400 font-bold" : "text-slate-300"}`}>
+                  <Text
+                    className={`${currentLanguage === "en" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
+                  >
                     English
                   </Text>
                   {currentLanguage === "en" && (
@@ -81,7 +71,9 @@ export default function AppSettingsScreen() {
                       : "bg-slate-800 border-slate-700"
                   } flex-row justify-between items-center`}
                 >
-                  <Text className={`${currentLanguage === "es" ? "text-indigo-400 font-bold" : "text-slate-300"}`}>
+                  <Text
+                    className={`${currentLanguage === "es" ? "text-indigo-400 font-bold" : "text-slate-300"}`}
+                  >
                     Español
                   </Text>
                   {currentLanguage === "es" && (
@@ -96,12 +88,16 @@ export default function AppSettingsScreen() {
               <Text className="text-slate-400 font-medium text-xs uppercase tracking-wider ml-1">
                 {t("settings.appearance")}
               </Text>
-              
+
               <VStack space="sm">
                 {[
                   { id: "light", icon: Sun, label: t("settings.light_mode") },
                   { id: "dark", icon: Moon, label: t("settings.dark_mode") },
-                  { id: "system", icon: Monitor, label: t("settings.system_default") },
+                  {
+                    id: "system",
+                    icon: Monitor,
+                    label: t("settings.system_default"),
+                  },
                 ].map((item) => (
                   <TouchableOpacity
                     key={item.id}
@@ -113,8 +109,14 @@ export default function AppSettingsScreen() {
                     } flex-row justify-between items-center`}
                   >
                     <HStack space="md" className="items-center">
-                      <Icon as={item.icon} size="sm" className={`${theme === item.id ? "text-indigo-400" : "text-slate-400"}`} />
-                      <Text className={`${theme === item.id ? "text-indigo-400 font-bold" : "text-slate-300"}`}>
+                      <Icon
+                        as={item.icon}
+                        size="sm"
+                        className={`${theme === item.id ? "text-indigo-400" : "text-slate-400"}`}
+                      />
+                      <Text
+                        className={`${theme === item.id ? "text-indigo-400 font-bold" : "text-slate-300"}`}
+                      >
                         {item.label}
                       </Text>
                     </HStack>
@@ -125,7 +127,6 @@ export default function AppSettingsScreen() {
                 ))}
               </VStack>
             </VStack>
-
           </VStack>
         </ScrollView>
       </VStack>
