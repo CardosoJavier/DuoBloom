@@ -65,8 +65,7 @@ export default function AppSettingsScreen() {
                 <TouchableOpacity
                   onPress={() => setLanguage("es")}
                   className={`flex-1 p-4 rounded-xl border ${
-                    language === "es"
-                      ? "bg-indigo-500/20 border-indigo-500"
+                    language === "es"                      ? "bg-indigo-500/20 border-indigo-500"
                       : "bg-slate-800 border-slate-700"
                   } flex-row justify-between items-center`}
                 >
