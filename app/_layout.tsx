@@ -77,7 +77,7 @@ export default function RootLayout() {
   }, []);
 
   if (!isThemeHydrated) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (

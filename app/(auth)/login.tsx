@@ -24,8 +24,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login, error, clearError, needsEmailConfirmation, isLoading } =
-    useAuthStore();
+  const { login, needsEmailConfirmation, isLoading } = useAuthStore();
   const router = useRouter();
   const toast = useAppToast();
 

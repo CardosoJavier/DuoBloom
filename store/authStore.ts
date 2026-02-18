@@ -116,16 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     const { user, session } = result.data;
-    if (session) {
-      // Fetch full profile to get pairCode immediately after login
-      if (user) {
-        const profileResult = await userApi.getUserProfile(user.id);
-        if (profileResult.success && profileResult.data) {
-          // Merge profile data
-          Object.assign(user, profileResult.data);
-        }
-      }
-
+    if (user && session) {
       set({
         isAuthenticated: true,
         user: user,
