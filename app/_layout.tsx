@@ -56,6 +56,7 @@ function InitialLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        animationTypeForReplace: "push",
       }}
     >
       <Stack.Screen name="(auth)" />

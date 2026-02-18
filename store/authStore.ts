@@ -116,22 +116,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     const { user, session } = result.data;
-    if (user && session) {
-      set({
-        isAuthenticated: true,
-        user: user,
-        isLoading: false,
-        needsEmailConfirmation: false,
-      });
-      return { success: true };
-    } else {
+
+    if (!user || !session) {
       set({
         isAuthenticated: false,
         isLoading: false,
-        error: "No session created",
+        error: "Unexpected error",
       });
-      return { success: false, error: "No session created" };
+      return { success: false, error: "Unexpected error" };
     }
+
+    const completeUser = await userApi.getUserProfile(user.id);
+    if (!completeUser.success || !completeUser.data) {
+      set({
+        isAuthenticated: false,
+        isLoading: false,
+        error: "Unexpected error",
+      });
+      return { success: false, error: "Unexpected error" };
+    }
+
+    set({
+      isAuthenticated: true,
+      user: completeUser.data,
+      isLoading: false,
+      needsEmailConfirmation: false,
+    });
+    return { success: true };
   },
 
   signUp: async (email, password, firstName, lastName) => {
