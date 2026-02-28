@@ -15,26 +15,33 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   onValueChange,
   containerStyle,
 }) => {
-  const { theme } = useAppStore();
+  const { colorScheme } = useAppStore();
+
+  // Helper to safely extract className and styles
+  const customClassName =
+    typeof containerStyle === "string"
+      ? containerStyle
+      : containerStyle?.className || "";
+
+  const customStyle =
+    typeof containerStyle === "object" && !containerStyle.className
+      ? containerStyle
+      : containerStyle?.style;
+
+  const btnBg = colorScheme === "light" ? "bg-white shadow-sm" : "bg-[#334156]";
+
+  const btnText =
+    colorScheme === "light"
+      ? "text-slate-800 font-bold"
+      : "text-white font-bold";
 
   return (
     <ButtonGroup
-      space="xs"
       flexDirection="row"
-      className={`
-        p-1 rounded-2xl w-full items-center 
-        ${theme === "light" ? `bg-[#EEF0F6] ` : `bg-[#162032]`}
-        ${
-          containerStyle?.className ||
-          (typeof containerStyle === "string" ? containerStyle : "")
-        }`}
-      style={
-        containerStyle?.style
-          ? containerStyle.style
-          : typeof containerStyle === "object" && !containerStyle.className
-            ? containerStyle
-            : undefined
-      }
+      className={`p-1 rounded-2xl w-full items-center ${
+        colorScheme === "light" ? "bg-[#EEF0F6]" : "bg-[#162032]"
+      } ${customClassName}`}
+      style={customStyle}
     >
       {options.map((option) => {
         const isActive = selectedValue === option;
@@ -43,24 +50,14 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
           <Button
             key={option}
             size="md"
-            action={isActive ? "dark" : "default"}
+            action="primary"
             onPress={() => onValueChange(option)}
             className={`flex-1 rounded-xl h-11 border-0 ${
-              isActive
-                ? theme === "light"
-                  ? "bg-white"
-                  : "bg-[#334156]"
-                : "bg-transparent"
+              isActive ? btnBg : "bg-transparent"
             }`}
           >
             <ButtonText
-              className={`${
-                isActive
-                  ? theme === "light"
-                    ? "text-slate-800 font-bold"
-                    : ""
-                  : "text-slate-400 font-medium"
-              }`}
+              className={`${isActive ? btnText : "text-slate-400 font-medium"}`}
             >
               {option}
             </ButtonText>
