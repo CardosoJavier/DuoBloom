@@ -1,8 +1,12 @@
+import { Buffer } from "@craftzdog/react-native-buffer";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
+
+// Inject Buffer globally for react-native-quick-crypto
+global.Buffer = Buffer as any;
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
@@ -37,13 +41,25 @@ function InitialLayout() {
       if (!isAuthenticated && !inAuthGroup) {
         router.replace("/(auth)/login");
       } else if (isAuthenticated) {
+        const { user } = useAuthStore.getState();
+
+        // 1. Check if public key exists (Security Requirement)
+        if (!user?.publicKey) {
+          // If we're not already in the security flow
+          if (segments[1] !== "security") {
+            router.replace("/(auth)/security/setup");
+          }
+          return; // Stop here, must complete security
+        }
+
+        // 2. Check if user is synced (Partner Requirement)
         const isSynced = await checkSyncStatus();
 
         if (!isSynced) {
           if (segments[1] !== "bloom") {
             router.replace("/(auth)/bloom");
           }
-        } else if (inAuthGroup) {
+        } else if (inAuthGroup && segments[1] !== "security") {
           router.replace("/(tabs)");
         }
       }

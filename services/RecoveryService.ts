@@ -1,5 +1,5 @@
+import { Buffer } from "@craftzdog/react-native-buffer";
 import * as bip39 from "bip39";
-import { Buffer } from "node:buffer";
 import crypto from "react-native-quick-crypto";
 
 export interface SealedPrivateKey {
@@ -14,7 +14,12 @@ class RecoveryService {
    * Generates a 12-word BIP39 recovery mnemonic.
    */
   generateRecoveryCode(): string {
-    return bip39.generateMnemonic();
+    // Inject custom RNG using react-native-quick-crypto
+    // to bypass React Native's missing global.crypto.getRandomValues
+    return bip39.generateMnemonic(
+      128,
+      (size) => Buffer.from(crypto.randomBytes(size)) as any,
+    );
   }
 
   /**
@@ -61,16 +66,17 @@ class RecoveryService {
             // 3. Encrypt the Private Key using AES-256-GCM
             const cipher = crypto.createCipheriv("aes-256-gcm", masterKey, iv);
 
-            // PEM private key might be a string, convert to buffer
-            const pkBuffer = Buffer.from(privateKey, "utf8");
-            const encryptedBuffer = Buffer.concat([
-              cipher.update(pkBuffer),
-              cipher.final(),
-            ]);
+            // React Native Quick Crypto allows passing encoding to output strings directly
+            let encryptedBase64 = cipher.update(
+              privateKey,
+              "utf8",
+              "base64",
+            ) as unknown as string;
+            encryptedBase64 += cipher.final("base64") as unknown as string;
             const authTag = cipher.getAuthTag();
 
             resolve({
-              encryptedPrivateKey: encryptedBuffer.toString("base64"),
+              encryptedPrivateKey: encryptedBase64,
               salt: salt.toString("hex"),
               iv: iv.toString("hex"),
               authTag: authTag.toString("hex"),
@@ -120,12 +126,14 @@ class RecoveryService {
           );
           decipher.setAuthTag(authTag as any); // Type override for arrayBuffer Buffer vs quick-crypto Buffer
 
-          const decryptedBuffer = Buffer.concat([
-            decipher.update(encryptedBuffer),
-            decipher.final(),
-          ]);
+          let decryptedUtf8 = decipher.update(
+            vault.encryptedPrivateKey,
+            "base64",
+            "utf8",
+          ) as unknown as string;
+          decryptedUtf8 += decipher.final("utf8") as unknown as string;
 
-          resolve(decryptedBuffer.toString("utf8"));
+          resolve(decryptedUtf8);
         } catch (e) {
           reject(e);
         }

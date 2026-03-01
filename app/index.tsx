@@ -1,9 +1,9 @@
-import { Redirect } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
-import { View, ActivityIndicator } from 'react-native';
+import { Redirect } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
 
 export default function Index() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
   if (isLoading) {
     return (
@@ -14,6 +14,9 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
+    if (!user?.publicKey) {
+      return <Redirect href="/(auth)/security/setup" />;
+    }
     return <Redirect href="/(tabs)" />;
   }
 

@@ -26,8 +26,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signUp, needsEmailConfirmation, error, clearError, isLoading } =
-    useAuthStore();
+  const { signUp, needsEmailConfirmation, isLoading } = useAuthStore();
   const router = useRouter();
   const toast = useAppToast();
 

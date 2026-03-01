@@ -27,6 +27,7 @@ const mapDbUser = (user: any): User => {
     createdAt: user.created_on,
     updatedAt: user.last_updated_on,
     pairCode: user.pair_code,
+    publicKey: user.public_key,
   };
 };
 

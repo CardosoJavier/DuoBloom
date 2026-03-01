@@ -1,5 +1,5 @@
+import { Buffer } from "@craftzdog/react-native-buffer";
 import * as FileSystem from "expo-file-system/legacy";
-import { Buffer } from "node:buffer";
 import crypto from "react-native-quick-crypto";
 
 export interface EncryptionMetadata {
@@ -43,9 +43,11 @@ class EncryptionService {
           }
           resolve({
             publicKey:
+              (typeof publicKey === "string" ? publicKey : undefined) ||
               (publicKey as any).export?.({ format: "pem", type: "spki" }) ||
               "",
             privateKey:
+              (typeof privateKey === "string" ? privateKey : undefined) ||
               (privateKey as any).export?.({ format: "pem", type: "pkcs8" }) ||
               "",
           });

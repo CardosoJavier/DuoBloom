@@ -1,12 +1,12 @@
 -- =============================================
 -- Table: users
--- Version: 1
--- Description: Core user profiles linked to Supabase Auth
+-- Version: 2
+-- Description: Core user profiles linked to Supabase Auth. Includes Public Key for E2EE.
 -- =============================================
 
 -- 1. Table Definition
 -- ---------------------------------------------
--- Enable UUID extension
+-- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- We reference auth.users to link Supabase Authentication with our public profile
@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS "users" (
     "first_name" varchar(50) NOT NULL,
     "last_name" varchar(50) NOT NULL,
     "email" text UNIQUE NOT NULL,
+    
+    -- Public Key: RSA Public Key generated on the user's device for E2EE
+    "public_key" text,
     
     -- Pair Code: Unique identifier for syncing (e.g. ALEX-8392)
     -- Increased to 20 chars to accommodate "NAME-XXXX" format
