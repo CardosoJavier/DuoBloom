@@ -26,7 +26,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 
 import React, { useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 
 export interface DateNavigatorProps {
   date: Date;
@@ -48,8 +48,6 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
   onDateChange,
   className,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark" || true;
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const prevDay = () => {
@@ -83,23 +81,29 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
   return (
     <>
       <HStack
-        className={`rounded-2xl h-[52px] items-center justify-between px-2 ${
-          isDark ? "bg-[#162032]" : "bg-[#EEF0F6]"
-        } ${className || ""}`}
+        className={`rounded-2xl h-[52px] items-center justify-between px-2 bg-[#EEF0F6] dark:bg-background-900 ${className || ""}`}
       >
         <Pressable
           onPress={prevDay}
           className="h-full px-4 items-center justify-center active:opacity-50"
         >
-          <Icon as={ChevronLeftIcon} size="xl" className="text-slate-400" />
+          <Icon
+            as={ChevronLeftIcon}
+            size="xl"
+            className="text-typography-500 dark:text-typography-400"
+          />
         </Pressable>
 
         <Pressable
           onPress={() => setIsPickerOpen(true)}
           className="flex-1 h-full items-center justify-center flex-row gap-2 active:opacity-50"
         >
-          <Icon as={CalendarDaysIcon} size="md" className="text-slate-400" />
-          <Text className="text-white font-bold text-base">
+          <Icon
+            as={CalendarDaysIcon}
+            size="md"
+            className="text-typography-500 dark:text-typography-400"
+          />
+          <Text className="text-typography-900 dark:text-typography-0 font-bold text-base">
             {formattedDate}
           </Text>
         </Pressable>
@@ -108,15 +112,19 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
           onPress={nextDay}
           className="h-full px-4 items-center justify-center active:opacity-50"
         >
-          <Icon as={ChevronRightIcon} size="xl" className="text-slate-400" />
+          <Icon
+            as={ChevronRightIcon}
+            size="xl"
+            className="text-typography-500 dark:text-typography-400"
+          />
         </Pressable>
       </HStack>
 
       <Actionsheet isOpen={isPickerOpen} onClose={() => setIsPickerOpen(false)}>
         <ActionsheetBackdrop />
-        <ActionsheetContent className="bg-slate-900 border-t border-slate-800 rounded-t-3xl pt-2 pb-8">
+        <ActionsheetContent className="bg-background-0 dark:bg-background-900 border-t border-outline-200 dark:border-outline-800 rounded-t-3xl pt-2 pb-8">
           <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator className="bg-slate-700" />
+            <ActionsheetDragIndicator className="bg-outline-400 dark:bg-outline-700" />
           </ActionsheetDragIndicatorWrapper>
 
           <View className="w-full mt-4 items-center h-[350px]">
@@ -126,24 +134,30 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
               onValueChange={(selectedDate: Date) =>
                 handleCalendarSelection(selectedDate)
               }
-              className="w-full bg-slate-900 border-0 p-4"
+              className="w-full bg-transparent border-0 p-4"
             >
               <CalendarHeader className="flex-row justify-between w-full mb-4 px-2 items-center">
-                <CalendarHeaderPrevButton className="bg-slate-800 rounded-lg h-10 w-10 active:bg-slate-700 items-center justify-center">
-                  <Icon as={ChevronLeftIcon} className="text-slate-300" />
+                <CalendarHeaderPrevButton className="bg-background-100 dark:bg-background-800 rounded-lg h-10 w-10 active:bg-background-200 dark:active:bg-background-700 items-center justify-center">
+                  <Icon
+                    as={ChevronLeftIcon}
+                    className="text-typography-600 dark:text-typography-300"
+                  />
                 </CalendarHeaderPrevButton>
 
-                <CalendarHeaderTitle className="text-white font-bold" />
+                <CalendarHeaderTitle className="text-typography-900 dark:text-typography-0 font-bold" />
 
-                <CalendarHeaderNextButton className="bg-slate-800 rounded-lg h-10 w-10 active:bg-slate-700 items-center justify-center">
-                  <Icon as={ChevronRightIcon} className="text-slate-300" />
+                <CalendarHeaderNextButton className="bg-background-100 dark:bg-background-800 rounded-lg h-10 w-10 active:bg-background-200 dark:active:bg-background-700 items-center justify-center">
+                  <Icon
+                    as={ChevronRightIcon}
+                    className="text-typography-600 dark:text-typography-300"
+                  />
                 </CalendarHeaderNextButton>
               </CalendarHeader>
 
-              <CalendarWeekDaysHeader className="border-b border-slate-800 pb-2 mb-2 w-full" />
+              <CalendarWeekDaysHeader className="border-b border-outline-200 dark:border-outline-800 pb-2 mb-2 w-full text-typography-500 dark:text-typography-400" />
 
               <CalendarBody>
-                <CalendarGrid className="w-full gap-2" />
+                <CalendarGrid className="w-full gap-2 [&_[data-state='today']]:border [&_[data-state='today']]:border-primary-500 [&_[data-state='today']]:bg-primary-50 dark:[&_[data-state='today']]:bg-primary-950/20 [&_[data-state='today']>div]:text-primary-500" />
               </CalendarBody>
             </Calendar>
           </View>
