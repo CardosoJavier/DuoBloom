@@ -14,10 +14,19 @@ export function MealsView() {
   const [meals, setMeals] = useState<any[]>([
     {
       id: "1",
+      userId: "1", // current user
       name: "Oatmeal Bowl",
       calories: 350,
       uri: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
       timestamp: "8:30 AM",
+    },
+    {
+      id: "2",
+      userId: "partner123", // partner
+      name: "Avocado Toast",
+      calories: 420,
+      uri: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80",
+      timestamp: "9:00 AM",
     },
   ]);
 
@@ -30,6 +39,7 @@ export function MealsView() {
       ...prev,
       {
         id: Math.random().toString(),
+        userId: "1", // newly added is always by current user
         name: mealInfo.name,
         calories: mealInfo.calories,
         uri: mealInfo.uri,
@@ -39,6 +49,12 @@ export function MealsView() {
         }),
       },
     ]);
+  };
+
+  const getAvatarForUser = (userId: string) => {
+    return userId === "1"
+      ? "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80" // User Avatar
+      : "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80"; // Partner Avatar
   };
 
   return (
@@ -62,6 +78,7 @@ export function MealsView() {
             <View key={meal.id} className="w-[48%] mb-4">
               <IdentifiedImage
                 uri={meal.uri}
+                avatarUri={getAvatarForUser(meal.userId)}
                 title={meal.name}
                 subtitle={`${meal.calories} kcal | ${meal.timestamp}`}
               />
@@ -78,7 +95,7 @@ export function MealsView() {
       <Fab
         size="lg"
         placement="bottom right"
-        className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-[100px] right-4"
+        className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
         onPress={() => setIsModalOpen(true)}
       >
         <FabIcon as={Plus} className="text-white" />

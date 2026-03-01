@@ -1,4 +1,4 @@
-import { Camera, Utensils, X } from "lucide-react-native";
+import { Camera, Image as ImageIcon, Utensils, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Button, ButtonText } from "../ui/button";
 import {
@@ -78,7 +78,7 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
             </Input>
           </FormControl>
 
-          <FormControl>
+          <FormControl className="flex-1">
             <FormControlLabel className="mb-1">
               <FormControlLabelText className="text-typography-700 dark:text-typography-300">
                 Calories (kcal)
@@ -95,32 +95,53 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
             </Input>
           </FormControl>
 
-          <Button
-            variant="outline"
-            className="w-full mt-2 border-outline-200 dark:border-outline-700 rounded-xl py-3 justify-center items-center flex-row"
-            onPress={() => {
-              // Simulate taking photo for now
-              setImageUri(
-                "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
-              );
-            }}
-          >
-            <Icon
-              as={Camera}
-              className="mr-2 text-typography-700 dark:text-typography-300"
-            />
-            <ButtonText className="text-typography-700 dark:text-typography-300">
-              Take Photo
-            </ButtonText>
-          </Button>
+          <HStack className="w-full mt-2 gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 border-outline-200 dark:border-outline-700 rounded-xl py-3 h-12 justify-center items-center"
+              onPress={() => {
+                // Simulate taking photo
+                setImageUri(
+                  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
+                );
+              }}
+            >
+              <Icon
+                as={Camera}
+                className="mr-2 text-typography-700 dark:text-typography-300"
+              />
+              <ButtonText className="text-typography-700 dark:text-typography-300">
+                Camera
+              </ButtonText>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="flex-1 border-outline-200 dark:border-outline-700 rounded-xl py-3 h-12 justify-center items-center"
+              onPress={() => {
+                // Simulate picking from gallery
+                setImageUri(
+                  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=80",
+                );
+              }}
+            >
+              <Icon
+                as={ImageIcon}
+                className="mr-2 text-typography-700 dark:text-typography-300"
+              />
+              <ButtonText className="text-typography-700 dark:text-typography-300">
+                Gallery
+              </ButtonText>
+            </Button>
+          </HStack>
         </ModalBody>
 
         <ModalFooter className="mt-4 p-0">
           <Button
             onPress={handleSave}
-            className="w-full bg-primary-500 hover:bg-primary-600 rounded-xl py-3 flex-1"
+            className="w-full bg-primary-500 hover:bg-primary-600 rounded-xl py-3 h-12 flex-1 justify-center items-center"
           >
-            <ButtonText className="text-white font-bold w-full text-center">
+            <ButtonText className="text-white font-bold text-center">
               Save Entry
             </ButtonText>
           </Button>
