@@ -6,11 +6,7 @@ import {
   useStyleContext,
   withStyleContext,
 } from "@gluestack-ui/utils/nativewind-utils";
-import {
-  AnimatePresence,
-  Motion,
-  MotionComponentProps,
-} from "@legendapp/motion";
+import { Motion, MotionComponentProps } from "@legendapp/motion";
 import { cssInterop } from "nativewind";
 import React from "react";
 import { AccessibilityInfo, Text, View, ViewStyle } from "react-native";
@@ -20,7 +16,7 @@ type IMotionViewProps = React.ComponentProps<typeof View> &
 
 const MotionView = Motion.View as React.ComponentType<IMotionViewProps>;
 
-const useToast = createToastHook(MotionView, AnimatePresence);
+const useToast = createToastHook(MotionView);
 const SCOPE = "TOAST";
 
 cssInterop(MotionView, { className: "style" });
