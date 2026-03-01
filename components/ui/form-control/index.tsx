@@ -1,139 +1,138 @@
-'use client';
-import { Text, View } from 'react-native';
-import React from 'react';
-import { createFormControl } from '@gluestack-ui/core/form-control/creator';
-import { tva } from '@gluestack-ui/utils/nativewind-utils';
-import { withStyleContext } from '@gluestack-ui/utils/nativewind-utils';
-import { cssInterop } from 'nativewind';
-import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
-import { UIIcon } from '@gluestack-ui/core/icon/creator';
+"use client";
+import { createFormControl } from "@gluestack-ui/core/form-control/creator";
+import { UIIcon } from "@gluestack-ui/core/icon/creator";
+import type { VariantProps } from "@gluestack-ui/utils/nativewind-utils";
+import { tva, withStyleContext } from "@gluestack-ui/utils/nativewind-utils";
+import { cssInterop } from "nativewind";
+import React from "react";
+import { Text, View } from "react-native";
 
-const SCOPE = 'FORM_CONTROL';
+const SCOPE = "FORM_CONTROL";
 
 const formControlStyle = tva({
-  base: 'flex flex-col',
+  base: "flex flex-col",
 });
 
 const formControlErrorIconStyle = tva({
-  base: 'text-destructive fill-none h-[18px] w-[18px]',
+  base: "text-destructive fill-none h-[18px] w-[18px]",
 });
 
 const formControlErrorStyle = tva({
-  base: 'flex flex-row justify-start items-center mt-1 gap-1',
+  base: "flex flex-row justify-start items-center mt-1 gap-1",
 });
 
 const formControlErrorTextStyle = tva({
-  base: 'text-destructive text-xs font-body',
+  base: "text-destructive text-xs font-body",
   variants: {
     isTruncated: {
-      true: 'web:truncate',
+      true: "web:truncate",
     },
     bold: {
-      true: 'font-bold',
+      true: "font-bold",
     },
     underline: {
-      true: 'underline',
+      true: "underline",
     },
     strikeThrough: {
-      true: 'line-through',
+      true: "line-through",
     },
     sub: {
-      true: 'text-xs',
+      true: "text-xs",
     },
     italic: {
-      true: 'italic',
+      true: "italic",
     },
     highlight: {
-      true: 'bg-yellow-500',
+      true: "bg-yellow-500",
     },
   },
 });
 
 const formControlHelperStyle = tva({
-  base: 'flex flex-row justify-start items-center mt-1 font-body',
+  base: "flex flex-row justify-start items-center mt-1 font-body",
 });
 
 const formControlHelperTextStyle = tva({
-  base: 'text-foreground/70 font-body text-sm',
+  base: "text-foreground/70 font-body text-sm",
   variants: {
     isTruncated: {
-      true: 'web:truncate',
+      true: "web:truncate",
     },
     bold: {
-      true: 'font-bold',
+      true: "font-bold",
     },
     underline: {
-      true: 'underline',
+      true: "underline",
     },
     strikeThrough: {
-      true: 'line-through',
+      true: "line-through",
     },
     sub: {
-      true: 'text-xs',
+      true: "text-xs",
     },
     italic: {
-      true: 'italic',
+      true: "italic",
     },
     highlight: {
-      true: 'bg-yellow-500',
+      true: "bg-yellow-500",
     },
   },
 });
 
 const formControlLabelStyle = tva({
-  base: 'flex flex-row justify-start items-center mb-1',
+  base: "flex flex-row justify-start items-center mb-1",
 });
 
 const formControlLabelTextStyle = tva({
-  base: 'font-medium text-foreground text-base font-body',
+  base: "font-medium text-foreground text-base font-body",
   variants: {
     isTruncated: {
-      true: 'web:truncate',
+      true: "web:truncate",
     },
     bold: {
-      true: 'font-bold',
+      true: "font-bold",
     },
     underline: {
-      true: 'underline',
+      true: "underline",
     },
     strikeThrough: {
-      true: 'line-through',
+      true: "line-through",
     },
     sub: {
-      true: 'text-xs',
+      true: "text-xs",
     },
     italic: {
-      true: 'italic',
+      true: "italic",
     },
     highlight: {
-      true: 'bg-yellow-500',
+      true: "bg-yellow-500",
     },
   },
 });
 
 const formControlLabelAstrickStyle = tva({
-  base: 'font-medium text-typography text-base',
+  base: "font-medium text-typography text-base",
   variants: {
     isTruncated: {
-      true: 'web:truncate',
+      true: "web:truncate",
     },
     bold: {
-      true: 'font-bold',
+      true: "font-bold",
     },
     underline: {
-      true: 'underline',
+      true: "underline",
     },
     strikeThrough: {
-      true: 'line-through',
+      true: "line-through",
     },
     sub: {
-      true: 'text-xs',
+      true: "text-xs",
     },
     italic: {
-      true: 'italic',
+      true: "italic",
     },
     highlight: {
-      true: 'bg-yellow-500',
+      true: "bg-yellow-500",
     },
   },
 });
@@ -170,14 +169,14 @@ export const UIFormControl = createFormControl({
   HelperText: Text,
 });
 
-cssInterop(UIIcon, {
+cssInterop(UIIcon as any, {
   className: {
-    target: 'style',
+    target: "style",
     nativeStyleToProp: {
       height: true,
       width: true,
       fill: true,
-      color: true,
+      color: "classNameColor",
       stroke: true,
     },
   },
@@ -329,24 +328,24 @@ const FormControlHelperText = React.forwardRef<
   );
 });
 
-FormControl.displayName = 'FormControl';
-FormControlError.displayName = 'FormControlError';
-FormControlErrorText.displayName = 'FormControlErrorText';
-FormControlErrorIcon.displayName = 'FormControlErrorIcon';
-FormControlLabel.displayName = 'FormControlLabel';
-FormControlLabelText.displayName = 'FormControlLabelText';
-FormControlLabelAstrick.displayName = 'FormControlLabelAstrick';
-FormControlHelper.displayName = 'FormControlHelper';
-FormControlHelperText.displayName = 'FormControlHelperText';
+FormControl.displayName = "FormControl";
+FormControlError.displayName = "FormControlError";
+FormControlErrorText.displayName = "FormControlErrorText";
+FormControlErrorIcon.displayName = "FormControlErrorIcon";
+FormControlLabel.displayName = "FormControlLabel";
+FormControlLabelText.displayName = "FormControlLabelText";
+FormControlLabelAstrick.displayName = "FormControlLabelAstrick";
+FormControlHelper.displayName = "FormControlHelper";
+FormControlHelperText.displayName = "FormControlHelperText";
 
 export {
   FormControl,
   FormControlError,
-  FormControlErrorText,
   FormControlErrorIcon,
-  FormControlLabel,
-  FormControlLabelText,
-  FormControlLabelAstrick,
+  FormControlErrorText,
   FormControlHelper,
   FormControlHelperText,
+  FormControlLabel,
+  FormControlLabelAstrick,
+  FormControlLabelText,
 };
