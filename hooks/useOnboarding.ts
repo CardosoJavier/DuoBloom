@@ -42,7 +42,7 @@ export function useOnboarding() {
 
         // 3. Generate RSA Keys (Identity) and Recovery Code
         const { publicKey, privateKey } =
-          encryptionService.generateIdentityKeys();
+          await encryptionService.generateIdentityKeys();
         const mnemonic = recoveryService.generateRecoveryCode();
 
         // 4. Test storing the hardware lock (Private Key)
@@ -52,7 +52,7 @@ export function useOnboarding() {
         });
 
         // 5. Build the Recovery Vault Payload (AES seal of the Private key)
-        const vaultPayload = recoveryService.sealPrivateKey(
+        const vaultPayload = await recoveryService.sealPrivateKey(
           privateKey,
           mnemonic,
         );

@@ -1,5 +1,5 @@
-import { Buffer } from "buffer";
 import * as FileSystem from "expo-file-system/legacy";
+import { Buffer } from "node:buffer";
 import crypto from "react-native-quick-crypto";
 
 export interface EncryptionMetadata {
@@ -18,23 +18,40 @@ class EncryptionService {
    * Generates an RSA-2048 identity key pair.
    * Returns keys in PEM format.
    */
-  generateIdentityKeys(): { publicKey: string; privateKey: string } {
-    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
-      },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-      },
+  async generateIdentityKeys(): Promise<{
+    publicKey: string;
+    privateKey: string;
+  }> {
+    return new Promise((resolve, reject) => {
+      crypto.generateKeyPair(
+        "rsa",
+        {
+          modulusLength: 2048,
+          publicKeyEncoding: {
+            type: "spki",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs8",
+            format: "pem",
+          },
+        },
+        (err, publicKey, privateKey) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve({
+            publicKey:
+              (publicKey as any).export?.({ format: "pem", type: "spki" }) ||
+              "",
+            privateKey:
+              (privateKey as any).export?.({ format: "pem", type: "pkcs8" }) ||
+              "",
+          });
+        },
+      );
     });
-
-    return {
-      publicKey: (publicKey as any).export?.({ format: "pem", type: "spki" }) || "",
-      privateKey: (privateKey as any).export?.({ format: "pem", type: "pkcs8" }) || "",
-    };
   }
 
   /**
