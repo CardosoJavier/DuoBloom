@@ -49,7 +49,7 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
   className,
 }) => {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark" || true; // Using dark default to match SegmentedControl theme
+  const isDark = colorScheme === "dark" || true;
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const prevDay = () => {
@@ -146,13 +146,6 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
                 <CalendarGrid className="w-full gap-2" />
               </CalendarBody>
             </Calendar>
-
-            <Pressable
-              onPress={() => handleCalendarSelection(new Date())}
-              className="mt-6 bg-slate-800 py-3.5 px-6 rounded-2xl w-[90%] items-center border border-slate-700 shadow-sm shadow-slate-950 active:scale-[0.98]"
-            >
-              <Text className="text-white font-bold">Go to Today</Text>
-            </Pressable>
           </View>
         </ActionsheetContent>
       </Actionsheet>
