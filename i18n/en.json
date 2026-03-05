@@ -27,6 +27,12 @@
     "strike_count_one": "You're on a {{count}}-day streak!",
     "strike_count_other": "You're on a {{count}}-day streak!"
   },
+  "meals": {
+    "no_meals_found_today": "No meals logged today yet.",
+    "partner_no_meals": "{{name}} hasn't logged any meals today.",
+    "user_no_meals": "You haven't logged any meals today.",
+    "shared_meals": "Shared Meals"
+  },
   "nutrition": {
     "calories_goal": "Daily Goal: {{count}} kcal"
   },

@@ -27,6 +27,12 @@
     "strike_count_one": "¡Llevas una racha de {{count}} día!",
     "strike_count_other": "¡Llevas una racha de {{count}} días!"
   },
+  "meals": {
+    "no_meals_found_today": "No se han registrado comidas hoy.",
+    "partner_no_meals": "{{name}} no ha registrado comidas hoy.",
+    "user_no_meals": "No has registrado ninguna comida hoy.",
+    "shared_meals": "Comidas Compartidas"
+  },
   "nutrition": {
     "calories_goal": "Meta Diaria: {{count}} kcal"
   },

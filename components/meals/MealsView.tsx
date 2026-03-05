@@ -1,61 +1,98 @@
+import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
 import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { Text } from "@/components/ui/text";
+import { useAuthStore } from "@/store/authStore";
+import { ConsumedMeal } from "@/types/meals";
+import { supabase } from "@/util/supabase";
 import { Plus } from "lucide-react-native";
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { DateNavigator } from "../DateNavigator";
 import { IdentifiedImage } from "../IdentifiedImage";
 import { AddMealModal } from "./AddMealModal";
 
 export function MealsView() {
+  const { t } = useTranslation();
+  const { user, partner } = useAuthStore();
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [meals, setMeals] = useState<any[]>([
-    {
-      id: "1",
-      userId: "1", // current user
-      name: "Oatmeal Bowl",
-      calories: 350,
-      uri: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
-      timestamp: "8:30 AM",
-    },
-    {
-      id: "2",
-      userId: "partner123", // partner
-      name: "Avocado Toast",
-      calories: 420,
-      uri: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80",
-      timestamp: "9:00 AM",
-    },
-  ]);
+  const [meals, setMeals] = useState<ConsumedMeal[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddMeal = (mealInfo: {
+  useEffect(() => {
+    fetchMeals();
+  }, [selectedDate, user?.id]);
+
+  const fetchMeals = async () => {
+    if (!user?.id) return;
+
+    setIsLoading(true);
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const result = await getConsumedMeals(
+      startOfDay.toISOString(),
+      endOfDay.toISOString(),
+    );
+
+    if (result.success && result.data) {
+      setMeals(result.data);
+    } else {
+      setMeals([]);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleAddMeal = async (mealInfo: {
     name: string;
     calories: number;
     uri: string;
   }) => {
-    setMeals((prev) => [
-      ...prev,
-      {
-        id: Math.random().toString(),
-        userId: "1", // newly added is always by current user
-        name: mealInfo.name,
-        calories: mealInfo.calories,
-        uri: mealInfo.uri,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    if (!user?.id) return;
+
+    setIsLoading(true);
+    await addConsumedMeal({
+      user_id: user.id,
+      name: mealInfo.name,
+      kcal: mealInfo.calories,
+      consumption_date: new Date().toISOString(),
+      photo_url: mealInfo.uri,
+    });
+
+    await fetchMeals();
+  };
+
+  const getImageUrl = (path: string) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    const { data } = supabase.storage.from("meals").getPublicUrl(path);
+    return data.publicUrl;
   };
 
   const getAvatarForUser = (userId: string) => {
-    return userId === "1"
-      ? "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80" // User Avatar
-      : "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80"; // Partner Avatar
+    if (userId === user?.id) {
+      return (
+        user?.avatarUrl ||
+        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80"
+      ); // Fallback User Avatar
+    }
+    if (partner && userId === partner.id) {
+      return (
+        partner?.avatarUrl ||
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80"
+      ); // Fallback Partner Avatar
+    }
+    return undefined;
   };
+
+  const userMeals = meals.filter((m) => m.user_id === user?.id);
+  const partnerMeals = meals.filter((m) => m.user_id === partner?.id);
 
   return (
     <Box className="flex-1 bg-background-0 relative">
@@ -70,26 +107,55 @@ export function MealsView() {
           size="xl"
           className="font-bold text-typography-900 dark:text-white mb-4"
         >
-          Shared Meals
+          {t("meals.shared_meals")}
         </Text>
 
-        <View className="flex-row flex-wrap justify-between">
-          {meals.map((meal) => (
-            <View key={meal.id} className="w-[48%] mb-4">
-              <IdentifiedImage
-                uri={meal.uri}
-                avatarUri={getAvatarForUser(meal.userId)}
-                title={meal.name}
-                subtitle={`${meal.calories} kcal | ${meal.timestamp}`}
-              />
-            </View>
-          ))}
-          {meals.length === 0 && (
-            <Text className="text-typography-500 w-full text-center mt-10">
-              No meals logged today yet.
-            </Text>
-          )}
-        </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" className="mt-10" />
+        ) : meals.length === 0 ? (
+          <Text className="text-typography-500 w-full text-center mt-10">
+            {t("meals.no_meals_found_today")}
+          </Text>
+        ) : (
+          <View className="flex-row flex-wrap justify-between">
+            {meals.map((meal) => (
+              <View key={meal.id} className="w-[48%] mb-4">
+                <IdentifiedImage
+                  uri={getImageUrl(meal.photo_url)}
+                  avatarUri={getAvatarForUser(meal.user_id)}
+                  title={meal.name}
+                  subtitle={`${meal.kcal || 0} kcal | ${new Date(
+                    meal.consumption_date,
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`}
+                />
+              </View>
+            ))}
+          </View>
+        )}
+
+        {!isLoading && meals.length > 0 && partner && (
+          <View className="w-full mt-6 gap-4">
+            {userMeals.length === 0 && (
+              <Box className="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                <Text className="text-typography-500 text-center">
+                  {t("meals.user_no_meals")}
+                </Text>
+              </Box>
+            )}
+            {partnerMeals.length === 0 && (
+              <Box className="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                <Text className="text-typography-500 text-center">
+                  {t("meals.partner_no_meals", {
+                    name: partner.firstName,
+                  })}
+                </Text>
+              </Box>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       <Fab
