@@ -2,8 +2,10 @@ import { ApiResult } from "@/types/api";
 import { AuthResponse } from "@/types/auth";
 import { LoginData, SignupData } from "@/types/auth-schema";
 import { AppError, ErrorCode } from "@/types/error";
+import { Relationship } from "@/types/sync";
 import { User } from "@/types/user";
 import { supabase } from "@/util/supabase";
+import { syncApi } from "./sync-api";
 
 // Helper to map Supabase Auth User to our User type
 const mapAuthUser = (user: any): User => {
@@ -334,6 +336,69 @@ export const userApi = {
       console.error(
         "GetUserProfile API Error:",
         error.message || "Unknown error",
+      );
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: error.message || "Unknown error",
+          originalError: error,
+        },
+      };
+    }
+  },
+
+  /**
+   * Fetch Partner
+   */
+  fetchPartner: async (userId: string): Promise<ApiResult<User>> => {
+    try {
+      if (!userId)
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.INVALID_INPUT,
+            message: "Invalid userId provided",
+            originalError: null,
+          },
+        };
+
+      const relResult: ApiResult<Relationship | null> =
+        await syncApi.getRelationship(userId);
+
+      if (relResult.success && relResult.data) {
+        const partnerId =
+          relResult.data.user_one_id === userId
+            ? relResult.data.user_two_id
+            : relResult.data.user_one_id;
+
+        const profileResult: ApiResult<User> =
+          await userApi.getUserProfile(partnerId);
+        if (profileResult.success && profileResult.data) {
+          return { success: true, data: profileResult.data };
+        }
+
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.UNKNOWN_ERROR,
+            message: "Failed to fetch partner information",
+            originalError: profileResult.error.originalError,
+          },
+        };
+      } else {
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.UNKNOWN_ERROR,
+            message: "Error fetching relationship data",
+            originalError: relResult.error?.message,
+          },
+        };
+      }
+    } catch (error: any) {
+      console.log(
+        `fetchPartner API error: ${error.message || "Unknown error"}`,
       );
       return {
         success: false,

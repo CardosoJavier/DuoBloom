@@ -10,7 +10,7 @@ export const syncApi = {
    */
   attemptPartnerSync: async (
     userId: string,
-    partnerCode: string
+    partnerCode: string,
   ): Promise<ApiResult<SyncResult>> => {
     try {
       const { data, error } = await supabase.rpc("attempt_partner_sync", {
@@ -33,15 +33,15 @@ export const syncApi = {
       // The RPC returns a JSON object, we cast it to SyncResult
       // But based on the SQL function, it returns jsonb which matches SyncResult structure
       const result = data as SyncResult;
-      
+
       if (!result.success) {
-         return {
+        return {
           success: false,
           error: {
             code: ErrorCode.UNKNOWN_ERROR, // Or a more specific code if we had one
             message: result.error || "Sync attempt failed",
-          }
-         }
+          },
+        };
       }
 
       return { success: true, data: result };
@@ -63,7 +63,7 @@ export const syncApi = {
    */
   confirmPartnerSync: async (
     requestId: string,
-    userId: string
+    userId: string,
   ): Promise<ApiResult<SyncResult>> => {
     try {
       const { data, error } = await supabase.rpc("confirm_partner_sync", {
@@ -85,14 +85,14 @@ export const syncApi = {
 
       const result = data as SyncResult;
 
-       if (!result.success) {
-         return {
+      if (!result.success) {
+        return {
           success: false,
           error: {
             code: ErrorCode.UNKNOWN_ERROR,
             message: result.error || "Sync confirmation failed",
-          }
-         }
+          },
+        };
       }
 
       return { success: true, data: result };
@@ -113,7 +113,7 @@ export const syncApi = {
    * Useful for polling the status.
    */
   getActiveSyncRequest: async (
-    userId: string
+    userId: string,
   ): Promise<ApiResult<SyncRequest | null>> => {
     try {
       const { data, error } = await supabase
@@ -152,7 +152,7 @@ export const syncApi = {
    * Checks if the user already has a relationship (synced partner).
    */
   getRelationship: async (
-    userId: string
+    userId: string,
   ): Promise<ApiResult<Relationship | null>> => {
     try {
       const { data, error } = await supabase

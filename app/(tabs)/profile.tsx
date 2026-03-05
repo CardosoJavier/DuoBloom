@@ -8,7 +8,6 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAuthStore } from "@/store/authStore";
-import { User as UserType } from "@/types/user";
 import * as Clipboard from "expo-clipboard";
 import { useRouter } from "expo-router";
 import {
@@ -18,41 +17,37 @@ import {
   Link as LinkIcon,
   User,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
-  const { user, logout, checkSyncStatus } = useAuthStore();
+  const { user, logout, checkSyncStatus, partner, setPartner } = useAuthStore();
   const { t } = useTranslation();
   const router = useRouter();
-  const [partner, setPartner] = useState<UserType | null>(null);
 
   useEffect(() => {
-    const fetchPartner = async () => {
-      if (!user?.id) return;
+    const refetchPartner = async () => {
+      if (!partner) {
+        console.warn("Fetching missing partner info");
 
-      const { syncApi } = await import("@/api/sync-api");
-      const relResult = await syncApi.getRelationship(user.id);
+        const partnerInfo = await userApi.fetchPartner(user?.id ?? "");
 
-      if (relResult.success && relResult.data) {
-        const partnerId =
-          relResult.data.user_one_id === user.id
-            ? relResult.data.user_two_id
-            : relResult.data.user_one_id;
-
-        const profileResult = await userApi.getUserProfile(partnerId);
-        if (profileResult.success && profileResult.data) {
-          setPartner(profileResult.data);
+        if (partnerInfo.success && partnerInfo.data) {
+          console.log(
+            "Success fetching partner info: ",
+            partnerInfo.data.firstName,
+          );
+          setPartner(partnerInfo.data);
+        } else {
+          console.log("Error fetching partner info: ", partnerInfo.error);
         }
-      } else {
-        setPartner(null);
       }
     };
 
-    fetchPartner();
-  }, [user?.id]);
+    refetchPartner();
+  }, [user?.id, partner]);
 
   const copyToClipboard = async () => {
     if (user?.pairCode) {

@@ -11,6 +11,9 @@ export enum ErrorCode {
   // Network/System Errors
   NETWORK_ERROR = "NETWORK_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
+
+  // Validation Errors
+  INVALID_INPUT = "INVALID_INPUT",
 }
 
 export interface AppError {
