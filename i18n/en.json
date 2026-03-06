@@ -31,7 +31,13 @@
     "no_meals_found_today": "No meals logged today yet.",
     "partner_no_meals": "{{name}} hasn't logged any meals today.",
     "user_no_meals": "You haven't logged any meals today.",
-    "shared_meals": "Shared Meals"
+    "shared_meals": "Shared Meals",
+    "upload_url_error": "Failed to request upload URL.",
+    "upload_failed": "Failed to upload image.",
+    "db_save_failed": "Failed to save meal data. Image upload rolled back.",
+    "require_name_image": "Meal name and image are required.",
+    "camera_permission_required": "Camera permissions are required to take a photo.",
+    "gallery_permission_required": "Gallery permissions are required to pick an image."
   },
   "nutrition": {
     "calories_goal": "Daily Goal: {{count}} kcal"

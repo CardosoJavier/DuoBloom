@@ -42,7 +42,14 @@
         }
       ],
       "expo-localization",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share meal pictures with your partner.",
+          "cameraPermission": "The app accesses your camera to let you take meal pictures to share with your partner."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

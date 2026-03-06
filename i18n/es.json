@@ -31,7 +31,13 @@
     "no_meals_found_today": "No se han registrado comidas hoy.",
     "partner_no_meals": "{{name}} no ha registrado comidas hoy.",
     "user_no_meals": "No has registrado ninguna comida hoy.",
-    "shared_meals": "Comidas Compartidas"
+    "shared_meals": "Comidas Compartidas",
+    "upload_url_error": "Error al solicitar la URL de subida.",
+    "upload_failed": "Error al subir la imagen.",
+    "db_save_failed": "Error al guardar los datos de la comida. La subida de la imagen fue cancelada.",
+    "require_name_image": "El nombre y la foto son obligatorios.",
+    "camera_permission_required": "Se requieren permisos para usar la cámara.",
+    "gallery_permission_required": "Se requieren permisos para acceder a la galería."
   },
   "nutrition": {
     "calories_goal": "Meta Diaria: {{count}} kcal"

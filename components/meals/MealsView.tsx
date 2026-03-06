@@ -2,9 +2,13 @@ import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
 import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { Text } from "@/components/ui/text";
+import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
 import { ConsumedMeal } from "@/types/meals";
 import { supabase } from "@/util/supabase";
+import { decode } from "base64-arraybuffer";
+import * as Crypto from "expo-crypto";
+import * as FileSystem from "expo-file-system";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +20,7 @@ import { AddMealModal } from "./AddMealModal";
 export function MealsView() {
   const { t } = useTranslation();
   const { user, partner } = useAuthStore();
+  const toast = useAppToast();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +46,26 @@ export function MealsView() {
     );
 
     if (result.success && result.data) {
-      setMeals(result.data);
+      const records = result.data;
+
+      const mealsWithSignedUrls: ConsumedMeal[] = await Promise.all(
+        records.map(async (meal) => {
+          if (!meal.photo_url || meal.photo_url.startsWith("http")) {
+            return meal;
+          }
+
+          const { data, error } = await supabase.storage
+            .from("user_media")
+            .createSignedUrl(meal.photo_url, 3600);
+
+          return {
+            ...meal,
+            photo_url: data?.signedUrl || meal.photo_url,
+          };
+        }),
+      );
+
+      setMeals(mealsWithSignedUrls);
     } else {
       setMeals([]);
     }
@@ -54,25 +78,67 @@ export function MealsView() {
     calories: number;
     uri: string;
   }) => {
-    if (!user?.id) return;
+    if (!user?.id || !mealInfo.uri) return;
 
     setIsLoading(true);
-    await addConsumedMeal({
-      user_id: user.id,
-      name: mealInfo.name,
-      kcal: mealInfo.calories,
-      consumption_date: new Date().toISOString(),
-      photo_url: mealInfo.uri,
-    });
 
-    await fetchMeals();
-  };
+    try {
+      // 1. Generate path
+      const uuid = Crypto.randomUUID();
+      const path = `meals/${user.id}/${uuid}.jpg`;
 
-  const getImageUrl = (path: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    const { data } = supabase.storage.from("meals").getPublicUrl(path);
-    return data.publicUrl;
+      // 2. Request Signed Upload URL
+      const { data: uploadUrlData, error: uploadUrlError } =
+        await supabase.storage.from("user_media").createSignedUploadUrl(path);
+
+      if (uploadUrlError || !uploadUrlData) {
+        toast.error(t("common.error"), t("meals.upload_url_error"));
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. Upload to Storage
+      // Read file directly from local URI, convert to base64, then ArrayBuffer
+      const file = new FileSystem.File(mealInfo.uri);
+      const base64 = await file.base64();
+      const fileBuffer = decode(base64);
+
+      const { error: uploadError } = await supabase.storage
+        .from("user_media")
+        .uploadToSignedUrl(path, uploadUrlData.token, fileBuffer);
+
+      if (uploadError) {
+        toast.error(t("common.error"), t("meals.upload_failed"));
+        setIsLoading(false);
+        return;
+      }
+
+      // 4. Database Persistence
+      try {
+        const result = await addConsumedMeal({
+          user_id: user.id,
+          name: mealInfo.name,
+          kcal: mealInfo.calories,
+          consumption_date: new Date().toISOString(),
+          photo_url: path, // Only store the path
+        });
+
+        if (!result.success) {
+          throw new Error(result.error?.message || "DB Save Failed");
+        }
+      } catch (dbError) {
+        // 5. Rollback Logic
+        await supabase.storage.from("user_media").remove([path]);
+        toast.error(t("common.error"), t("meals.db_save_failed"));
+        setIsLoading(false);
+        return;
+      }
+
+      await fetchMeals();
+    } catch (e: any) {
+      toast.error(t("common.error"), e.message || "Unknown error");
+      setIsLoading(false);
+    }
   };
 
   const getAvatarForUser = (userId: string) => {
@@ -121,7 +187,7 @@ export function MealsView() {
             {meals.map((meal) => (
               <View key={meal.id} className="w-[48%] mb-4">
                 <IdentifiedImage
-                  uri={getImageUrl(meal.photo_url)}
+                  uri={meal.photo_url}
                   avatarUri={getAvatarForUser(meal.user_id)}
                   title={meal.name}
                   subtitle={`${meal.kcal || 0} kcal | ${new Date(

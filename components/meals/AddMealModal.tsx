@@ -1,5 +1,8 @@
+import * as ImagePicker from "expo-image-picker";
 import { Camera, Image as ImageIcon, Utensils, X } from "lucide-react-native";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Alert, Image } from "react-native";
 import { Button, ButtonText } from "../ui/button";
 import {
   FormControl,
@@ -27,22 +30,66 @@ interface AddMealModalProps {
 }
 
 export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleSave = () => {
+    if (!name || !imageUri) {
+      Alert.alert(t("common.error"), t("meals.require_name_image"));
+      return;
+    }
+
     onSave({
       name,
       calories: parseInt(calories, 10) || 0,
-      uri:
-        imageUri ||
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80", // Fallback placeholder
+      uri: imageUri,
     });
     setName("");
     setCalories("");
     setImageUri(null);
     onClose();
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(t("common.error"), t("meals.camera_permission_required"));
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(t("common.error"), t("meals.gallery_permission_required"));
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
   };
 
   return (
@@ -95,16 +142,11 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
             </Input>
           </FormControl>
 
-          <HStack className="w-full mt-2 gap-3">
+          <HStack className="w-full mt-2 gap-3 mb-4">
             <Button
               variant="outline"
               className="flex-1 border-outline-200 dark:border-outline-700 rounded-xl py-3 h-12 justify-center items-center"
-              onPress={() => {
-                // Simulate taking photo
-                setImageUri(
-                  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
-                );
-              }}
+              onPress={takePhoto}
             >
               <Icon
                 as={Camera}
@@ -118,12 +160,7 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
             <Button
               variant="outline"
               className="flex-1 border-outline-200 dark:border-outline-700 rounded-xl py-3 h-12 justify-center items-center"
-              onPress={() => {
-                // Simulate picking from gallery
-                setImageUri(
-                  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=80",
-                );
-              }}
+              onPress={pickImage}
             >
               <Icon
                 as={ImageIcon}
@@ -134,6 +171,19 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
               </ButtonText>
             </Button>
           </HStack>
+
+          {imageUri && (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: "100%",
+                height: 200,
+                borderRadius: 12,
+                marginTop: 8,
+              }}
+              resizeMode="cover"
+            />
+          )}
         </ModalBody>
 
         <ModalFooter className="mt-4 p-0">
