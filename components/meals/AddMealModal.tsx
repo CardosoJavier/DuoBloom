@@ -61,7 +61,7 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [3, 4],
       quality: 0.8,
