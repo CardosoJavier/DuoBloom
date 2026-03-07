@@ -29,7 +29,11 @@ interface AddMealModalProps {
   onSave: (mealInfo: { name: string; calories: number; uri: string }) => void;
 }
 
-export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
+export function AddMealModal({
+  isOpen,
+  onClose,
+  onSave,
+}: Readonly<AddMealModalProps>) {
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
@@ -43,7 +47,7 @@ export function AddMealModal({ isOpen, onClose, onSave }: AddMealModalProps) {
 
     onSave({
       name,
-      calories: parseInt(calories, 10) || 0,
+      calories: Number.parseInt(calories, 10) || 0,
       uri: imageUri,
     });
     setName("");
