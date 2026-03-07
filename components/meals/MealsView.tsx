@@ -192,7 +192,7 @@ export function MealsView() {
         "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80"
       ); // Fallback User Avatar
     }
-    if (partner && userId === partner.id) {
+    if (userId === partner?.id) {
       return (
         partner?.avatarUrl ||
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80"
@@ -203,6 +203,40 @@ export function MealsView() {
 
   const userMeals = meals.filter((m) => m.user_id === user?.id);
   const partnerMeals = meals.filter((m) => m.user_id === partner?.id);
+
+  const renderMealsContent = () => {
+    if (isLoading) {
+      return <ActivityIndicator size="large" className="mt-10" />;
+    }
+
+    if (meals.length === 0) {
+      return (
+        <Text className="text-typography-500 w-full text-center mt-10">
+          {t("meals.no_meals_found_today")}
+        </Text>
+      );
+    }
+
+    return (
+      <View className="flex-row flex-wrap justify-between">
+        {meals.map((meal) => (
+          <View key={meal.id} className="w-[48%] mb-4">
+            <IdentifiedImage
+              uri={meal.photo_url}
+              avatarUri={getAvatarForUser(meal.user_id)}
+              title={meal.name}
+              subtitle={`${meal.kcal || 0} kcal | ${new Date(
+                meal.consumption_date,
+              ).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`}
+            />
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <Box className="flex-1 bg-background-0 relative">
@@ -220,31 +254,7 @@ export function MealsView() {
           {t("meals.shared_meals")}
         </Text>
 
-        {isLoading ? (
-          <ActivityIndicator size="large" className="mt-10" />
-        ) : meals.length === 0 ? (
-          <Text className="text-typography-500 w-full text-center mt-10">
-            {t("meals.no_meals_found_today")}
-          </Text>
-        ) : (
-          <View className="flex-row flex-wrap justify-between">
-            {meals.map((meal) => (
-              <View key={meal.id} className="w-[48%] mb-4">
-                <IdentifiedImage
-                  uri={meal.photo_url}
-                  avatarUri={getAvatarForUser(meal.user_id)}
-                  title={meal.name}
-                  subtitle={`${meal.kcal || 0} kcal | ${new Date(
-                    meal.consumption_date,
-                  ).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`}
-                />
-              </View>
-            ))}
-          </View>
-        )}
+        {renderMealsContent()}
 
         {!isLoading && meals.length > 0 && partner && (
           <View className="w-full mt-6 gap-4">
