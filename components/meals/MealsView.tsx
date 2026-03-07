@@ -6,9 +6,7 @@ import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
 import { ConsumedMeal } from "@/types/meals";
 import { supabase } from "@/util/supabase";
-import { decode } from "base64-arraybuffer";
 import * as Crypto from "expo-crypto";
-import * as FileSystem from "expo-file-system";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,11 +33,13 @@ export function MealsView() {
     if (!user?.id) return;
 
     setIsLoading(true);
+    console.log("[MealsView] fetchMeals started for date:", selectedDate);
     const startOfDay = new Date(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
+    console.log("[MealsView] Calling getConsumedMeals...");
     const result = await getConsumedMeals(
       startOfDay.toISOString(),
       endOfDay.toISOString(),
@@ -47,6 +47,9 @@ export function MealsView() {
 
     if (result.success && result.data) {
       const records = result.data;
+      console.log(
+        `[MealsView] Got ${records.length} meals. Processing signed URLs...`,
+      );
 
       const mealsWithSignedUrls: ConsumedMeal[] = await Promise.all(
         records.map(async (meal) => {
@@ -54,9 +57,19 @@ export function MealsView() {
             return meal;
           }
 
+          console.log(
+            `[MealsView] Creating signed URL for path: ${meal.photo_url}`,
+          );
           const { data, error } = await supabase.storage
             .from("user_media")
             .createSignedUrl(meal.photo_url, 3600);
+
+          if (error) {
+            console.error(
+              `[MealsView] Error creating signed URL for ${meal.photo_url}:`,
+              error,
+            );
+          }
 
           return {
             ...meal,
@@ -65,8 +78,13 @@ export function MealsView() {
         }),
       );
 
+      console.log(`[MealsView] Finished processing signed URLs.`);
       setMeals(mealsWithSignedUrls);
     } else {
+      console.warn(
+        "[MealsView] Failed to fetch meals or no data.",
+        result.error,
+      );
       setMeals([]);
     }
 
@@ -81,39 +99,55 @@ export function MealsView() {
     if (!user?.id || !mealInfo.uri) return;
 
     setIsLoading(true);
+    console.log("[MealsView] handleAddMeal started for:", mealInfo.name);
 
     try {
       // 1. Generate path
       const uuid = Crypto.randomUUID();
       const path = `meals/${user.id}/${uuid}.jpg`;
+      console.log("[MealsView] Generated storage path:", path);
 
       // 2. Request Signed Upload URL
+      console.log("[MealsView] Requesting signed upload URL...");
       const { data: uploadUrlData, error: uploadUrlError } =
         await supabase.storage.from("user_media").createSignedUploadUrl(path);
 
       if (uploadUrlError || !uploadUrlData) {
+        console.error(
+          "[MealsView] Error getting signed upload URL:",
+          uploadUrlError,
+        );
         toast.error(t("common.error"), t("meals.upload_url_error"));
         setIsLoading(false);
         return;
       }
+      console.log("[MealsView] Got signed upload URL successfully.");
 
       // 3. Upload to Storage
-      // Read file directly from local URI, convert to base64, then ArrayBuffer
-      const file = new FileSystem.File(mealInfo.uri);
-      const base64 = await file.base64();
-      const fileBuffer = decode(base64);
+      console.log("[MealsView] Uploading file to storage...");
+      // Bypass ArrayBuffer base64 conversion.
+      // Use FormData to leverage React Native's native fetch payload handling
+      const formData = new FormData();
+      formData.append("file", {
+        uri: mealInfo.uri,
+        name: `${uuid}.jpg`,
+        type: "image/jpeg",
+      } as any);
 
       const { error: uploadError } = await supabase.storage
         .from("user_media")
-        .uploadToSignedUrl(path, uploadUrlData.token, fileBuffer);
+        .uploadToSignedUrl(path, uploadUrlData.token, formData);
 
       if (uploadError) {
+        console.error("[MealsView] Error uploading to storage:", uploadError);
         toast.error(t("common.error"), t("meals.upload_failed"));
         setIsLoading(false);
         return;
       }
+      console.log("[MealsView] File uploaded to storage successfully.");
 
       // 4. Database Persistence
+      console.log("[MealsView] Persisting meal to database...");
       try {
         const result = await addConsumedMeal({
           user_id: user.id,
@@ -126,16 +160,26 @@ export function MealsView() {
         if (!result.success) {
           throw new Error(result.error?.message || "DB Save Failed");
         }
+        console.log("[MealsView] Meal persisted to database successfully.");
       } catch (dbError) {
         // 5. Rollback Logic
+        console.error(
+          "[MealsView] Database error. Rolling back storage file...",
+          dbError,
+        );
         await supabase.storage.from("user_media").remove([path]);
+        console.log("[MealsView] Storage rollback complete.");
         toast.error(t("common.error"), t("meals.db_save_failed"));
         setIsLoading(false);
         return;
       }
 
+      console.log(
+        "[MealsView] Meal added successfully. Refreshing meals list...",
+      );
       await fetchMeals();
     } catch (e: any) {
+      console.error("[MealsView] Unexpected error in handleAddMeal:", e);
       toast.error(t("common.error"), e.message || "Unknown error");
       setIsLoading(false);
     }
