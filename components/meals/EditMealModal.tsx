@@ -97,31 +97,33 @@ export function EditMealModal({
         {
           text: t("common.confirm"),
           style: "destructive",
-          onPress: async () => {
-            setIsLoading(true);
-            try {
-              const { success, error } = await deleteConsumedMeal(meal.id);
-              if (success) {
-                console.log(
-                  "[EditMealModal] Successfully deleted meal:",
-                  meal.id,
+          onPress: () => {
+            (async () => {
+              setIsLoading(true);
+              try {
+                const { success, error } = await deleteConsumedMeal(meal.id);
+                if (success) {
+                  console.log(
+                    "[EditMealModal] Successfully deleted meal:",
+                    meal.id,
+                  );
+                  toast.success(t("common.success"), t("meals.delete_success"));
+                  onSuccess();
+                  onClose();
+                } else {
+                  console.error("[EditMealModal] Error deleting meal:", error);
+                  toast.error(t("common.error"), t("meals.delete_error"));
+                }
+              } catch (error) {
+                console.error(
+                  "[EditMealModal] Unexpected error deleting meal:",
+                  error,
                 );
-                toast.success(t("common.success"), t("meals.delete_success"));
-                onSuccess();
-                onClose();
-              } else {
-                console.error("[EditMealModal] Error deleting meal:", error);
                 toast.error(t("common.error"), t("meals.delete_error"));
+              } finally {
+                setIsLoading(false);
               }
-            } catch (error) {
-              console.error(
-                "[EditMealModal] Unexpected error deleting meal:",
-                error,
-              );
-              toast.error(t("common.error"), t("meals.delete_error"));
-            } finally {
-              setIsLoading(false);
-            }
+            })();
           },
         },
       ],
