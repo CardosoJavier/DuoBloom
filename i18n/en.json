@@ -16,11 +16,12 @@
     "tagline": "Fitness for Couples",
     "footer": "Designed for partners to grow together.",
     "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
     "saving": "Saving...",
     "info": "Info",
     "are_you_sure": "Are you sure?",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "cancel": "Cancel"
   },
   "habits": {
     "strike_count": "You're on a {{count}}-day streak!",
@@ -37,7 +38,14 @@
     "db_save_failed": "Failed to save meal data. Image upload rolled back.",
     "require_name_image": "Meal name and image are required.",
     "camera_permission_required": "Camera permissions are required to take a photo.",
-    "gallery_permission_required": "Gallery permissions are required to pick an image."
+    "gallery_permission_required": "Gallery permissions are required to pick an image.",
+    "update_success": "Meal updated successfully.",
+    "update_error": "Failed to update meal.",
+    "delete_success": "Meal deleted successfully.",
+    "delete_error": "Failed to delete meal.",
+    "edit_title": "Edit Meal",
+    "delete_confirm_title": "Delete Meal",
+    "delete_confirm_message": "Are you sure you want to delete this meal?"
   },
   "nutrition": {
     "calories_goal": "Daily Goal: {{count}} kcal"

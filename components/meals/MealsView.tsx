@@ -10,10 +10,11 @@ import * as Crypto from "expo-crypto";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { DateNavigator } from "../DateNavigator";
 import { IdentifiedImage } from "../IdentifiedImage";
 import { AddMealModal } from "./AddMealModal";
+import { EditMealModal } from "./EditMealModal";
 
 export function MealsView() {
   const { t } = useTranslation();
@@ -22,6 +23,8 @@ export function MealsView() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<ConsumedMeal | null>(null);
   const [meals, setMeals] = useState<ConsumedMeal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -221,17 +224,30 @@ export function MealsView() {
       <View className="flex-row flex-wrap justify-between">
         {meals.map((meal) => (
           <View key={meal.id} className="w-[48%] mb-4">
-            <IdentifiedImage
-              uri={meal.photo_url}
-              avatarUri={getAvatarForUser(meal.user_id)}
-              title={meal.name}
-              subtitle={`${meal.kcal || 0} kcal | ${new Date(
-                meal.consumption_date,
-              ).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`}
-            />
+            <Pressable
+              onPress={() => {
+                if (meal.user_id === user?.id) {
+                  console.log(
+                    "[MealsView] Opening edit modal for meal:",
+                    meal.id,
+                  );
+                  setSelectedMeal(meal);
+                  setIsEditModalOpen(true);
+                }
+              }}
+            >
+              <IdentifiedImage
+                uri={meal.photo_url}
+                avatarUri={getAvatarForUser(meal.user_id)}
+                title={meal.name}
+                subtitle={`${meal.kcal || 0} kcal | ${new Date(
+                  meal.consumption_date,
+                ).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}`}
+              />
+            </Pressable>
           </View>
         ))}
       </View>
@@ -291,6 +307,16 @@ export function MealsView() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddMeal}
+      />
+
+      <EditMealModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedMeal(null);
+        }}
+        meal={selectedMeal}
+        onSuccess={fetchMeals}
       />
     </Box>
   );

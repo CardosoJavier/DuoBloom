@@ -16,6 +16,8 @@
     "tagline": "Fitness para Parejas",
     "footer": "Diseñado para que las parejas crezcan juntas.",
     "edit": "Editar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
     "saving": "Guardando...",
     "info": "Información",
     "are_you_sure": "¿Estás seguro?",
@@ -37,7 +39,14 @@
     "db_save_failed": "Error al guardar los datos de la comida. La subida de la imagen fue cancelada.",
     "require_name_image": "El nombre y la foto son obligatorios.",
     "camera_permission_required": "Se requieren permisos para usar la cámara.",
-    "gallery_permission_required": "Se requieren permisos para acceder a la galería."
+    "gallery_permission_required": "Se requieren permisos para acceder a la galería.",
+    "update_success": "Comida actualizada exitosamente.",
+    "update_error": "Error al actualizar la comida.",
+    "delete_success": "Comida eliminada exitosamente.",
+    "delete_error": "Error al eliminar la comida.",
+    "edit_title": "Editar Comida",
+    "delete_confirm_title": "Eliminar Comida",
+    "delete_confirm_message": "¿Estás seguro de que quieres eliminar esta comida?"
   },
   "nutrition": {
     "calories_goal": "Meta Diaria: {{count}} kcal"
