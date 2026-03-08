@@ -122,12 +122,12 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
 
       <Actionsheet isOpen={isPickerOpen} onClose={() => setIsPickerOpen(false)}>
         <ActionsheetBackdrop />
-        <ActionsheetContent className="bg-background-0 dark:bg-background-dark border-t border-outline-200 dark:border-outline-800 rounded-t-3xl pt-2 pb-8">
+        <ActionsheetContent className="bg-background-0 dark:bg-background-dark border-t border-outline-200 dark:border-outline-800 rounded-t-3xl pt-2 pb-10">
           <ActionsheetDragIndicatorWrapper>
             <ActionsheetDragIndicator className="bg-outline-400 dark:bg-outline-700" />
           </ActionsheetDragIndicatorWrapper>
 
-          <View className="w-full mt-4 items-center h-[360px]">
+          <View className="w-full mt-4 items-center h-[480px]">
             <Calendar
               mode="single"
               value={date}
