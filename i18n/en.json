@@ -45,7 +45,9 @@
     "delete_error": "Failed to delete meal.",
     "edit_title": "Edit Meal",
     "delete_confirm_title": "Delete Meal",
-    "delete_confirm_message": "Are you sure you want to delete this meal?"
+    "delete_confirm_message": "Are you sure you want to delete this meal?",
+    "meal_name": "Meal Name",
+    "meal_calories": "Calories"
   },
   "nutrition": {
     "calories_goal": "Daily Goal: {{count}} kcal"

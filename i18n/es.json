@@ -46,7 +46,9 @@
     "delete_error": "Error al eliminar la comida.",
     "edit_title": "Editar Comida",
     "delete_confirm_title": "Eliminar Comida",
-    "delete_confirm_message": "¿Estás seguro de que quieres eliminar esta comida?"
+    "delete_confirm_message": "¿Estás seguro de que quieres eliminar esta comida?",
+    "meal_name": "Nombre de comida",
+    "meal_calories": "Calorias"
   },
   "nutrition": {
     "calories_goal": "Meta Diaria: {{count}} kcal"

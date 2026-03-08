@@ -150,7 +150,7 @@ export function EditMealModal({
           <FormControl>
             <FormControlLabel className="mb-1">
               <FormControlLabelText className="text-typography-700 dark:text-typography-300">
-                Meal Name
+                {t("meals.meal_name")}
               </FormControlLabelText>
             </FormControlLabel>
             <Input variant="outline" size="md">
@@ -167,7 +167,7 @@ export function EditMealModal({
           <FormControl className="flex-1">
             <FormControlLabel className="mb-1">
               <FormControlLabelText className="text-typography-700 dark:text-typography-300">
-                Calories (kcal)
+                {t("meals.meal_calories")} (kcal)
               </FormControlLabelText>
             </FormControlLabel>
             <Input variant="outline" size="md">
@@ -187,7 +187,7 @@ export function EditMealModal({
           <Button
             onPress={handleUpdate}
             disabled={isLoading}
-            className="w-full bg-primary-500 hover:bg-primary-600 rounded-xl py-3 h-12 flex-1 justify-center items-center"
+            className="w-full bg-primary-500 hover:bg-primary-600 rounded-xl py-3 h-12 justify-center items-center"
           >
             <ButtonText className="text-white font-bold text-center">
               {t("common.edit")}
@@ -198,7 +198,7 @@ export function EditMealModal({
             onPress={handleDelete}
             disabled={isLoading}
             variant="outline"
-            className="w-full border-error-500 rounded-xl py-3 h-12 flex-1 justify-center items-center"
+            className="w-full border-error-500 rounded-xl py-3 h-12 justify-center items-center"
           >
             <Icon as={Trash2} className="mr-2 text-error-500" />
             <ButtonText className="text-error-500 font-bold text-center">
