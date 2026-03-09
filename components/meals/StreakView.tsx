@@ -5,7 +5,7 @@ import {
 import { DateNavigator } from "@/components/DateNavigator";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
-import { CalendarDaysIcon, ChevronDownIcon, Icon } from "@/components/ui/icon";
+import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -17,6 +17,7 @@ import {
   StreakSubject,
 } from "@/types/streaks";
 import { useQuery } from "@tanstack/react-query";
+import { Repeat } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
@@ -203,7 +204,7 @@ export function StreakView() {
               <Text className="text-typography-900 dark:text-white font-bold text-md">
                 {subjectLabel}
               </Text>
-              <Icon as={ChevronDownIcon} className="text-typography-500" />
+              <Icon as={Repeat} className="text-typography-500" />
             </Pressable>
           </Box>
 
