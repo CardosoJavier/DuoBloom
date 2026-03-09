@@ -49,6 +49,20 @@
     "meal_name": "Meal Name",
     "meal_calories": "Calories"
   },
+  "streak": {
+    "my_streak": "Myself",
+    "partner_streak": "Partner",
+    "nutrition_streak": "Nutrition Streak",
+    "days_on_target": "days on target",
+    "current_streak": "Current Streak",
+    "total_completion": "Total Completion",
+    "goal_met": "Goal Met",
+    "missed": "Missed",
+    "empty_month": "No meal entries found for this month yet.",
+    "no_partner": "You need a synced partner to view partner streak.",
+    "load_error": "Failed to load streak data.",
+    "days": "days"
+  },
   "nutrition": {
     "calories_goal": "Daily Goal: {{count}} kcal"
   },

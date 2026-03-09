@@ -32,6 +32,9 @@ export interface DateNavigatorProps {
   date: Date;
   onDateChange: (newDate: Date) => void;
   className?: string;
+  mode?: "day" | "month";
+  disableNext?: boolean;
+  textSize?: "xs" | "sm" | "base" | "xl";
 }
 
 // Simple helper to check if a date is "Today"
@@ -43,38 +46,84 @@ const isSameDay = (d1: Date, d2: Date) => {
   );
 };
 
+// Helper function to map tailwind class to text size
+function mapTextSize(size: string): string {
+  switch (size) {
+    case "xs":
+      return "text-xs";
+
+    case "sm":
+      return "text-sm";
+
+    case "base":
+      return "text-base";
+
+    case "xl":
+      return "text-xl";
+
+    default:
+      return "text-base";
+  }
+}
+
 export const DateNavigator: React.FC<DateNavigatorProps> = ({
   date,
   onDateChange,
   className,
+  mode = "day",
+  disableNext = false,
+  textSize = "base",
 }) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const prevDay = () => {
     const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() - 1);
+    if (mode === "month") {
+      newDate.setMonth(newDate.getMonth() - 1);
+      newDate.setDate(1);
+    } else {
+      newDate.setDate(newDate.getDate() - 1);
+    }
     onDateChange(newDate);
   };
 
   const nextDay = () => {
+    if (disableNext) return;
     const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + 1);
+    if (mode === "month") {
+      newDate.setMonth(newDate.getMonth() + 1);
+      newDate.setDate(1);
+    } else {
+      newDate.setDate(newDate.getDate() + 1);
+    }
     onDateChange(newDate);
   };
 
   const today = new Date();
   const isToday = isSameDay(date, today);
 
-  const formattedDate = isToday
-    ? "Today"
-    : date.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      });
+  let formattedDate = "";
+  if (mode === "month") {
+    formattedDate = date.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  } else if (isToday) {
+    formattedDate = "Today";
+  } else {
+    formattedDate = date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }
 
   const handleCalendarSelection = (newDate: Date) => {
-    onDateChange(newDate);
+    if (mode === "month") {
+      onDateChange(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
+    } else {
+      onDateChange(newDate);
+    }
     setIsPickerOpen(false);
   };
 
@@ -98,19 +147,24 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
           onPress={() => setIsPickerOpen(true)}
           className="flex-1 h-full items-center justify-center flex-row gap-2 active:opacity-50"
         >
-          <Icon
-            as={CalendarDaysIcon}
-            size="md"
-            className="text-typography-500 dark:text-typography-300"
-          />
-          <Text className="text-typography-900 dark:text-white font-bold text-base">
+          {mode !== "month" && (
+            <Icon
+              as={CalendarDaysIcon}
+              size="md"
+              className="text-typography-500 dark:text-typography-300"
+            />
+          )}
+          <Text
+            className={`text-typography-900 dark:text-white font-bold ${mapTextSize(textSize)}`}
+          >
             {formattedDate}
           </Text>
         </Pressable>
 
         <Pressable
           onPress={nextDay}
-          className="h-full px-4 items-center justify-center active:opacity-50"
+          className={`h-full px-4 items-center justify-center ${disableNext ? "opacity-40" : "active:opacity-50"}`}
+          disabled={disableNext}
         >
           <Icon
             as={ChevronRightIcon}

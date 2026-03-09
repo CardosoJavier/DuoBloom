@@ -50,6 +50,20 @@
     "meal_name": "Nombre de comida",
     "meal_calories": "Calorias"
   },
+  "streak": {
+    "my_streak": "Yo",
+    "partner_streak": "Pareja",
+    "nutrition_streak": "Racha de Nutricion",
+    "days_on_target": "dias en objetivo",
+    "current_streak": "Racha Actual",
+    "total_completion": "Completado Total",
+    "goal_met": "Meta Cumplida",
+    "missed": "Perdido",
+    "empty_month": "No se encontraron comidas para este mes.",
+    "no_partner": "Necesitas una pareja sincronizada para ver su racha.",
+    "load_error": "No se pudieron cargar los datos de racha.",
+    "days": "dias"
+  },
   "nutrition": {
     "calories_goal": "Meta Diaria: {{count}} kcal"
   },

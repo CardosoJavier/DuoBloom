@@ -1,47 +1,75 @@
-import { NutritionStreak } from "@/types/streaks";
 import { supabase } from "@/util/supabase";
 
-/**
- * Fetches nutrition streaks for a given user within a date range.
- * @param userId - The ID of the user to fetch streaks for.
- * @param fromDate - The start date of the range.
- * @param toDate - The end date of the range.
- */
-export const getNutritionStreaks = async (
+const toLocalDateKey = (value: string): string => {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getUniqueSortedDateKeys = (values: string[]): string[] => {
+  return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
+};
+
+export const getMonthlyMealCompletionDates = async (
   userId: string,
   fromDate: string,
   toDate: string,
-): Promise<{ success: boolean; data?: NutritionStreak[]; error?: any }> => {
+): Promise<{ success: boolean; data?: string[]; error?: any }> => {
+  console.log(
+    `[streak-api] Fetching monthly completion dates for user=${userId} from ${fromDate} to ${toDate}`,
+  );
+
   const { data, error } = await supabase
-    .from("nutrition_streaks")
-    .select("*")
+    .from("consumed_meals")
+    .select("consumption_date")
     .eq("user_id", userId)
-    .gte("log_date", fromDate)
-    .lte("log_date", toDate);
+    .gte("consumption_date", fromDate)
+    .lte("consumption_date", toDate)
+    .order("consumption_date", { ascending: true });
 
   if (error) {
+    console.error("[streak-api] Error fetching monthly completion dates:", error);
     return { success: false, error };
   }
 
-  return { success: true, data };
+  const uniqueDays = getUniqueSortedDateKeys(
+    (data ?? []).map((item) => toLocalDateKey(item.consumption_date)),
+  );
+
+  console.log(
+    `[streak-api] Monthly completion dates success. rows=${data?.length ?? 0}, uniqueDays=${uniqueDays.length}`,
+  );
+
+  return { success: true, data: uniqueDays };
 };
 
-/**
- * Adds a new nutrition log for a specific day.
- * @param streak - The streak data to insert.
- */
-export const addNutritionDay = async (
-  streak: Omit<NutritionStreak, "id" | "created_at">,
-): Promise<{ success: boolean; data?: NutritionStreak; error?: any }> => {
+export const getAllCompletionDatesUntilToday = async (
+  userId: string,
+): Promise<{ success: boolean; data?: string[]; error?: any }> => {
+  const nowIso = new Date().toISOString();
+  console.log(`[streak-api] Fetching all completion dates for user=${userId}`);
+
   const { data, error } = await supabase
-    .from("nutrition_streaks")
-    .insert([streak])
-    .select()
-    .single();
+    .from("consumed_meals")
+    .select("consumption_date")
+    .eq("user_id", userId)
+    .lte("consumption_date", nowIso)
+    .order("consumption_date", { ascending: true });
 
   if (error) {
+    console.error("[streak-api] Error fetching all completion dates:", error);
     return { success: false, error };
   }
 
-  return { success: true, data };
+  const uniqueDays = getUniqueSortedDateKeys(
+    (data ?? []).map((item) => toLocalDateKey(item.consumption_date)),
+  );
+
+  console.log(
+    `[streak-api] All completion dates success. rows=${data?.length ?? 0}, uniqueDays=${uniqueDays.length}`,
+  );
+
+  return { success: true, data: uniqueDays };
 };

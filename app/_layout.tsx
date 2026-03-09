@@ -1,12 +1,13 @@
 import { Buffer } from "@craftzdog/react-native-buffer";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 // Inject Buffer globally for react-native-quick-crypto
-global.Buffer = Buffer as any;
+globalThis.Buffer = Buffer as any;
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
@@ -88,6 +89,7 @@ function InitialLayout() {
 
 export default function RootLayout() {
   const { colorScheme, isThemeHydrated, hydrate } = useAppStore();
+  const [queryClient] = useState(() => new QueryClient());
 
   useEffect(() => {
     hydrate();
@@ -98,11 +100,13 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider mode={colorScheme}>
-      <ThemeProvider value={DefaultTheme}>
-        <InitialLayout />
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      </ThemeProvider>
-    </GluestackUIProvider>
+    <QueryClientProvider client={queryClient}>
+      <GluestackUIProvider mode={colorScheme}>
+        <ThemeProvider value={DefaultTheme}>
+          <InitialLayout />
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        </ThemeProvider>
+      </GluestackUIProvider>
+    </QueryClientProvider>
   );
 }
