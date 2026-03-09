@@ -78,15 +78,12 @@ export function StreakView() {
   });
 
   const selectedUserId = selectedSubject === "self" ? user?.id : partner?.id;
-  const selectedPartnerName = partner?.firstName || "Partner";
   const hasPartner = Boolean(partner?.id);
   const now = new Date();
   const disableNextMonth = isSameMonth(selectedDate, now);
 
   const subjectLabel =
-    selectedSubject === "self"
-      ? t("streak.my_streak")
-      : t("streak.partner_streak", { name: selectedPartnerName });
+    selectedSubject === "self" ? user?.firstName : partner?.firstName;
 
   const handleSubjectToggle = () => {
     if (!hasPartner) return;
@@ -197,7 +194,7 @@ export function StreakView() {
     >
       <VStack className="flex-1 gap-4 pb-2">
         <HStack className="w-full gap-4">
-          <Box className="flex-2">
+          <Box className="w-2/6">
             <Pressable
               onPress={handleSubjectToggle}
               disabled={!hasPartner}
