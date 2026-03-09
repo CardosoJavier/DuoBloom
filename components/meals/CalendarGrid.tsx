@@ -75,7 +75,7 @@ export function CalendarGrid({
         {weekdayLabels.map((day, ix) => (
           <Text
             key={`weekday-${ix}-${day}`}
-            className="w-[12.5%] text-[10px] text-center text-typography-800 dark:text-typography-200 font-bold uppercase"
+            className="w-8 text-xs text-center text-typography-800 dark:text-typography-200 font-bold uppercase"
           >
             {day}
           </Text>
@@ -110,17 +110,17 @@ export function CalendarGrid({
             new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const isMissed = !isCompleted && !isFuture;
 
-          let cellStyle = "bg-background-200 dark:bg-background-800";
+          let cellStyle = "bg-background-200 dark:bg-background-200";
 
           if (isCompleted) {
             cellStyle = "bg-primary-500";
           } else if (isMissed) {
-            cellStyle = "bg-background-200 dark:bg-background-700";
+            cellStyle = "bg-background-200";
           }
 
           const dotColor = isCompleted
             ? "bg-white"
-            : "bg-background-300 dark:bg-background-500";
+            : "bg-background-500 dark:bg-background-500";
 
           return (
             <Box

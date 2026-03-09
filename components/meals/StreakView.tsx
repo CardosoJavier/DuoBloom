@@ -19,6 +19,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ScrollView } from "react-native";
 import { CalendarGrid } from "./CalendarGrid";
 import { StreakWidgets } from "./StreakWidgets";
 
@@ -190,87 +191,92 @@ export function StreakView() {
   const isLoading = monthQuery.isPending || allTimeQuery.isPending;
 
   return (
-    <VStack className="flex-1 gap-4 pb-2">
-      <HStack className="w-full gap-4">
-        <Box className="flex-2">
-          <Pressable
-            onPress={handleSubjectToggle}
-            disabled={!hasPartner}
-            className={`rounded-2xl h-[52px] px-4 flex-row items-center justify-between bg-[#EEF0F6] dark:bg-background-dark`}
-          >
-            <Text className="text-typography-900 dark:text-white font-bold text-md">
-              {subjectLabel}
-            </Text>
-            <Icon as={ChevronDownIcon} className="text-typography-500" />
-          </Pressable>
-        </Box>
-
-        <DateNavigator
-          date={selectedDate}
-          onDateChange={(newDate) =>
-            setSelectedDate(
-              new Date(newDate.getFullYear(), newDate.getMonth(), 1),
-            )
-          }
-          className="flex-1"
-          mode="month"
-          disableNext={disableNextMonth}
-          textSize="base"
-        />
-      </HStack>
-
-      {!hasPartner && selectedSubject === "partner" && (
-        <Text className="text-typography-500">{t("streak.no_partner")}</Text>
-      )}
-
-      {isLoading ? (
-        <VStack className="gap-4">
-          <Box className="rounded-[32px] border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[500px]" />
-          <HStack className="gap-4">
-            <Box className="flex-1 rounded-3xl border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark h-[128px]" />
-            <Box className="flex-1 rounded-3xl border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark h-[128px]" />
-          </HStack>
-        </VStack>
-      ) : (
-        <>
-          <Box className="rounded-[32px] border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[500px]">
-            <HStack className="items-center gap-2 mb-4">
-              <Icon
-                as={CalendarDaysIcon}
-                className="text-primary-500 w-5 h-5"
-              />
-              <Text className="text-typography-900 dark:text-white font-bold text-lg">
-                {t("streak.nutrition_streak")}
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <VStack className="flex-1 gap-4 pb-2">
+        <HStack className="w-full gap-4">
+          <Box className="flex-2">
+            <Pressable
+              onPress={handleSubjectToggle}
+              disabled={!hasPartner}
+              className={`rounded-2xl h-[52px] px-4 flex-row items-center justify-between bg-[#EEF0F6] dark:bg-background-dark`}
+            >
+              <Text className="text-typography-900 dark:text-white font-bold text-md">
+                {subjectLabel}
               </Text>
-            </HStack>
-
-            <HStack className="items-end gap-2 mb-6">
-              <Text className="text-typography-900 dark:text-white font-bold text-5xl leading-none tracking-tight">
-                {monthlyData.completedDays}
-              </Text>
-              <Text className="text-typography-500 text-base font-medium mb-1">
-                {t("streak.days_on_target")}
-              </Text>
-            </HStack>
-
-            {monthlyData.completedDays === 0 && (
-              <Text className="text-typography-500 mb-3">
-                {t("streak.empty_month")}
-              </Text>
-            )}
-
-            <CalendarGrid
-              selectedDate={selectedDate}
-              completedSet={completedSet}
-            />
+              <Icon as={ChevronDownIcon} className="text-typography-500" />
+            </Pressable>
           </Box>
 
-          <StreakWidgets
-            currentStreakDays={currentStreakDays}
-            completionPercent={monthlyData.completionPercent}
+          <DateNavigator
+            date={selectedDate}
+            onDateChange={(newDate) =>
+              setSelectedDate(
+                new Date(newDate.getFullYear(), newDate.getMonth(), 1),
+              )
+            }
+            className="flex-1"
+            mode="month"
+            disableNext={disableNextMonth}
+            textSize="base"
           />
-        </>
-      )}
-    </VStack>
+        </HStack>
+
+        {!hasPartner && selectedSubject === "partner" && (
+          <Text className="text-typography-500">{t("streak.no_partner")}</Text>
+        )}
+
+        {isLoading ? (
+          <VStack className="gap-4">
+            <Box className="rounded-[32px] border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[500px]" />
+            <HStack className="gap-4">
+              <Box className="flex-1 rounded-3xl border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark h-[128px]" />
+              <Box className="flex-1 rounded-3xl border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark h-[128px]" />
+            </HStack>
+          </VStack>
+        ) : (
+          <>
+            <Box className="rounded-[32px] border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[500px]">
+              <HStack className="items-center gap-2 mb-4">
+                <Icon
+                  as={CalendarDaysIcon}
+                  className="text-primary-500 w-5 h-5"
+                />
+                <Text className="text-typography-900 dark:text-white font-bold text-lg">
+                  {t("streak.nutrition_streak")}
+                </Text>
+              </HStack>
+
+              <HStack className="items-end gap-2 mb-6 mt-2">
+                <Text className="text-typography-900 dark:text-white font-bold text-4xl leading-none tracking-tight">
+                  14
+                </Text>
+                <Text className="text-typography-500 text-base font-medium mb-1">
+                  {t("streak.days_on_target")}
+                </Text>
+              </HStack>
+
+              {monthlyData.completedDays === 0 && (
+                <Text className="text-typography-500 mb-3">
+                  {t("streak.empty_month")}
+                </Text>
+              )}
+
+              <CalendarGrid
+                selectedDate={selectedDate}
+                completedSet={completedSet}
+              />
+            </Box>
+
+            <StreakWidgets
+              currentStreakDays={currentStreakDays}
+              completionPercent={monthlyData.completionPercent}
+            />
+          </>
+        )}
+      </VStack>
+    </ScrollView>
   );
 }
