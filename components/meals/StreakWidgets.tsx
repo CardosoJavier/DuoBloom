@@ -17,7 +17,7 @@ export function StreakWidgets({
 
   return (
     <HStack className="gap-4">
-      <Box className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[140px] justify-between shadow-sm">
+      <Box className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[140px] justify-between">
         <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
           {t("streak.current_streak")}
         </Text>
@@ -31,7 +31,7 @@ export function StreakWidgets({
         </HStack>
       </Box>
 
-      <Box className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[140px] justify-between shadow-sm">
+      <Box className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[140px] justify-between">
         <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
           {t("streak.total_completion")}
         </Text>
