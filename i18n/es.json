@@ -154,5 +154,11 @@
     "network_error": "Error de red. Por favor verifica tu conexión.",
     "unknown_error": "Ocurrió un error desconocido",
     "no_session": "No se creó la sesión"
+  },
+  "check_in": {
+    "title": "Check-in Diario",
+    "subtitle": "¿Seguiste tu plan de nutrición ayer?",
+    "yes": "¡Sí, lo hice!",
+    "no": "No del todo"
   }
 }

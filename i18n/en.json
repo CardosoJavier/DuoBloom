@@ -153,5 +153,11 @@
     "network_error": "Network error. Please check your connection.",
     "unknown_error": "An unknown error occurred",
     "no_session": "No session created"
+  },
+  "check_in": {
+    "title": "Daily Check-in",
+    "subtitle": "Did you stick to your nutrition plan yesterday?",
+    "yes": "Yes, I did!",
+    "no": "Not quite"
   }
 }

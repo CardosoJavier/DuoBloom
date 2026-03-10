@@ -1,6 +1,6 @@
 import {
-  getAllCompletionDatesUntilToday,
   getMonthlyMealCompletionDates,
+  getStreakState,
 } from "@/api/streak-api";
 import { DateNavigator } from "@/components/DateNavigator";
 import { Box } from "@/components/ui/box";
@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/authStore";
 import {
   CurrentStreakData,
   MonthlyStreakData,
+  NutritionStreakState,
   StreakSubject,
 } from "@/types/streaks";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +30,25 @@ const toDateKey = (date: Date): string => {
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
   const day = `${date.getDate()}`.padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+/**
+ * Given the persisted last_streak_day and current_streak_count, returns the
+ * effective current streak accounting for whether the streak has been broken
+ * (last day is not today or yesterday).
+ */
+const resolveCurrentStreak = (
+  state: NutritionStreakState | null | undefined,
+): number => {
+  if (!state?.last_streak_day) return 0;
+  const today = toDateKey(new Date());
+  const yesterday = toDateKey(
+    new Date(new Date().setDate(new Date().getDate() - 1)),
+  );
+  if (state.last_streak_day === today || state.last_streak_day === yesterday) {
+    return state.current_streak_count;
+  }
+  return 0; // streak was broken — last log is more than 1 day ago
 };
 
 const getMonthBounds = (date: Date) => {
@@ -47,20 +67,6 @@ const getMonthBounds = (date: Date) => {
 
 const getDaysInMonth = (date: Date): number => {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-};
-
-const calculateCurrentStreak = (completionDates: string[]): number => {
-  const completionSet = new Set(completionDates);
-  const cursor = new Date();
-  cursor.setHours(0, 0, 0, 0);
-
-  let streak = 0;
-  while (completionSet.has(toDateKey(cursor))) {
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return streak;
 };
 
 const isSameMonth = (a: Date, b: Date): boolean => {
@@ -131,19 +137,18 @@ export function StreakView() {
   });
 
   const allTimeQuery = useQuery({
-    queryKey: ["streak-alltime", selectedUserId],
+    queryKey: ["streak-state", selectedUserId],
     enabled: Boolean(selectedUserId),
     queryFn: async (): Promise<CurrentStreakData> => {
-      const result = await getAllCompletionDatesUntilToday(
-        selectedUserId as string,
-      );
+      const result = await getStreakState(selectedUserId as string);
 
-      if (!result.success || !result.data) {
-        throw result.error || new Error("Failed to load all-time streak");
+      if (!result.success) {
+        throw result.error || new Error("Failed to load streak state");
       }
 
       return {
-        days: calculateCurrentStreak(result.data),
+        days: resolveCurrentStreak(result.data),
+        allTimeDays: result.data?.all_time_streak_count ?? 0,
       };
     },
     staleTime: 60_000,
@@ -249,7 +254,7 @@ export function StreakView() {
 
               <HStack className="items-end gap-2 mb-6 mt-2">
                 <Text className="text-typography-900 dark:text-white font-bold text-4xl leading-none tracking-tight">
-                  14
+                  {monthlyData.completedDays}
                 </Text>
                 <Text className="text-typography-500 text-base font-medium mb-1">
                   {t("streak.days_on_target")}

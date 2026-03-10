@@ -44,12 +44,23 @@ CREATE TABLE "consumed_meals" (
     "photo_url" text NOT NULL
 );
 
--- Feature: Nutrition (Streaks)
-CREATE TABLE "nutrition_streaks" (
+-- Feature: Nutrition (Daily Logs — one row per user per day they logged a meal)
+CREATE TABLE "nutrition_logs" (
     "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     "user_id" uuid NOT NULL REFERENCES "users" ("id"),
     "log_date" date NOT NULL,
+    "created_at" timestamptz DEFAULT now(),
     CONSTRAINT "unique_user_log_date" UNIQUE ("user_id", "log_date")
+);
+
+-- Feature: Nutrition (Streak State — one row per user)
+CREATE TABLE "nutrition_streaks" (
+    "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "user_id" uuid UNIQUE NOT NULL REFERENCES "users" ("id"),
+    "current_streak_count" integer NOT NULL DEFAULT 0,
+    "all_time_streak_count" integer NOT NULL DEFAULT 0,
+    "last_streak_day" date,
+    "last_updated_date" timestamptz DEFAULT now()
 );
 
 -- Feature: Hydration

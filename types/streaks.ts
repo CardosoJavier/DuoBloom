@@ -1,8 +1,19 @@
-export interface NutritionStreak {
+/** One row per user per day they logged at least one meal (nutrition_logs table). */
+export interface NutritionLog {
   id: string;
   user_id: string;
   log_date: string;
   created_at: string;
+}
+
+/** Streak state row — one row per user (nutrition_streaks table). */
+export interface NutritionStreakState {
+  id: string;
+  user_id: string;
+  current_streak_count: number;
+  all_time_streak_count: number;
+  last_streak_day: string | null;
+  last_updated_date: string;
 }
 
 export type StreakSubject = "self" | "partner";
@@ -16,4 +27,5 @@ export interface MonthlyStreakData {
 
 export interface CurrentStreakData {
   days: number;
+  allTimeDays: number;
 }

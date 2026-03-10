@@ -1,4 +1,5 @@
 import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
+import { logNutritionDay, updateStreakState } from "@/api/streak-api";
 import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { Text } from "@/components/ui/text";
@@ -6,6 +7,7 @@ import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
 import { ConsumedMeal } from "@/types/meals";
 import { supabase } from "@/util/supabase";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -16,10 +18,18 @@ import { IdentifiedImage } from "../IdentifiedImage";
 import { AddMealModal } from "./AddMealModal";
 import { EditMealModal } from "./EditMealModal";
 
+const toLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export function MealsView() {
   const { t } = useTranslation();
   const { user, partner } = useAuthStore();
   const toast = useAppToast();
+  const queryClient = useQueryClient();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,6 +174,20 @@ export function MealsView() {
           throw new Error(result.error?.message || "DB Save Failed");
         }
         console.log("[MealsView] Meal persisted to database successfully.");
+
+        // 5. Log the day and update streak state (fire-and-forget; non-blocking)
+        const consumptionDateKey = toLocalDateString(new Date());
+        logNutritionDay(user.id, consumptionDateKey)
+          .then(() => updateStreakState(user.id, consumptionDateKey))
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: ["streak-month"] });
+            queryClient.invalidateQueries({
+              queryKey: ["streak-state", user.id],
+            });
+          })
+          .catch((err) =>
+            console.warn("[MealsView] Non-critical streak update failed:", err),
+          );
       } catch (dbError) {
         // 5. Rollback Logic
         console.error(
