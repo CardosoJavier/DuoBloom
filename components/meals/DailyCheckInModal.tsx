@@ -137,13 +137,13 @@ export function DailyCheckInModal({
               <Pressable
                 onPress={handleYes}
                 disabled={isSubmitting}
-                className="flex-1 rounded-2xl bg-primary-50 dark:bg-primary-950 border border-primary-100 dark:border-primary-800 p-4 items-center gap-2 active:opacity-70 disabled:opacity-50"
+                className="flex-1 rounded-2xl bg-primary-100 dark:bg-primary-500 border border-primary-100 dark:border-primary-400 p-4 items-center gap-2 active:opacity-70 disabled:opacity-50"
               >
                 <Icon
                   as={ThumbsUp}
-                  className="text-primary-600 dark:text-primary-300 w-6 h-6"
+                  className="text-primary-600 dark:text-primary-100 w-6 h-6"
                 />
-                <Text className="text-primary-600 dark:text-primary-300 text-xs font-bold">
+                <Text className="text-primary-600 dark:text-primary-100 text-xs font-bold">
                   {t("check_in.yes")}
                 </Text>
               </Pressable>
