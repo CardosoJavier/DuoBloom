@@ -43,7 +43,6 @@ export function useDailyCheckIn(
 
     getStreakState(userId).then((result) => {
       if (!result.success) {
-        // SP5: DB fetch failed — do not show modal, will retry next session.
         return;
       }
 
@@ -55,7 +54,7 @@ export function useDailyCheckIn(
         setShouldShow(true);
       }
     });
-  }, [userId]);
+  }, []);
 
   const markShown = (): void => {
     setShouldShow(false);

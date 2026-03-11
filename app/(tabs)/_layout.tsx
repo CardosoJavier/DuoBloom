@@ -11,20 +11,13 @@ import {
   User,
   Utensils,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Platform } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user } = useAuthStore();
   const { shouldShow, markShown } = useDailyCheckIn(user?.id);
-  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
-
-  useEffect(() => {
-    if (shouldShow) {
-      setIsCheckInOpen(true);
-    }
-  }, [shouldShow]);
 
   return (
     <>
@@ -87,9 +80,9 @@ export default function TabLayout() {
 
       {user?.id && (
         <DailyCheckInModal
-          isOpen={isCheckInOpen}
+          isOpen={shouldShow}
           userId={user.id}
-          onClose={() => setIsCheckInOpen(false)}
+          onClose={markShown}
           onAnswered={markShown}
         />
       )}
