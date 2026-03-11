@@ -1,8 +1,12 @@
-import { createImage } from "@gluestack-ui/core/image/creator";
 import type { VariantProps } from "@gluestack-ui/utils/nativewind-utils";
 import { tva } from "@gluestack-ui/utils/nativewind-utils";
+import { Image as ExpoImage, ImageProps as ExpoImageProps } from "expo-image";
+import { cssInterop } from "nativewind";
 import React from "react";
-import { Platform, Image as RNImage } from "react-native";
+
+// Register expo-image with NativeWind so className is converted to a style prop.
+// Required because expo-image is not a React Native core component.
+cssInterop(ExpoImage, { className: "style" });
 
 const imageStyle = tva({
   base: "max-w-full rounded-3xl overflow-hidden aspect-[3/4] bg-background-100 dark:bg-background-900",
@@ -24,29 +28,22 @@ const imageStyle = tva({
   },
 });
 
-const UIImage = createImage({ Root: RNImage });
-
 type ImageProps = VariantProps<typeof imageStyle> &
-  React.ComponentProps<typeof UIImage>;
+  Omit<ExpoImageProps, "className"> & {
+    className?: string;
+  };
+
 const Image = React.forwardRef<
-  React.ComponentRef<typeof UIImage>,
-  ImageProps & { className?: string }
->(function Image(
-  { size = "none", className, resizeMode = "cover", ...props },
-  ref,
-) {
+  React.ComponentRef<typeof ExpoImage>,
+  ImageProps
+>(function Image({ size = "none", className, ...props }, ref) {
   return (
-    <UIImage
+    <ExpoImage
       className={imageStyle({ size, class: className })}
-      resizeMode={resizeMode}
+      contentFit="cover"
+      cachePolicy="disk"
       {...props}
       ref={ref}
-      // @ts-expect-error : web only
-      style={
-        Platform.OS === "web"
-          ? { height: "revert-layer", width: "revert-layer" }
-          : undefined
-      }
     />
   );
 });

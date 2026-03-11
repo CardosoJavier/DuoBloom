@@ -59,40 +59,8 @@ export function MealsView() {
     );
 
     if (result.success && result.data) {
-      const records = result.data;
-      console.log(
-        `[MealsView] Got ${records.length} meals. Processing signed URLs...`,
-      );
-
-      const mealsWithSignedUrls: ConsumedMeal[] = await Promise.all(
-        records.map(async (meal) => {
-          if (!meal.photo_url || meal.photo_url.startsWith("http")) {
-            return meal;
-          }
-
-          console.log(
-            `[MealsView] Creating signed URL for path: ${meal.photo_url}`,
-          );
-          const { data, error } = await supabase.storage
-            .from("user_media")
-            .createSignedUrl(meal.photo_url, 3600);
-
-          if (error) {
-            console.error(
-              `[MealsView] Error creating signed URL for ${meal.photo_url}:`,
-              error,
-            );
-          }
-
-          return {
-            ...meal,
-            photo_url: data?.signedUrl || meal.photo_url,
-          };
-        }),
-      );
-
-      console.log(`[MealsView] Finished processing signed URLs.`);
-      setMeals(mealsWithSignedUrls);
+      console.log(`[MealsView] Got ${result.data.length} meals.`);
+      setMeals(result.data);
     } else {
       console.warn(
         "[MealsView] Failed to fetch meals or no data.",

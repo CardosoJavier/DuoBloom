@@ -1,12 +1,19 @@
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { Avatar, AvatarFallbackText, AvatarImage } from "./ui/avatar";
 import { Image } from "./ui/image";
 import { Text } from "./ui/text";
 import { VStack } from "./ui/vstack";
 
 export interface IdentifiedImageProps {
+  /**
+   * Storage path (e.g. "meals/userId/uuid.jpg") OR a full http(s) URL.
+   * When a storage path is provided the component resolves and caches the
+   * signed URL automatically; the path is also used as the expo-image
+   * cacheKey so pixel data is reused across URL rotations.
+   */
   readonly uri: string;
   readonly avatarUri?: string;
   readonly title?: string;
@@ -21,14 +28,24 @@ export function IdentifiedImage({
   subtitle,
   isBlurred = false,
 }: Readonly<IdentifiedImageProps>) {
+  const isStoragePath = !!uri && !uri.startsWith("http");
+  const { signedUrl, isLoading } = useSignedUrl(isStoragePath ? uri : null);
+  const resolvedUri = isStoragePath ? signedUrl : uri;
+
   return (
     <View className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden">
-      <Image
-        source={{ uri }}
-        className="w-full h-full"
-        blurRadius={isBlurred ? 20 : 0}
-        alt={title || "Image"}
-      />
+      {isLoading || !resolvedUri ? (
+        <View className="w-full h-full bg-background-100 dark:bg-background-900 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <Image
+          source={{ uri: resolvedUri }}
+          className="w-full h-full"
+          blurRadius={isBlurred ? 20 : 0}
+          alt={title || "Image"}
+        />
+      )}
 
       {/* Avatar Overlay - Top Right */}
       {avatarUri && (
