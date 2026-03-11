@@ -1,4 +1,8 @@
-import { logNutritionDay, updateStreakState } from "@/api/streak-api";
+import {
+  logNutritionDay,
+  updateLastCheckInDate,
+  updateStreakState,
+} from "@/api/streak-api";
 import { DailyCheckInModal } from "@/components/meals/DailyCheckInModal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
@@ -9,6 +13,7 @@ import React from "react";
 jest.mock("@/api/streak-api", () => ({
   logNutritionDay: jest.fn(),
   updateStreakState: jest.fn(),
+  updateLastCheckInDate: jest.fn(),
 }));
 
 // Mock Gluestack Modal so isOpen controls whether children render.
@@ -34,6 +39,7 @@ jest.mock("@/components/ui/modal", () => {
 
 const mockLogNutritionDay = logNutritionDay as jest.Mock;
 const mockUpdateStreakState = updateStreakState as jest.Mock;
+const mockUpdateLastCheckInDate = updateLastCheckInDate as jest.Mock;
 
 // ─── Test helpers ────────────────────────────────────────────────────────────
 
@@ -100,6 +106,35 @@ describe("Yes button", () => {
     jest.clearAllMocks();
     mockLogNutritionDay.mockResolvedValue({ success: true });
     mockUpdateStreakState.mockResolvedValue({ success: true });
+    mockUpdateLastCheckInDate.mockResolvedValue({ success: true });
+  });
+
+  it("calls updateLastCheckInDate with yesterday's date on Yes", async () => {
+    const realDate = Date;
+    const fixedNow = new Date(2026, 2, 10, 12, 0, 0);
+    // @ts-ignore
+    global.Date = class extends realDate {
+      constructor(...args: any[]) {
+        if (args.length === 0) super(fixedNow);
+        // @ts-ignore
+        else super(...args);
+      }
+      static now() {
+        return fixedNow.getTime();
+      }
+    };
+
+    const { getByText } = renderModal();
+    await act(async () => {
+      fireEvent.press(getByText("check_in.yes"));
+    });
+    await waitFor(() => {
+      expect(mockUpdateLastCheckInDate).toHaveBeenCalledWith(
+        "user-1",
+        "2026-03-09",
+      );
+    });
+    global.Date = realDate;
   });
 
   it("calls logNutritionDay with yesterday's date", async () => {
@@ -204,27 +239,78 @@ describe("Yes button", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("No button", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUpdateLastCheckInDate.mockResolvedValue({ success: true });
+  });
 
   it("calls onAnswered() when No is pressed", async () => {
     const onAnswered = jest.fn();
     const { getByText } = renderModal({ onAnswered });
-    fireEvent.press(getByText("check_in.no"));
-    expect(onAnswered).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      fireEvent.press(getByText("check_in.no"));
+    });
+    await waitFor(() => expect(onAnswered).toHaveBeenCalledTimes(1));
   });
 
   it("calls onClose() when No is pressed", async () => {
     const onClose = jest.fn();
     const { getByText } = renderModal({ onClose });
-    fireEvent.press(getByText("check_in.no"));
-    expect(onClose).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      fireEvent.press(getByText("check_in.no"));
+    });
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
 
-  it("does NOT call any streak API when No is pressed", () => {
+  it("does NOT call logNutritionDay or updateStreakState when No is pressed", async () => {
     const { getByText } = renderModal();
-    fireEvent.press(getByText("check_in.no"));
+    await act(async () => {
+      fireEvent.press(getByText("check_in.no"));
+    });
     expect(mockLogNutritionDay).not.toHaveBeenCalled();
     expect(mockUpdateStreakState).not.toHaveBeenCalled();
+  });
+
+  it("calls updateLastCheckInDate with yesterday's date on No", async () => {
+    const realDate = Date;
+    const fixedNow = new Date(2026, 2, 10, 12, 0, 0);
+    // @ts-ignore
+    global.Date = class extends realDate {
+      constructor(...args: any[]) {
+        if (args.length === 0) super(fixedNow);
+        // @ts-ignore
+        else super(...args);
+      }
+      static now() {
+        return fixedNow.getTime();
+      }
+    };
+
+    const { getByText } = renderModal();
+    await act(async () => {
+      fireEvent.press(getByText("check_in.no"));
+    });
+    await waitFor(() => {
+      expect(mockUpdateLastCheckInDate).toHaveBeenCalledWith(
+        "user-1",
+        "2026-03-09",
+      );
+    });
+    global.Date = realDate;
+  });
+
+  it("still calls onAnswered and onClose even when updateLastCheckInDate throws (finally block)", async () => {
+    mockUpdateLastCheckInDate.mockRejectedValueOnce(new Error("network error"));
+    const onAnswered = jest.fn();
+    const onClose = jest.fn();
+    const { getByText } = renderModal({ onAnswered, onClose });
+    await act(async () => {
+      fireEvent.press(getByText("check_in.no"));
+    });
+    await waitFor(() => {
+      expect(onAnswered).toHaveBeenCalledTimes(1);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 });
 

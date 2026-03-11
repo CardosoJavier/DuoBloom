@@ -17,14 +17,14 @@ import { Platform } from "react-native";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user } = useAuthStore();
-  const { shouldShow, markShown } = useDailyCheckIn();
+  const { shouldShow, markShown } = useDailyCheckIn(user?.id);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
 
   useEffect(() => {
-    if (shouldShow && user?.id) {
+    if (shouldShow) {
       setIsCheckInOpen(true);
     }
-  }, [shouldShow, user?.id]);
+  }, [shouldShow]);
 
   return (
     <>

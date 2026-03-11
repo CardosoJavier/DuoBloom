@@ -1,7 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getStreakState } from "@/api/streak-api";
 import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "daily_check_in_last_shown";
 
 const toLocalDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -10,31 +8,56 @@ const toLocalDateString = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+const getTodayKey = (): string => toLocalDateString(new Date());
+
+const getYesterdayKey = (): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return toLocalDateString(d);
+};
+
 interface UseDailyCheckInResult {
   shouldShow: boolean;
-  markShown: () => Promise<void>;
+  markShown: () => void;
 }
 
 /**
- * Returns whether the daily nutrition check-in modal should be shown today.
- * Reads/writes an AsyncStorage key to ensure the modal is displayed at most
- * once per calendar day (local timezone).
+ * Returns whether the daily nutrition check-in modal should be shown.
+ * Reads last_check_in_date from the nutrition_streaks row so the decision
+ * is consistent across all devices for the same user.
+ *
+ * Show the modal when last_check_in_date is neither today nor yesterday:
+ *   - null (new user, never answered)
+ *   - any date older than yesterday (hasn't been asked in the current window)
+ *
+ * markShown() only updates local state — the actual DB write is handled by
+ * DailyCheckInModal after the user answers (Yes or No).
  */
-export function useDailyCheckIn(): UseDailyCheckInResult {
+export function useDailyCheckIn(
+  userId: string | undefined,
+): UseDailyCheckInResult {
   const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
-      const today = toLocalDateString(new Date());
-      if (stored !== today) {
+    if (!userId) return;
+
+    getStreakState(userId).then((result) => {
+      if (!result.success) {
+        // SP5: DB fetch failed — do not show modal, will retry next session.
+        return;
+      }
+
+      const today = getTodayKey();
+      const yesterday = getYesterdayKey();
+      const lastCheckIn = result.data?.last_check_in_date ?? null;
+
+      if (lastCheckIn !== yesterday && lastCheckIn !== today) {
         setShouldShow(true);
       }
     });
-  }, []);
+  }, [userId]);
 
-  const markShown = async (): Promise<void> => {
-    const today = toLocalDateString(new Date());
-    await AsyncStorage.setItem(STORAGE_KEY, today);
+  const markShown = (): void => {
     setShouldShow(false);
   };
 

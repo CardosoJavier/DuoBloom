@@ -1,4 +1,8 @@
-import { logNutritionDay, updateStreakState } from "@/api/streak-api";
+import {
+  logNutritionDay,
+  updateLastCheckInDate,
+  updateStreakState,
+} from "@/api/streak-api";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -57,6 +61,7 @@ export function DailyCheckInModal({
     try {
       await logNutritionDay(userId, yesterday);
       await updateStreakState(userId, yesterday);
+      await updateLastCheckInDate(userId, yesterday);
 
       queryClient.invalidateQueries({ queryKey: ["streak-month"] });
       queryClient.invalidateQueries({ queryKey: ["streak-state", userId] });
@@ -69,9 +74,16 @@ export function DailyCheckInModal({
     }
   };
 
-  const handleNo = () => {
-    onAnswered();
-    onClose();
+  const handleNo = async () => {
+    const yesterday = getYesterdayKey();
+    try {
+      await updateLastCheckInDate(userId, yesterday);
+    } catch (err) {
+      console.warn("[DailyCheckInModal] Check-in date update failed:", err);
+    } finally {
+      onAnswered();
+      onClose();
+    }
   };
 
   return (

@@ -14,6 +14,8 @@ export interface NutritionStreakState {
   all_time_streak_count: number;
   last_streak_day: string | null;
   last_updated_date: string;
+  /** Last date the user answered the daily check-in modal (Yes or No). Null for new users. */
+  last_check_in_date: string | null;
 }
 
 export type StreakSubject = "self" | "partner";

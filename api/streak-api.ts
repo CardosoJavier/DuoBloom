@@ -151,6 +151,7 @@ export const updateStreakState = async (
       current_streak_count: 1,
       all_time_streak_count: 1,
       last_streak_day: newLogDate,
+      last_check_in_date: newLogDate,
     });
     if (error) {
       console.error("[streak-api] Error creating streak state row:", error);
@@ -236,5 +237,34 @@ export const recalculateStreak = async (
   }
 
   console.log(`[streak-api] Streak recalculation complete for user=${userId}`);
+  return { success: true };
+};
+
+// ─── Check-in date update ──────────────────────────────────────────────────
+
+/**
+ * Writes the date the user answered the daily check-in modal (Yes or No).
+ * Used cross-device: suppresses the modal on any device once the user has
+ * already answered for that date.
+ */
+export const updateLastCheckInDate = async (
+  userId: string,
+  date: string,
+): Promise<{ success: boolean; error?: any }> => {
+  console.log(
+    `[streak-api] Updating last_check_in_date userId=${userId} date=${date}`,
+  );
+
+  const { error } = await supabase
+    .from("nutrition_streaks")
+    .update({ last_check_in_date: date })
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("[streak-api] Error updating last_check_in_date:", error);
+    return { success: false, error };
+  }
+
+  console.log(`[streak-api] last_check_in_date updated to ${date}`);
   return { success: true };
 };
