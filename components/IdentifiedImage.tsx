@@ -7,11 +7,11 @@ import { Text } from "./ui/text";
 import { VStack } from "./ui/vstack";
 
 export interface IdentifiedImageProps {
-  uri: string;
-  avatarUri?: string;
-  title?: string;
-  subtitle?: string;
-  isBlurred?: boolean;
+  readonly uri: string;
+  readonly avatarUri?: string;
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly isBlurred?: boolean;
 }
 
 export function IdentifiedImage({
@@ -20,7 +20,7 @@ export function IdentifiedImage({
   title,
   subtitle,
   isBlurred = false,
-}: IdentifiedImageProps) {
+}: Readonly<IdentifiedImageProps>) {
   return (
     <View className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden">
       <Image
