@@ -58,6 +58,66 @@ ON "user_settings"
 FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
--- 5. Functions
+-- Policy: Partner SELECT (read-only, limited scope)
+-- Partners can read each other's user_settings. This is REQUIRED for the
+-- progress_photos RLS policy: the EXISTS subquery in that policy reads the
+-- photo owner's privacy_mode, which would always return zero rows if the
+-- viewer lacked SELECT permission here.
+-- Partners only need to see privacy_mode; full settings remain private.
+CREATE POLICY "Partners can view each other settings"
+ON "user_settings"
+FOR SELECT
+USING (
+    auth.uid() = user_id
+    OR EXISTS (
+        SELECT 1
+        FROM "relationships"
+        WHERE (user_one_id = auth.uid() AND user_two_id = user_settings.user_id)
+           OR (user_two_id = auth.uid() AND user_one_id = user_settings.user_id)
+    )
+);
+
+-- 5. Triggers
 -- ---------------------------------------------
--- None currently required.
+
+-- A. Timestamp Updater
+-- Automatically update 'updated_at' on every row modification.
+-- Reuses the update_last_updated_on() function defined in users_v2.sql.
+CREATE TRIGGER "update_user_settings_timestamp"
+BEFORE UPDATE ON "user_settings"
+FOR EACH ROW
+EXECUTE FUNCTION update_last_updated_on();
+
+-- B. Auto-create settings on new user signup
+-- Inserts a default user_settings row whenever a new row is added to users.
+-- This guarantees every user always has a settings record from day one,
+-- with privacy_mode=true (private by default).
+CREATE OR REPLACE FUNCTION public.handle_new_user_settings()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    INSERT INTO "user_settings" (
+        "user_id",
+        "privacy_mode",
+        "preferred_language",
+        "app_theme",
+        "timezone"
+    ) VALUES (
+        NEW.id,
+        true,          -- private by default
+        'ENGLISH',
+        'SYSTEM',
+        'UTC'
+    )
+    ON CONFLICT (user_id) DO NOTHING;  -- idempotent: skip if already exists
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER "on_user_created_settings"
+AFTER INSERT ON "users"
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_new_user_settings();
