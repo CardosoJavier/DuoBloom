@@ -91,6 +91,9 @@ CREATE TABLE "progress_photos" (
     "side_photo_url" text NOT NULL,
     "back_photo_url" text NOT NULL,
     "captured_date" date NOT NULL
+    "weight_kg" decimal,
+    "weight_lb" decimal,
+    "body_fat" decima
 );
 
 -- Feature: Progress (Weight/Stats)
