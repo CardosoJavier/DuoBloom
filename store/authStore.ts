@@ -29,8 +29,6 @@ interface AuthState {
   checkSyncStatus: () => Promise<boolean>;
   refreshUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
-  pendingSecurityData: any | null;
-  setPendingSecurityData: (data: any | null) => void;
   clearError: () => void;
   setPartner: (user: User) => void;
   clearPartner: () => void;
@@ -45,9 +43,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   partner: null,
   error: null,
-  pendingSecurityData: null,
-
-  setPendingSecurityData: (data) => set({ pendingSecurityData: data }),
 
   setPartner: (user: User) => set({ partner: user }),
 

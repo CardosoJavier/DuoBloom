@@ -7,7 +7,6 @@ export interface User {
   createdAt: string;
   updatedAt?: string;
   pairCode?: string;
-  publicKey?: string;
 }
 
 export interface BloomData {

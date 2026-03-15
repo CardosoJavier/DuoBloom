@@ -39,7 +39,6 @@ export default function ConfirmEmailScreen() {
   useEffect(() => {
     if (!needsEmailConfirmation && isAuthenticated) {
       toast.success(t("common.success"), t("auth.email_verified"));
-      // Do not push directly to tabs, rely on index logic to pick up missing publicKey
       router.replace("/");
     }
   }, [needsEmailConfirmation, isAuthenticated]);
@@ -76,7 +75,6 @@ export default function ConfirmEmailScreen() {
       toast.error(t("common.error"), t(result.error));
     } else {
       await refreshUser();
-      // Let the _layout listener or useEffect push to security if needed
     }
   };
 
