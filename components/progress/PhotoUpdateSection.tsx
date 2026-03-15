@@ -1,5 +1,3 @@
-import { Buffer } from "@craftzdog/react-native-buffer";
-import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { Lock } from "lucide-react-native";
 import React, { useState } from "react";
@@ -12,61 +10,13 @@ import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import {
-  EncryptionMetadata,
-  encryptionService,
-} from "@/services/EncryptionService";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { ProgressPhoto } from "@/types/progress";
-import { supabase } from "@/util/supabase";
 
-const BUCKET = "progress-photos";
-const SIGNED_URL_TTL = 3600; // 60 min
-const STALE_TIME = 55 * 60 * 1000; // 55 min — just under signed URL TTL
+// ── Single photo card ─────────────────────────────────────────────────────────
 
-// ── Single decrypted photo card ───────────────────────────────────────────────
-
-interface SinglePhotoCardProps {
-  storagePath: string;
-  metadata: EncryptionMetadata;
-  viewerUserId: string;
-  privateKey: string;
-}
-
-const SinglePhotoCard: React.FC<SinglePhotoCardProps> = ({
-  storagePath,
-  metadata,
-  viewerUserId,
-  privateKey,
-}) => {
-  const {
-    data: localUri,
-    isLoading,
-    isError,
-  } = useQuery<string>({
-    queryKey: ["decrypted-photo", storagePath, viewerUserId],
-    queryFn: async () => {
-      const { data: signedData, error } = await supabase.storage
-        .from(BUCKET)
-        .createSignedUrl(storagePath, SIGNED_URL_TTL);
-
-      if (error ?? !signedData) {
-        throw error ?? new Error("Failed to create signed download URL");
-      }
-
-      const resp = await fetch(signedData.signedUrl);
-      const arrayBuf = await resp.arrayBuffer();
-      const encryptedBase64 = Buffer.from(arrayBuf).toString("base64");
-
-      return encryptionService.decryptImage(
-        encryptedBase64,
-        metadata,
-        viewerUserId,
-        privateKey,
-      );
-    },
-    staleTime: STALE_TIME,
-    enabled: !!storagePath && !!privateKey,
-  });
+const PhotoCard: React.FC<{ storagePath: string }> = ({ storagePath }) => {
+  const { signedUrl, isLoading } = useSignedUrl(storagePath, "user_media");
 
   if (isLoading) {
     return (
@@ -76,10 +26,10 @@ const SinglePhotoCard: React.FC<SinglePhotoCardProps> = ({
     );
   }
 
-  if (isError || !localUri) {
+  if (!signedUrl) {
     return (
       <Box className="w-full aspect-[3/4] rounded-2xl bg-background-100 items-center justify-center">
-        <Text className="text-error-500 text-sm">Failed to decrypt image</Text>
+        <Text className="text-error-500 text-sm">Failed to load image</Text>
       </Box>
     );
   }
@@ -87,7 +37,7 @@ const SinglePhotoCard: React.FC<SinglePhotoCardProps> = ({
   return (
     <Box className="w-full aspect-[3/4] rounded-2xl overflow-hidden">
       <Image
-        source={{ uri: localUri }}
+        source={{ uri: signedUrl }}
         style={{ width: "100%", height: "100%" }}
         contentFit="cover"
       />
@@ -104,8 +54,6 @@ export interface PhotoUpdateSectionProps {
   isPartner?: boolean;
   partnerPrivacyOn?: boolean;
   partnerFirstName?: string;
-  viewerUserId: string;
-  privateKey: string | null;
   colorScheme: "light" | "dark";
 }
 
@@ -116,8 +64,6 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
   isPartner = false,
   partnerPrivacyOn = false,
   partnerFirstName,
-  viewerUserId,
-  privateKey,
   colorScheme,
 }) => {
   const { t } = useTranslation();
@@ -150,26 +96,20 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
     );
   }
 
-  // ── Resolve active photo metadata ─────────────────────────────────────────
-  const getActivePhoto = (): {
-    path: string;
-    metadata: EncryptionMetadata;
-  } | null => {
+  // ── Resolve active storage path ───────────────────────────────────────────
+  const getActivePath = (): string | null => {
     if (photo === null) return null;
     switch (activeView) {
       case "front":
-        return {
-          path: photo.frontPhotoUrl,
-          metadata: photo.frontPhotoMetadata,
-        };
+        return photo.frontPhotoUrl;
       case "side":
-        return { path: photo.sidePhotoUrl, metadata: photo.sidePhotoMetadata };
+        return photo.sidePhotoUrl;
       case "back":
-        return { path: photo.backPhotoUrl, metadata: photo.backPhotoMetadata };
+        return photo.backPhotoUrl;
     }
   };
 
-  const activePhoto = getActivePhoto();
+  const activePath = getActivePath();
   const views = ["front", "side", "back"] as const;
 
   // ── Render photo body ─────────────────────────────────────────────────────
@@ -194,22 +134,8 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
         </Box>
       );
     }
-    if (privateKey === null) {
-      return (
-        <Box className="w-full aspect-[3/4] rounded-2xl bg-background-100 items-center justify-center">
-          <ActivityIndicator />
-        </Box>
-      );
-    }
-    if (activePhoto !== null) {
-      return (
-        <SinglePhotoCard
-          storagePath={activePhoto.path}
-          metadata={activePhoto.metadata}
-          viewerUserId={viewerUserId}
-          privateKey={privateKey}
-        />
-      );
+    if (activePath !== null) {
+      return <PhotoCard storagePath={activePath} />;
     }
     return null;
   };

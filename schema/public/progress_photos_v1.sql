@@ -1,8 +1,8 @@
 -- =============================================
 -- Table: progress_photos
 -- Version: 1
--- Description: Encrypted progress photo entries (Front, Side, Back) per user.
---              photo URLs store encrypted Supabase Storage paths.
+-- Description: Progress photo entries (Front, Side, Back) per user.
+--              Standard Supabase Storage paths in the user_media bucket.
 --              Weight and body fat fields are optional — a user may log
 --              photos without recording measurements on a given day.
 --              Partner visibility is controlled by the owner's privacy_mode
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "progress_photos" (
     "id"               uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     "user_id"          uuid NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
 
-    -- Encrypted Supabase Storage paths (set by the client via E2EE before upload)
+    -- Supabase Storage paths (user_media bucket, e.g. progress/{userId}/{date}_{uuid}_{view}.jpg)
     "front_photo_url"  text NOT NULL,
     "side_photo_url"   text NOT NULL,
     "back_photo_url"   text NOT NULL,

@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
-import * as SecureStore from "expo-secure-store";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,11 +21,9 @@ import { useAppStore } from "@/store/appStore";
 import { useAuthStore } from "@/store/authStore";
 import { ProgressPhotoInput } from "@/types/progress";
 
-const PRIVATE_KEY_ALIAS = "__user_private_key";
-
 export default function ProgressScreen() {
   const { t } = useTranslation();
-  const { user, partner, setPartner } = useAuthStore();
+  const { user, partner } = useAuthStore();
   const { colorScheme } = useAppStore();
   const queryClient = useQueryClient();
   const toast = useAppToast();
@@ -34,7 +31,6 @@ export default function ProgressScreen() {
   const tabPhotos = t("progress.tab_photos");
   const tabStats = t("progress.tab_stats");
 
-  const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState(tabPhotos);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,13 +39,6 @@ export default function ProgressScreen() {
 
   const dateStr = format(selectedDate, "yyyy-MM-dd");
   const todayFlag = isToday(selectedDate);
-
-  // Load RSA private key from SecureStore on mount
-  useEffect(() => {
-    SecureStore.getItemAsync(PRIVATE_KEY_ALIAS).then((key) => {
-      if (key) setPrivateKey(key);
-    });
-  }, []);
 
   // ── Queries ────────────────────────────────────────────────────────────────
 
@@ -126,13 +115,10 @@ export default function ProgressScreen() {
   const handleUpload = async (input: ProgressPhotoInput) => {
     if (!user) return;
     setIsSaving(true);
-    const result = await progressApi.uploadProgressUpdate(user, partner, input);
+    const result = await progressApi.uploadProgressUpdate(user.id, input);
     setIsSaving(false);
 
     if (result.success) {
-      if (result.data.resolvedPartner) {
-        setPartner(result.data.resolvedPartner);
-      }
       queryClient.invalidateQueries({
         queryKey: ["progress-photos", user.id, dateStr],
       });
@@ -203,8 +189,6 @@ export default function ProgressScreen() {
                 sectionTitle={t("progress.your_photos")}
                 photo={latestMyPhoto}
                 isLoading={myPhotosLoading}
-                viewerUserId={user?.id ?? ""}
-                privateKey={privateKey}
                 colorScheme={colorScheme}
               />
 
@@ -219,8 +203,6 @@ export default function ProgressScreen() {
                   isPartner
                   partnerPrivacyOn={partnerSettings?.privacyMode ?? false}
                   partnerFirstName={partner.firstName ?? "Partner"}
-                  viewerUserId={user?.id ?? ""}
-                  privateKey={privateKey}
                   colorScheme={colorScheme}
                 />
               )}
