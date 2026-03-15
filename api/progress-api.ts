@@ -9,10 +9,35 @@ import {
   ProgressPhotoInput,
   UploadProgressResult,
 } from "@/types/progress";
-import { User } from "@/types/user";
+import { User, UserSettings } from "@/types/user";
 import { supabase } from "@/util/supabase";
 
 const BUCKET = "progress-photos";
+
+const mapProgressPhoto = (row: any): ProgressPhoto => ({
+  id: row.id,
+  userId: row.user_id,
+  frontPhotoUrl: row.front_photo_url,
+  sidePhotoUrl: row.side_photo_url,
+  backPhotoUrl: row.back_photo_url,
+  frontPhotoMetadata: row.front_photo_metadata,
+  sidePhotoMetadata: row.side_photo_metadata,
+  backPhotoMetadata: row.back_photo_metadata,
+  capturedDate: row.captured_date,
+  weightKg: row.weight_kg,
+  weightLb: row.weight_lb,
+  bodyFat: row.body_fat,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
+
+const mapUserSettings = (row: any): UserSettings => ({
+  id: row.id,
+  userId: row.user_id,
+  privacyMode: row.privacy_mode,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
 
 /**
  * Uploads one encrypted binary to the private bucket via a signed upload URL.
@@ -207,26 +232,83 @@ export const progressApi = {
       };
     }
 
-    const photo: ProgressPhoto = {
-      id: data.id,
-      userId: data.user_id,
-      frontPhotoUrl: data.front_photo_url,
-      sidePhotoUrl: data.side_photo_url,
-      backPhotoUrl: data.back_photo_url,
-      frontPhotoMetadata: data.front_photo_metadata,
-      sidePhotoMetadata: data.side_photo_metadata,
-      backPhotoMetadata: data.back_photo_metadata,
-      capturedDate: data.captured_date,
-      weightKg: data.weight_kg,
-      weightLb: data.weight_lb,
-      bodyFat: data.body_fat,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
-
     return {
       success: true,
-      data: { photo, resolvedPartner },
+      data: { photo: mapProgressPhoto(data), resolvedPartner },
     };
+  },
+
+  /** Fetches all progress photos for a user on a specific ISO date (YYYY-MM-DD). */
+  getProgressPhotosForDate: async (
+    userId: string,
+    date: string,
+  ): Promise<ApiResult<ProgressPhoto[]>> => {
+    const { data, error } = await supabase
+      .from("progress_photos")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("captured_date", date)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.PROGRESS_DB_INSERT_ERROR,
+          message: `Failed to fetch progress photos: ${error.message}`,
+          originalError: error,
+        },
+      };
+    }
+
+    return { success: true, data: (data ?? []).map(mapProgressPhoto) };
+  },
+
+  /** Fetches the user_settings row for a given user id. */
+  getSettings: async (userId: string): Promise<ApiResult<UserSettings>> => {
+    const { data, error } = await supabase
+      .from("user_settings")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: `Failed to fetch settings: ${error.message}`,
+          originalError: error,
+        },
+      };
+    }
+
+    return { success: true, data: mapUserSettings(data) };
+  },
+
+  /** Toggles privacy_mode for the current user and returns the updated row. */
+  updatePrivacyMode: async (
+    userId: string,
+    privacyMode: boolean,
+  ): Promise<ApiResult<UserSettings>> => {
+    const { data, error } = await supabase
+      .from("user_settings")
+      .update({ privacy_mode: privacyMode })
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: `Failed to update privacy mode: ${error.message}`,
+          originalError: error,
+        },
+      };
+    }
+
+    return { success: true, data: mapUserSettings(data) };
   },
 };

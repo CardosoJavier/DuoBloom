@@ -13,3 +13,11 @@ export interface User {
 export interface BloomData {
   partnerCode: string;
 }
+
+export interface UserSettings {
+  id: string;
+  userId: string;
+  privacyMode: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
