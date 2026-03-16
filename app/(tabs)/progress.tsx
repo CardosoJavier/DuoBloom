@@ -3,7 +3,7 @@ import { format, isToday } from "date-fns";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, Switch, View } from "react-native";
+import { RefreshControl, ScrollView, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { progressApi } from "@/api/progress-api";
@@ -36,6 +36,7 @@ export default function ProgressScreen() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const dateStr = format(selectedDate, "yyyy-MM-dd");
   const todayFlag = isToday(selectedDate);
@@ -158,6 +159,17 @@ export default function ProgressScreen() {
     toast.error(t("progress.upload_error"));
   };
 
+  const handleRefresh = async () => {
+    console.log("[ProgressScreen.handleRefresh] Pulling to refresh...");
+    setIsRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["progress-photos"] }),
+      queryClient.invalidateQueries({ queryKey: ["user-settings"] }),
+    ]);
+    setIsRefreshing(false);
+    console.log("[ProgressScreen.handleRefresh] Done");
+  };
+
   // ── Theme helpers ──────────────────────────────────────────────────────────
 
   const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
@@ -191,6 +203,12 @@ export default function ProgressScreen() {
           className="flex-1"
           contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+            />
+          }
         >
           {/* ── Photos tab ── */}
           {activeTab === tabPhotos && (

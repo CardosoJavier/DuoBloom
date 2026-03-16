@@ -141,6 +141,12 @@ export const progressApi = {
     userId: string,
     date: string,
   ): Promise<ApiResult<ProgressPhoto[]>> => {
+    console.log(
+      "[progressApi.getProgressPhotosForDate] userId:",
+      userId,
+      "date:",
+      date,
+    );
     const { data, error } = await supabase
       .from("progress_photos")
       .select("*")
@@ -149,6 +155,11 @@ export const progressApi = {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error(
+        "[progressApi.getProgressPhotosForDate] Error:",
+        error.code,
+        error.message,
+      );
       return {
         success: false,
         error: {
@@ -159,6 +170,12 @@ export const progressApi = {
       };
     }
 
+    console.log(
+      "[progressApi.getProgressPhotosForDate] Returned",
+      data?.length ?? 0,
+      "photos for userId:",
+      userId,
+    );
     return { success: true, data: (data ?? []).map(mapProgressPhoto) };
   },
 
