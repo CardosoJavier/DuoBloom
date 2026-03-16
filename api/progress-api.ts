@@ -164,6 +164,10 @@ export const progressApi = {
 
   /** Fetches the user_settings row for a given user id. */
   getSettings: async (userId: string): Promise<ApiResult<UserSettings>> => {
+    console.log(
+      "[progressApi.getSettings] Fetching settings for userId:",
+      userId,
+    );
     const { data, error } = await supabase
       .from("user_settings")
       .select("*")
@@ -171,6 +175,11 @@ export const progressApi = {
       .single();
 
     if (error) {
+      console.error(
+        "[progressApi.getSettings] Error:",
+        error.code,
+        error.message,
+      );
       return {
         success: false,
         error: {
@@ -181,22 +190,39 @@ export const progressApi = {
       };
     }
 
+    console.log(
+      "[progressApi.getSettings] Success — privacyMode:",
+      data?.privacy_mode,
+    );
     return { success: true, data: mapUserSettings(data) };
   },
 
-  /** Toggles privacy_mode for the current user and returns the updated row. */
+  /** Upserts privacy_mode for the current user and returns the updated row. */
   updatePrivacyMode: async (
     userId: string,
     privacyMode: boolean,
   ): Promise<ApiResult<UserSettings>> => {
+    console.log(
+      "[progressApi.updatePrivacyMode] userId:",
+      userId,
+      "→ privacyMode:",
+      privacyMode,
+    );
     const { data, error } = await supabase
       .from("user_settings")
-      .update({ privacy_mode: privacyMode })
-      .eq("user_id", userId)
+      .upsert(
+        { user_id: userId, privacy_mode: privacyMode },
+        { onConflict: "user_id" },
+      )
       .select()
       .single();
 
     if (error) {
+      console.error(
+        "[progressApi.updatePrivacyMode] Error:",
+        error.code,
+        error.message,
+      );
       return {
         success: false,
         error: {
@@ -207,6 +233,10 @@ export const progressApi = {
       };
     }
 
+    console.log(
+      "[progressApi.updatePrivacyMode] Success — new privacyMode:",
+      data?.privacy_mode,
+    );
     return { success: true, data: mapUserSettings(data) };
   },
 };

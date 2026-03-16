@@ -97,9 +97,19 @@ export default function ProgressScreen() {
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const handlePrivacyToggle = async (newValue: boolean) => {
+    console.log(
+      "[ProgressScreen.handlePrivacyToggle] toggled →",
+      newValue,
+      "userId:",
+      user?.id,
+    );
     setPrivacyMode(newValue); // optimistic update
     const result = await progressApi.updatePrivacyMode(user!.id, newValue);
     if (result.success) {
+      console.log(
+        "[ProgressScreen.handlePrivacyToggle] Success — privacyMode:",
+        result.data.privacyMode,
+      );
       queryClient.setQueryData(["user-settings", user?.id], result.data);
       toast.info(
         newValue
@@ -107,6 +117,10 @@ export default function ProgressScreen() {
           : t("progress.privacy_disabled"),
       );
     } else {
+      console.error(
+        "[ProgressScreen.handlePrivacyToggle] Error:",
+        result.error?.message,
+      );
       setPrivacyMode(!newValue); // revert
       toast.error(t("progress.privacy_update_error"));
     }
@@ -114,11 +128,21 @@ export default function ProgressScreen() {
 
   const handleUpload = async (input: ProgressPhotoInput) => {
     if (!user) return;
+    console.log(
+      "[ProgressScreen.handleUpload] Uploading for userId:",
+      user.id,
+      "date:",
+      input.capturedDate,
+    );
     setIsSaving(true);
     const result = await progressApi.uploadProgressUpdate(user.id, input);
     setIsSaving(false);
 
     if (result.success) {
+      console.log(
+        "[ProgressScreen.handleUpload] Success — photoId:",
+        result.data.id,
+      );
       queryClient.invalidateQueries({
         queryKey: ["progress-photos", user.id, dateStr],
       });
@@ -127,6 +151,10 @@ export default function ProgressScreen() {
       return;
     }
 
+    console.error(
+      "[ProgressScreen.handleUpload] Error:",
+      result.error?.message,
+    );
     toast.error(t("progress.upload_error"));
   };
 
