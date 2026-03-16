@@ -73,7 +73,7 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
 
   const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
   const borderColor =
-    colorScheme === "light" ? "border-outline-100" : "border-outline-800";
+    colorScheme === "light" ? "border-outline-100" : "border-outline-600";
   const inactiveViewBg =
     colorScheme === "light" ? "bg-background-100" : "bg-[#2a3d52]";
 
@@ -81,9 +81,9 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
   if (isPartner && partnerPrivacyOn) {
     return (
       <Box
-        className={`rounded-3xl border p-6 gap-3 items-center ${cardBg} ${borderColor}`}
+        className={`rounded-3xl border p-6 gap-3 items-center bg-background-0 ${borderColor}`}
       >
-        <Text className="text-typography-700 font-semibold text-base self-start">
+        <Text className="text-typography-700 font-semibold text-base self-start dark:text-typography-100">
           {sectionTitle}
         </Text>
         <Box className="w-14 h-14 rounded-full bg-background-100 items-center justify-center">
@@ -142,11 +142,11 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
 
   return (
     <Box
-      className={`rounded-3xl border overflow-hidden ${cardBg} ${borderColor}`}
+      className={`rounded-3xl border overflow-hidden bg-background-0 ${borderColor}`}
     >
       {/* Header row */}
       <HStack className="px-4 pt-4 pb-2 items-center justify-between">
-        <Text className="text-typography-700 font-semibold text-base">
+        <Text className="text-typography-700 font-semibold text-base dark:text-typography-100">
           {sectionTitle}
         </Text>
         {photo !== null && (

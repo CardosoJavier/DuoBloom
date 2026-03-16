@@ -174,7 +174,7 @@ export default function ProgressScreen() {
 
   const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
   const borderColor =
-    colorScheme === "light" ? "border-outline-100" : "border-outline-800";
+    colorScheme === "light" ? "border-outline-100" : "border-outline-600";
 
   const latestMyPhoto = myPhotos[0] ?? null;
 
@@ -218,7 +218,7 @@ export default function ProgressScreen() {
                 className={`rounded-3xl border p-4 ${cardBg} ${borderColor}`}
               >
                 <HStack className="items-center justify-between">
-                  <Text className="text-typography-800 font-semibold text-sm flex-1 mr-4">
+                  <Text className="text-typography-800 font-semibold text-sm flex-1 mr-4 dark:text-typography-100">
                     {t("progress.privacy_toggle_label")}
                   </Text>
                   <Switch
