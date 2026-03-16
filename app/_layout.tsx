@@ -1,8 +1,13 @@
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+} from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { AppState, AppStateStatus } from "react-native";
 import "react-native-reanimated";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -74,7 +79,31 @@ function InitialLayout() {
 
 export default function RootLayout() {
   const { colorScheme, isThemeHydrated, hydrate } = useAppStore();
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000, // 30 s — avoids redundant refetches within the same session
+            gcTime: 5 * 60_000, // 5 min garbage-collect
+            refetchOnWindowFocus: true, // works once focusManager is wired below
+            retry: 1,
+          },
+        },
+      }),
+  );
+
+  // Wire TanStack focusManager to React Native's AppState so
+  // refetchOnWindowFocus fires when the app comes back to the foreground.
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      "change",
+      (status: AppStateStatus) => {
+        focusManager.setFocused(status === "active");
+      },
+    );
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     hydrate();
