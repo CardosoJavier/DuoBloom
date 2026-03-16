@@ -348,6 +348,58 @@ export const userApi = {
   },
 
   /**
+   * Deletes the current user's account.
+   * Step 1 (best-effort): purges storage files from user_media bucket.
+   * Step 2 (best-effort): removes relationship row to satisfy FK constraint.
+   * Step 3 (atomic): SECURITY DEFINER RPC deletes from auth.users, cascading to public.users and all downstream tables.
+   */
+  deleteAccount: async (userId: string): Promise<ApiResult<void>> => {
+    try {
+      // Step 1: best-effort storage purge — failure does not block deletion
+      for (const prefix of [`meals/${userId}`, `progress/${userId}`]) {
+        const { data: files } = await supabase.storage
+          .from("user_media")
+          .list(prefix);
+        if (files && files.length > 0) {
+          await supabase.storage
+            .from("user_media")
+            .remove(files.map((f) => `${prefix}/${f.name}`));
+        }
+      }
+
+      // Step 2: remove relationship row — FK has no ON DELETE CASCADE
+      await supabase
+        .from("relationships")
+        .delete()
+        .or(`user_one_id.eq.${userId},user_two_id.eq.${userId}`);
+
+      // Step 3: atomic deletion via SECURITY DEFINER RPC
+      const { error } = await supabase.rpc("delete_user_account");
+      if (error) {
+        return {
+          success: false,
+          error: {
+            code: ErrorCode.DELETE_ACCOUNT_ERROR,
+            message: error.message || "Failed to delete account",
+            originalError: error,
+          },
+        };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.DELETE_ACCOUNT_ERROR,
+          message: error.message || "Unexpected error during account deletion",
+          originalError: error,
+        },
+      };
+    }
+  },
+
+  /**
    * Fetch Partner
    */
   fetchPartner: async (userId: string): Promise<ApiResult<User>> => {

@@ -18,6 +18,9 @@ export enum ErrorCode {
   // Progress Photo Errors
   PROGRESS_UPLOAD_ERROR = "PROGRESS_UPLOAD_ERROR",
   PROGRESS_DB_INSERT_ERROR = "PROGRESS_DB_INSERT_ERROR",
+
+  // Account Deletion Errors
+  DELETE_ACCOUNT_ERROR = "DELETE_ACCOUNT_ERROR",
 }
 
 export interface AppError {

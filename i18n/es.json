@@ -121,7 +121,13 @@
     "email_update_warning": "Actualizar tu correo requerirá nueva verificación.",
     "change_password": "Cambiar Contraseña",
     "unlink_partner": "Desvincular Pareja",
-    "unlink_success_message": "Has sido desvinculado de tu pareja exitosamente."
+    "unlink_success_message": "Has sido desvinculado de tu pareja exitosamente.",
+    "delete_account_modal_title": "Eliminar Cuenta",
+    "delete_account_warning": "Esta acción es permanente y no se puede deshacer. Todas tus fotos, medidas e historial de comidas serán eliminados.",
+    "delete_account_confirm_label": "Escribe tu código de pareja para confirmar",
+    "delete_account_confirm_placeholder": "ej. ALEX-1234",
+    "delete_account_confirm_button": "Eliminar Mi Cuenta",
+    "delete_account_error": "Error al eliminar la cuenta. Por favor intenta de nuevo."
   },
   "settings": {
     "language": "Idioma",

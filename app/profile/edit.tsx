@@ -1,4 +1,5 @@
 import { syncApi } from "@/api/sync-api";
+import { DeleteAccountModal } from "@/components/profile/DeleteAccountModal";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
@@ -7,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { useAccountDeletion } from "@/hooks/useAccountDeletion";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { AlertTriangle, Camera, Mail, User, X } from "lucide-react-native";
@@ -24,6 +26,17 @@ export default function EditProfileScreen() {
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [email, setEmail] = useState(user?.email || "");
   const [isSaving, setIsSaving] = useState(false);
+
+  const {
+    isModalOpen,
+    inputCode,
+    setInputCode,
+    isDeleting,
+    canDelete,
+    openModal,
+    closeModal,
+    handleDelete,
+  } = useAccountDeletion();
 
   const handleSave = async () => {
     // TODO: Implement update profile API
@@ -193,6 +206,7 @@ export default function EditProfileScreen() {
                 variant="outline"
                 action="negative"
                 className="border-red-500/50 rounded-xl h-12 justify-start pl-4"
+                onPress={openModal}
               >
                 <ButtonText className="text-red-500 text-sm">
                   {t("profile.delete_account")}
@@ -201,6 +215,16 @@ export default function EditProfileScreen() {
             </VStack>
           </VStack>
         </ScrollView>
+
+        <DeleteAccountModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          inputCode={inputCode}
+          onInputChange={setInputCode}
+          canDelete={canDelete}
+          isDeleting={isDeleting}
+          onConfirm={handleDelete}
+        />
       </VStack>
     </SafeAreaView>
   );

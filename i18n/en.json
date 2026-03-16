@@ -120,7 +120,13 @@
     "email_update_warning": "Updating your email will require re-verification.",
     "change_password": "Change Password",
     "unlink_partner": "Unlink Partner",
-    "unlink_success_message": "You have been successfully unlinked from your partner."
+    "unlink_success_message": "You have been successfully unlinked from your partner.",
+    "delete_account_modal_title": "Delete Account",
+    "delete_account_warning": "This action is permanent and cannot be undone. All your photos, measurements, and meal history will be deleted.",
+    "delete_account_confirm_label": "Type your pair code to confirm",
+    "delete_account_confirm_placeholder": "e.g. ALEX-1234",
+    "delete_account_confirm_button": "Delete My Account",
+    "delete_account_error": "Failed to delete account. Please try again."
   },
   "settings": {
     "language": "Language",
