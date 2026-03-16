@@ -81,12 +81,23 @@ USING (
 -- ---------------------------------------------
 
 -- A. Timestamp Updater
--- Automatically update 'updated_at' on every row modification.
--- Reuses the update_last_updated_on() function defined in users_v2.sql.
+-- Dedicated trigger function for tables using 'updated_at'.
+-- (update_last_updated_on() sets NEW.last_updated_on — a column on 'users'
+-- that does not exist here; using it caused "record new has no field
+-- last_updated_on" on every UPDATE, blocking all user_settings writes.)
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS "update_user_settings_timestamp" ON "user_settings";
 CREATE TRIGGER "update_user_settings_timestamp"
 BEFORE UPDATE ON "user_settings"
 FOR EACH ROW
-EXECUTE FUNCTION update_last_updated_on();
+EXECUTE FUNCTION update_updated_at();
 
 -- B. Auto-create settings on new user signup
 -- Inserts a default user_settings row whenever a new row is added to users.

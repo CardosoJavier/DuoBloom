@@ -1,44 +1,41 @@
 -- =============================================
 -- Table: users
--- Version: 3
+-- Version: 1 (consolidated — v2 + v3 changes incorporated)
 -- Description: Core user profiles linked to Supabase Auth.
---              v3 removes the public_key column introduced in v2.
---              E2EE has been decommissioned; data security is enforced
---              entirely through Supabase RLS policies.
+--              E2EE decommissioned: public_key column not included.
+--              Security enforced entirely via Supabase RLS.
 -- =============================================
 
--- ── Migration (run against an existing v2 database) ──────────────────────────
-ALTER TABLE "users" DROP COLUMN IF EXISTS "public_key";
-
--- ── Full Table Definition (standalone reference) ──────────────────────────────
-
--- 1. Table Definition
+-- 1. Extensions
 -- ---------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- 2. Table Definition
+-- ---------------------------------------------
 CREATE TABLE IF NOT EXISTS "users" (
     "id"               uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     "first_name"       varchar(50) NOT NULL,
     "last_name"        varchar(50) NOT NULL,
     "email"            text UNIQUE NOT NULL,
 
-    -- Pair Code: Unique identifier for syncing (e.g. ALEX-8392)
+    -- Pair Code: unique identifier for partner syncing (e.g. ALEX-8392)
     "pair_code"        varchar(20) UNIQUE NOT NULL,
 
     "created_on"       timestamptz NOT NULL DEFAULT now(),
     "last_updated_on"  timestamptz DEFAULT now()
 );
 
--- 2. Indexes
+-- 3. Indexes
 -- ---------------------------------------------
 CREATE INDEX IF NOT EXISTS "idx_users_email"     ON "users" ("email");
 CREATE INDEX IF NOT EXISTS "idx_users_pair_code" ON "users" ("pair_code");
 
--- 3. Row Level Security (RLS)
+-- 4. Row Level Security (RLS)
 -- ---------------------------------------------
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
 
--- Policy: SELECT — own profile and partner's profile
+-- SELECT: own profile and partner's profile
+-- (requires get_partner_id() defined in relationships_v1.sql)
 CREATE POLICY "Users can view own and partner's profile"
 ON "users"
 FOR SELECT
@@ -46,22 +43,22 @@ USING (
     auth.uid() = id OR id = public.get_partner_id(auth.uid())
 );
 
--- Policy: UPDATE — own profile only
+-- UPDATE: own profile only
 CREATE POLICY "Users can update own profile"
 ON "users"
 FOR UPDATE
 USING (auth.uid() = id);
 
--- Policy: INSERT — own profile only (also handled by the trigger below)
+-- INSERT: own profile only (also handled by trigger B below)
 CREATE POLICY "Users can insert own profile"
 ON "users"
 FOR INSERT
 WITH CHECK (auth.uid() = id);
 
--- 4. Functions & Triggers
+-- 5. Functions & Triggers
 -- ---------------------------------------------
 
--- A. Timestamp updater
+-- A. Timestamp updater — sets last_updated_on on every row change
 CREATE OR REPLACE FUNCTION update_last_updated_on()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -70,6 +67,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_users_timestamp ON "users";
 CREATE TRIGGER update_users_timestamp
 BEFORE UPDATE ON "users"
 FOR EACH ROW
@@ -79,9 +77,9 @@ EXECUTE FUNCTION update_last_updated_on();
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
-    v_first_name text;
-    v_last_name  text;
-    v_pair_code  text;
+    v_first_name  text;
+    v_last_name   text;
+    v_pair_code   text;
     v_code_suffix int;
 BEGIN
     v_first_name := COALESCE(new.raw_user_meta_data->>'firstName', 'User');

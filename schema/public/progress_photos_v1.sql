@@ -87,9 +87,19 @@ USING (
 
 -- 4. Triggers
 -- ---------------------------------------------
--- Automatically update 'updated_at' on every row modification.
--- Reuses the update_last_updated_on() function defined in users_v2.sql.
+-- Dedicated trigger function for tables using 'updated_at'.
+-- (update_last_updated_on() sets NEW.last_updated_on — a column on 'users'
+-- that does not exist here; using it would cause a runtime error.)
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS "update_progress_photos_timestamp" ON "progress_photos";
 CREATE TRIGGER "update_progress_photos_timestamp"
 BEFORE UPDATE ON "progress_photos"
 FOR EACH ROW
-EXECUTE FUNCTION update_last_updated_on();
+EXECUTE FUNCTION update_updated_at();

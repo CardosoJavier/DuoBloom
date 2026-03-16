@@ -1,10 +1,10 @@
 -- =============================================
 -- Table: nutrition_streaks
--- Version: 3
+-- Version: 1 (consolidated)
 -- Description: Streak state for each user's nutrition logging habit.
 --              One row per user. Updated by the client after each meal log.
 --              Retroactive logs trigger a full recalculation via the
---              recalculate_nutrition_streak() function.
+--              recalculate_nutrition_streak() RPC.
 --              last_check_in_date tracks the last date the user answered
 --              the daily check-in modal (Yes or No), enabling cross-device
 --              modal suppression without polluting nutrition_logs.
@@ -33,9 +33,7 @@ CREATE INDEX IF NOT EXISTS "idx_nutrition_streaks_user_id" ON "nutrition_streaks
 -- ---------------------------------------------
 ALTER TABLE "nutrition_streaks" ENABLE ROW LEVEL SECURITY;
 
--- Policy: SELECT
--- Users can read their own streak and their partner's streak (to display
--- partner stats in the shared meals / streak view).
+-- SELECT: own streak and partner's streak (for shared streak display)
 CREATE POLICY "Users can view own and partner streak state"
 ON "nutrition_streaks"
 FOR SELECT
@@ -49,15 +47,13 @@ USING (
     )
 );
 
--- Policy: INSERT
--- Users can only insert their own streak row.
+-- INSERT: own streak row only
 CREATE POLICY "Users can insert own streak state"
 ON "nutrition_streaks"
 FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
--- Policy: UPDATE
--- Users can only update their own streak row.
+-- UPDATE: own streak row only
 CREATE POLICY "Users can update own streak state"
 ON "nutrition_streaks"
 FOR UPDATE
@@ -73,9 +69,8 @@ USING (auth.uid() = user_id);
 -- all_time_streak_count, then upserts the result.
 --
 -- last_check_in_date is intentionally excluded from all ON CONFLICT DO UPDATE
--- clauses so that recalculating streaks from scratch never resets when the
--- user last answered the daily check-in modal.
-
+-- clauses so that recalculating streaks never resets when the user last
+-- answered the daily check-in modal.
 CREATE OR REPLACE FUNCTION recalculate_nutrition_streak(p_user_id uuid)
 RETURNS void
 LANGUAGE plpgsql
