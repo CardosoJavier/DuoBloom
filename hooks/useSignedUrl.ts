@@ -21,7 +21,7 @@ export function useSignedUrl(
 
   const { data, isLoading } = useQuery({
     queryKey: ["signed-url", bucket, path],
-    queryFn: () => getSignedUrl(bucket, path),
+    queryFn: () => getSignedUrl(bucket, path!),
     enabled: needsSigning,
     staleTime: STALE_TIME,
     gcTime: GC_TIME,

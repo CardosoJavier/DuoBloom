@@ -193,6 +193,17 @@
     "load_error": "Failed to load progress photos.",
     "privacy_enabled": "Privacy mode enabled.",
     "privacy_disabled": "Privacy mode disabled.",
-    "privacy_update_error": "Failed to update privacy setting."
+    "privacy_update_error": "Failed to update privacy setting.",
+    "comparison": "Comparison",
+    "photo_gallery": "Photo Gallery",
+    "comparing_my_progress": "Comparing My Progress",
+    "comparing_partner_progress": "Comparing {{name}}'s Progress",
+    "before": "Before",
+    "after": "After",
+    "front_view": "FRONT VIEW",
+    "side_view": "SIDE VIEW",
+    "back_view": "BACK VIEW",
+    "no_photo_for_date": "No photo recorded for this date.",
+    "partner_privacy_on": "{{name}} has privacy mode on."
   }
 }

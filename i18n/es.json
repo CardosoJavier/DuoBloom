@@ -194,6 +194,17 @@
     "load_error": "Error al cargar las fotos de progreso.",
     "privacy_enabled": "Modo privado activado.",
     "privacy_disabled": "Modo privado desactivado.",
-    "privacy_update_error": "Error al actualizar la configuración de privacidad."
+    "privacy_update_error": "Error al actualizar la configuración de privacidad.",
+    "comparison": "Comparación",
+    "photo_gallery": "Galería de Fotos",
+    "comparing_my_progress": "Comparando Mi Progreso",
+    "comparing_partner_progress": "Comparando el Progreso de {{name}}",
+    "before": "Antes",
+    "after": "Después",
+    "front_view": "VISTA FRONTAL",
+    "side_view": "VISTA LATERAL",
+    "back_view": "VISTA TRASERA",
+    "no_photo_for_date": "No hay foto registrada para esta fecha.",
+    "partner_privacy_on": "{{name}} tiene el modo privado activado."
   }
 }

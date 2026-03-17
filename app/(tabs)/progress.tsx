@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
-import { Plus } from "lucide-react-native";
+import { Columns2, LayoutGrid, Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RefreshControl, ScrollView, Switch, View } from "react-native";
@@ -10,10 +10,13 @@ import { progressApi } from "@/api/progress-api";
 import { DateNavigator } from "@/components/DateNavigator";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { AddProgressModal } from "@/components/progress/AddProgressModal";
+import { ComparisonView } from "@/components/progress/ComparisonView";
 import { PhotoUpdateSection } from "@/components/progress/PhotoUpdateSection";
 import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
@@ -37,6 +40,9 @@ export default function ProgressScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeView, setActiveView] = useState<"gallery" | "comparison">(
+    "gallery",
+  );
 
   const dateStr = format(selectedDate, "yyyy-MM-dd");
   const todayFlag = isToday(selectedDate);
@@ -185,17 +191,61 @@ export default function ProgressScreen() {
       <VStack className="flex-1">
         {/* Header controls */}
         <VStack className="px-5 pt-4 pb-3 gap-3">
-          <SegmentedControl
-            options={[tabPhotos, tabStats]}
-            selectedValue={activeTab}
-            onValueChange={setActiveTab}
-          />
-          <DateNavigator
-            date={selectedDate}
-            onDateChange={setSelectedDate}
-            disableNext={todayFlag}
-            textSize="sm"
-          />
+          {/* Title row with view toggle */}
+          <HStack className="items-center justify-between">
+            <Text className="text-typography-900 dark:text-typography-100 font-bold text-xl">
+              {activeView === "gallery"
+                ? t("progress.photo_gallery")
+                : t("progress.comparison")}
+            </Text>
+            <HStack className="gap-2">
+              <Pressable
+                onPress={() => setActiveView("gallery")}
+                className="w-9 h-9 rounded-full items-center justify-center"
+              >
+                <Icon
+                  as={LayoutGrid}
+                  size="md"
+                  className={
+                    activeView === "gallery"
+                      ? "text-primary-500"
+                      : "text-typography-400"
+                  }
+                />
+              </Pressable>
+              <Pressable
+                onPress={() => setActiveView("comparison")}
+                className="w-9 h-9 rounded-full items-center justify-center"
+              >
+                <Icon
+                  as={Columns2}
+                  size="md"
+                  className={
+                    activeView === "comparison"
+                      ? "text-primary-500"
+                      : "text-typography-400"
+                  }
+                />
+              </Pressable>
+            </HStack>
+          </HStack>
+
+          {/* Gallery-only sub-controls */}
+          {activeView === "gallery" && (
+            <>
+              <SegmentedControl
+                options={[tabPhotos, tabStats]}
+                selectedValue={activeTab}
+                onValueChange={setActiveTab}
+              />
+              <DateNavigator
+                date={selectedDate}
+                onDateChange={setSelectedDate}
+                disableNext={todayFlag}
+                textSize="sm"
+              />
+            </>
+          )}
         </VStack>
 
         {/* Scrollable content */}
@@ -211,7 +261,19 @@ export default function ProgressScreen() {
           }
         >
           {/* ── Photos tab ── */}
-          {activeTab === tabPhotos && (
+          {activeView === "comparison" && (
+            <ComparisonView
+              myId={user!.id}
+              myFirstName={user?.firstName ?? "Me"}
+              partnerId={partner?.id}
+              partnerFirstName={partner?.firstName}
+              partnerPrivacyOn={partnerSettings?.privacyMode ?? false}
+              colorScheme={colorScheme}
+            />
+          )}
+
+          {/* ── Gallery tab ── */}
+          {activeView === "gallery" && activeTab === tabPhotos && (
             <View style={{ gap: 16 }}>
               {/* Privacy toggle card */}
               <Box
@@ -256,7 +318,7 @@ export default function ProgressScreen() {
           )}
 
           {/* ── Stats tab ── */}
-          {activeTab === tabStats && (
+          {activeView === "gallery" && activeTab === tabStats && (
             <View style={{ gap: 16 }}>
               <Box
                 className={`rounded-3xl border p-5 ${cardBg} ${borderColor}`}
@@ -307,15 +369,17 @@ export default function ProgressScreen() {
           )}
         </ScrollView>
 
-        {/* FAB */}
-        <Fab
-          size="lg"
-          placement="bottom right"
-          className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
-          onPress={() => setIsModalOpen(true)}
-        >
-          <FabIcon as={Plus} className="text-white" />
-        </Fab>
+        {/* FAB — gallery mode only */}
+        {activeView === "gallery" && (
+          <Fab
+            size="lg"
+            placement="bottom right"
+            className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
+            onPress={() => setIsModalOpen(true)}
+          >
+            <FabIcon as={Plus} className="text-white" />
+          </Fab>
+        )}
       </VStack>
 
       <AddProgressModal

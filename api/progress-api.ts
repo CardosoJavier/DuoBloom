@@ -256,4 +256,43 @@ export const progressApi = {
     );
     return { success: true, data: mapUserSettings(data) };
   },
+
+  /** Returns the earliest captured_date for a user, or null if they have no photos. */
+  getEarliestPhotoDate: async (
+    userId: string,
+  ): Promise<ApiResult<string | null>> => {
+    console.log("[progressApi.getEarliestPhotoDate] userId:", userId);
+    const { data, error } = await supabase
+      .from("progress_photos")
+      .select("captured_date")
+      .eq("user_id", userId)
+      .order("captured_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error(
+        "[progressApi.getEarliestPhotoDate] Error:",
+        error.code,
+        error.message,
+      );
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.PROGRESS_DB_INSERT_ERROR,
+          message: `Failed to fetch earliest photo date: ${error.message}`,
+          originalError: error,
+        },
+      };
+    }
+
+    const date = data?.captured_date ?? null;
+    console.log(
+      "[progressApi.getEarliestPhotoDate] Earliest date:",
+      date,
+      "for userId:",
+      userId,
+    );
+    return { success: true, data: date };
+  },
 };
