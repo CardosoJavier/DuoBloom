@@ -3,7 +3,7 @@ import * as Crypto from "expo-crypto";
 import { ApiResult } from "@/types/api";
 import { ErrorCode } from "@/types/error";
 import { ProgressPhoto, ProgressPhotoInput } from "@/types/progress";
-import { UserSettings } from "@/types/user";
+import { UnitSystem, UserSettings } from "@/types/user";
 import { supabase } from "@/util/supabase";
 
 const BUCKET = "user_media";
@@ -254,6 +254,49 @@ export const progressApi = {
     console.log(
       "[progressApi.updatePrivacyMode] Success — new privacyMode:",
       data?.privacy_mode,
+    );
+    return { success: true, data: mapUserSettings(data) };
+  },
+
+  /** Upserts preferred_unit_system for the current user and returns the updated row. */
+  updateUnitSystem: async (
+    userId: string,
+    unitSystem: UnitSystem,
+  ): Promise<ApiResult<UserSettings>> => {
+    console.log(
+      "[progressApi.updateUnitSystem] userId:",
+      userId,
+      "→ unitSystem:",
+      unitSystem,
+    );
+    const { data, error } = await supabase
+      .from("user_settings")
+      .upsert(
+        { user_id: userId, preferred_unit_system: unitSystem },
+        { onConflict: "user_id" },
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error(
+        "[progressApi.updateUnitSystem] Error:",
+        error.code,
+        error.message,
+      );
+      return {
+        success: false,
+        error: {
+          code: ErrorCode.UNKNOWN_ERROR,
+          message: `Failed to update unit system: ${error.message}`,
+          originalError: error,
+        },
+      };
+    }
+
+    console.log(
+      "[progressApi.updateUnitSystem] Success — new unitSystem:",
+      data?.preferred_unit_system,
     );
     return { success: true, data: mapUserSettings(data) };
   },

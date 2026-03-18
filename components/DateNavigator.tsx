@@ -130,7 +130,7 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
   return (
     <>
       <HStack
-        className={`rounded-2xl h-[52px] items-center justify-between px-2 bg-[#EEF0F6] dark:bg-background-dark ${className || ""}`}
+        className={`rounded-2xl h-[52px] items-center justify-between px-2 bg-background-100 dark:bg-background-dark ${className || ""}`}
       >
         <Pressable
           onPress={prevDay}

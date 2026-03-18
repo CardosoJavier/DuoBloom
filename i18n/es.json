@@ -134,7 +134,12 @@
     "appearance": "Apariencia",
     "light_mode": "Modo Claro",
     "dark_mode": "Modo Oscuro",
-    "system_default": "Predeterminado del Sistema"
+    "system_default": "Predeterminado del Sistema",
+    "unit_system": "Unidades",
+    "unit_kg": "Kilogramos (kg)",
+    "unit_lb": "Libras (lb)",
+    "unit_system_saved": "Sistema de unidades actualizado",
+    "unit_system_error": "Error al actualizar el sistema de unidades"
   },
   "validation": {
     "required": "Este campo es obligatorio",

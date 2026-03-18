@@ -133,7 +133,12 @@
     "appearance": "Appearance",
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
-    "system_default": "System Default"
+    "system_default": "System Default",
+    "unit_system": "Units",
+    "unit_kg": "Kilograms (kg)",
+    "unit_lb": "Pounds (lb)",
+    "unit_system_saved": "Unit system updated",
+    "unit_system_error": "Failed to update unit system"
   },
   "validation": {
     "required": "This field is required",
