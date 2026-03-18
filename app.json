@@ -49,7 +49,9 @@
           "photosPermission": "The app accesses your photos to let you share meal pictures with your partner.",
           "cameraPermission": "The app accesses your camera to let you take meal pictures to share with your partner."
         }
-      ]
+      ],
+      "react-native-health",
+      "react-native-health-connect"
     ],
     "experiments": {
       "typedRoutes": true,

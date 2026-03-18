@@ -26,6 +26,7 @@ const mapUserSettings = (row: any): UserSettings => ({
   id: row.id,
   userId: row.user_id,
   privacyMode: row.privacy_mode,
+  preferredUnitSystem: row.preferred_unit_system ?? "KG",
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });

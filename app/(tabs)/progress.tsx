@@ -7,11 +7,14 @@ import { RefreshControl, ScrollView, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { progressApi } from "@/api/progress-api";
+import { statsApi } from "@/api/stats-api";
 import { DateNavigator } from "@/components/DateNavigator";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { AddProgressModal } from "@/components/progress/AddProgressModal";
+import { AddStatsModal } from "@/components/progress/AddStatsModal";
 import { ComparisonView } from "@/components/progress/ComparisonView";
 import { PhotoUpdateSection } from "@/components/progress/PhotoUpdateSection";
+import { StatsTabView } from "@/components/progress/StatsTabView";
 import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { HStack } from "@/components/ui/hstack";
@@ -22,7 +25,7 @@ import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAppStore } from "@/store/appStore";
 import { useAuthStore } from "@/store/authStore";
-import { ProgressPhotoInput } from "@/types/progress";
+import { ProgressPhotoInput, ProgressStatInput } from "@/types/progress";
 
 export default function ProgressScreen() {
   const { t } = useTranslation();
@@ -38,6 +41,8 @@ export default function ProgressScreen() {
   const [activeTab, setActiveTab] = useState(tabPhotos);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [isSavingStats, setIsSavingStats] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeView, setActiveView] = useState<"gallery" | "comparison">(
@@ -171,9 +176,26 @@ export default function ProgressScreen() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["progress-photos"] }),
       queryClient.invalidateQueries({ queryKey: ["user-settings"] }),
+      queryClient.invalidateQueries({ queryKey: ["stats-summary"] }),
+      queryClient.invalidateQueries({ queryKey: ["stats-history"] }),
     ]);
     setIsRefreshing(false);
     console.log("[ProgressScreen.handleRefresh] Done");
+  };
+
+  const handleStatsSave = async (input: ProgressStatInput) => {
+    if (!user) return;
+    setIsSavingStats(true);
+    const result = await statsApi.insertStat(user.id, input);
+    setIsSavingStats(false);
+    if (result.success) {
+      queryClient.invalidateQueries({ queryKey: ["stats-summary", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["stats-history", user.id] });
+      toast.success(t("stats.save_success"));
+      setIsStatsModalOpen(false);
+    } else {
+      toast.error(t("stats.save_error"));
+    }
   };
 
   // ── Theme helpers ──────────────────────────────────────────────────────────
@@ -182,6 +204,7 @@ export default function ProgressScreen() {
   const borderColor =
     colorScheme === "light" ? "border-outline-100" : "border-outline-600";
 
+  const unitSystem = mySettings?.preferredUnitSystem ?? "KG";
   const latestMyPhoto = myPhotos[0] ?? null;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -238,12 +261,14 @@ export default function ProgressScreen() {
                 selectedValue={activeTab}
                 onValueChange={setActiveTab}
               />
-              <DateNavigator
-                date={selectedDate}
-                onDateChange={setSelectedDate}
-                disableNext={todayFlag}
-                textSize="sm"
-              />
+              {activeTab === tabPhotos && (
+                <DateNavigator
+                  date={selectedDate}
+                  onDateChange={setSelectedDate}
+                  disableNext={todayFlag}
+                  textSize="sm"
+                />
+              )}
             </>
           )}
         </VStack>
@@ -319,63 +344,37 @@ export default function ProgressScreen() {
 
           {/* ── Stats tab ── */}
           {activeView === "gallery" && activeTab === tabStats && (
-            <View style={{ gap: 16 }}>
-              <Box
-                className={`rounded-3xl border p-5 ${cardBg} ${borderColor}`}
-              >
-                <Text className="text-typography-700 font-semibold text-base mb-4">
-                  {t("progress.your_photos")}
-                </Text>
-                {latestMyPhoto ? (
-                  <HStack className="gap-8 justify-center">
-                    {latestMyPhoto.weightKg !== null && (
-                      <VStack className="items-center">
-                        <Text className="text-typography-500 text-xs mb-1">
-                          {t("progress.weight_kg")}
-                        </Text>
-                        <Text className="text-typography-900 font-bold text-2xl">
-                          {latestMyPhoto.weightKg}
-                        </Text>
-                      </VStack>
-                    )}
-                    {latestMyPhoto.weightLb !== null && (
-                      <VStack className="items-center">
-                        <Text className="text-typography-500 text-xs mb-1">
-                          {t("progress.weight_lb")}
-                        </Text>
-                        <Text className="text-typography-900 font-bold text-2xl">
-                          {latestMyPhoto.weightLb}
-                        </Text>
-                      </VStack>
-                    )}
-                    {latestMyPhoto.bodyFat !== null && (
-                      <VStack className="items-center">
-                        <Text className="text-typography-500 text-xs mb-1">
-                          {t("progress.body_fat")}
-                        </Text>
-                        <Text className="text-typography-900 font-bold text-2xl">
-                          {latestMyPhoto.bodyFat}%
-                        </Text>
-                      </VStack>
-                    )}
-                  </HStack>
-                ) : (
-                  <Text className="text-typography-400 text-sm text-center">
-                    {t("progress.no_photos_today")}
-                  </Text>
-                )}
-              </Box>
-            </View>
+            <StatsTabView
+              myId={user!.id}
+              myFirstName={user?.firstName ?? "Me"}
+              partnerId={partner?.id}
+              partnerFirstName={partner?.firstName}
+              partnerPrivacyOn={partnerSettings?.privacyMode ?? false}
+              unitSystem={unitSystem}
+              colorScheme={colorScheme}
+            />
           )}
         </ScrollView>
 
-        {/* FAB — gallery mode only */}
-        {activeView === "gallery" && (
+        {/* FAB — photos tab */}
+        {activeView === "gallery" && activeTab === tabPhotos && (
           <Fab
             size="lg"
             placement="bottom right"
             className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
             onPress={() => setIsModalOpen(true)}
+          >
+            <FabIcon as={Plus} className="text-white" />
+          </Fab>
+        )}
+
+        {/* FAB — stats tab */}
+        {activeView === "gallery" && activeTab === tabStats && (
+          <Fab
+            size="lg"
+            placement="bottom right"
+            className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
+            onPress={() => setIsStatsModalOpen(true)}
           >
             <FabIcon as={Plus} className="text-white" />
           </Fab>
@@ -388,6 +387,14 @@ export default function ProgressScreen() {
         onSave={handleUpload}
         capturedDate={dateStr}
         isSaving={isSaving}
+      />
+
+      <AddStatsModal
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
+        onSave={handleStatsSave}
+        isSaving={isSavingStats}
+        defaultDate={dateStr}
       />
     </SafeAreaView>
   );

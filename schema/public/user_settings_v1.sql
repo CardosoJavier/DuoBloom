@@ -9,6 +9,7 @@
 DO $$ BEGIN
     CREATE TYPE "supported_languages" AS ENUM ('SPANISH', 'ENGLISH');
     CREATE TYPE "application_theme" AS ENUM ('LIGHT', 'DARK', 'SYSTEM');
+    CREATE TYPE "unit_system" AS ENUM ('KG', 'LB');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS "user_settings" (
     "privacy_mode" boolean DEFAULT true,
     "preferred_language" supported_languages NOT NULL DEFAULT 'ENGLISH',
     "app_theme" application_theme NOT NULL DEFAULT 'SYSTEM',
+    "preferred_unit_system" unit_system NOT NULL DEFAULT 'KG',
     "timezone" text NOT NULL DEFAULT 'UTC',
     
     "created_at" timestamptz DEFAULT now(),
