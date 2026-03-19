@@ -1,13 +1,8 @@
 import { format } from "date-fns";
 import { BarChart2, X } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { Alert, ScrollView } from "react-native";
 
 import {
   Actionsheet,
@@ -80,6 +75,10 @@ export function AddStatsModal({
   const [recordedDate, setRecordedDate] = useState(defaultDate ?? today);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) setRecordedDate(defaultDate ?? today);
+  }, [isOpen, defaultDate]);
+
   const reset = () => {
     setUnit("kg");
     setWeightValue("");
@@ -119,132 +118,127 @@ export function AddStatsModal({
     <>
       <Modal isOpen={isOpen} onClose={handleClose} size="md">
         <ModalBackdrop />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
-          <ModalContent className="bg-background-0 border border-outline-100 dark:border-outline-800 rounded-3xl">
-            <ModalHeader className="px-6 pt-6 pb-3">
-              <HStack className="items-center gap-2">
-                <Icon as={BarChart2} size="md" className="text-primary-500" />
-                <Heading
-                  size="md"
-                  className="text-typography-900 dark:text-white"
-                >
-                  {t("stats.add_entry")}
-                </Heading>
-              </HStack>
-              <ModalCloseButton onPress={handleClose}>
-                <Icon as={X} size="md" className="text-typography-500" />
-              </ModalCloseButton>
-            </ModalHeader>
-
-            <ModalBody className="px-6">
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
+        <ModalContent className="bg-background-0 border border-outline-100 dark:border-outline-800 rounded-3xl">
+          <ModalHeader className="px-6 pt-6 pb-3">
+            <HStack className="items-center gap-2">
+              <Icon as={BarChart2} size="md" className="text-primary-500" />
+              <Heading
+                size="md"
+                className="text-typography-900 dark:text-white"
               >
-                <VStack className="gap-5 pb-2">
-                  {/* Weight */}
-                  <FormControl>
-                    <FormControlLabel>
-                      <FormControlLabelText className="text-typography-700 dark:text-typography-200">
-                        {t("stats.weight_label")}
-                      </FormControlLabelText>
-                    </FormControlLabel>
+                {t("stats.add_entry")}
+              </Heading>
+            </HStack>
+            <ModalCloseButton onPress={handleClose}>
+              <Icon as={X} size="md" className="text-typography-500" />
+            </ModalCloseButton>
+          </ModalHeader>
 
-                    {/* Unit toggle */}
-                    <HStack className="gap-2 mb-2">
-                      {(["kg", "lb"] as UnitToggle[]).map((u) => (
-                        <Pressable
-                          key={u}
-                          onPress={() => setUnit(u)}
-                          className={`px-4 py-1.5 rounded-full ${
+          <ModalBody className="px-6">
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <VStack className="gap-5 pb-2">
+                {/* Weight */}
+                <FormControl>
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-typography-700 dark:text-typography-200">
+                      {t("stats.weight_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+
+                  {/* Unit toggle */}
+                  <HStack className="gap-2 mb-2">
+                    {(["kg", "lb"] as UnitToggle[]).map((u) => (
+                      <Pressable
+                        key={u}
+                        onPress={() => setUnit(u)}
+                        className={`px-4 py-1.5 rounded-full ${
+                          unit === u
+                            ? "bg-primary-500"
+                            : "bg-background-100 dark:bg-background-700"
+                        }`}
+                      >
+                        <Text
+                          className={`text-sm font-semibold ${
                             unit === u
-                              ? "bg-primary-500"
-                              : "bg-background-100 dark:bg-background-700"
+                              ? "text-white"
+                              : "text-typography-600 dark:text-typography-300"
                           }`}
                         >
-                          <Text
-                            className={`text-sm font-semibold ${
-                              unit === u
-                                ? "text-white"
-                                : "text-typography-600 dark:text-typography-300"
-                            }`}
-                          >
-                            {t(`stats.unit_${u}`)}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </HStack>
+                          {t(`stats.unit_${u}`)}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </HStack>
 
-                    <Input className="rounded-xl">
-                      <InputField
-                        keyboardType="decimal-pad"
-                        placeholder={"0.0 " + t("stats.unit_" + unit)}
-                        value={weightValue}
-                        onChangeText={setWeightValue}
-                      />
-                    </Input>
-                  </FormControl>
+                  <Input className="rounded-xl">
+                    <InputField
+                      keyboardType="decimal-pad"
+                      placeholder={"0.0 " + t("stats.unit_" + unit)}
+                      value={weightValue}
+                      onChangeText={setWeightValue}
+                    />
+                  </Input>
+                </FormControl>
 
-                  {/* Body Fat */}
-                  <FormControl>
-                    <FormControlLabel>
-                      <FormControlLabelText className="text-typography-700 dark:text-typography-200">
-                        {t("stats.fat_label")}
-                      </FormControlLabelText>
-                    </FormControlLabel>
-                    <Input className="rounded-xl">
-                      <InputField
-                        keyboardType="decimal-pad"
-                        placeholder="0.0 %"
-                        value={bodyFat}
-                        onChangeText={setBodyFat}
-                      />
-                    </Input>
-                  </FormControl>
+                {/* Body Fat */}
+                <FormControl>
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-typography-700 dark:text-typography-200">
+                      {t("stats.fat_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Input className="rounded-xl">
+                    <InputField
+                      keyboardType="decimal-pad"
+                      placeholder="0.0 %"
+                      value={bodyFat}
+                      onChangeText={setBodyFat}
+                    />
+                  </Input>
+                </FormControl>
 
-                  {/* Date */}
-                  <FormControl>
-                    <FormControlLabel>
-                      <FormControlLabelText className="text-typography-700 dark:text-typography-200">
-                        {t("stats.date_label")}
-                      </FormControlLabelText>
-                    </FormControlLabel>
-                    <Pressable
-                      onPress={() => setDatePickerOpen(true)}
-                      className="border border-outline-300 dark:border-outline-700 rounded-xl px-4 py-3"
-                    >
-                      <Text className="text-typography-800 dark:text-typography-100">
-                        {recordedDate}
-                      </Text>
-                    </Pressable>
-                  </FormControl>
-                </VStack>
-              </ScrollView>
-            </ModalBody>
+                {/* Date */}
+                <FormControl>
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-typography-700 dark:text-typography-200">
+                      {t("stats.date_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Pressable
+                    onPress={() => setDatePickerOpen(true)}
+                    className="border border-outline-300 dark:border-outline-700 rounded-xl px-4 py-3"
+                  >
+                    <Text className="text-typography-800 dark:text-typography-100">
+                      {recordedDate}
+                    </Text>
+                  </Pressable>
+                </FormControl>
+              </VStack>
+            </ScrollView>
+          </ModalBody>
 
-            <ModalFooter className="px-6 pb-6 gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 rounded-xl"
-                onPress={handleClose}
-              >
-                <ButtonText>{t("stats.cancel")}</ButtonText>
-              </Button>
-              <Button
-                className="flex-1 rounded-xl bg-primary-500"
-                onPress={() => void handleSave()}
-                isDisabled={isSaving || (!weightValue && !bodyFat)}
-              >
-                <ButtonText className="text-white">
-                  {isSaving ? t("common.saving") : t("stats.save")}
-                </ButtonText>
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </KeyboardAvoidingView>
+          <ModalFooter className="px-6 pb-6 gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl"
+              onPress={handleClose}
+            >
+              <ButtonText>{t("stats.cancel")}</ButtonText>
+            </Button>
+            <Button
+              className="flex-1 rounded-xl bg-primary-500"
+              onPress={() => void handleSave()}
+              isDisabled={isSaving || (!weightValue && !bodyFat)}
+            >
+              <ButtonText className="text-white">
+                {isSaving ? t("common.saving") : t("stats.save")}
+              </ButtonText>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
 
       {/* Date picker ActionSheet */}
