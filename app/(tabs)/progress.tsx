@@ -38,7 +38,7 @@ export default function ProgressScreen() {
   const tabStats = t("progress.tab_stats");
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [activeTab, setActiveTab] = useState(tabPhotos);
+  const [activeTab, setActiveTab] = useState<"photos" | "stats">("photos");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
@@ -258,10 +258,12 @@ export default function ProgressScreen() {
             <>
               <SegmentedControl
                 options={[tabPhotos, tabStats]}
-                selectedValue={activeTab}
-                onValueChange={setActiveTab}
+                selectedValue={activeTab === "photos" ? tabPhotos : tabStats}
+                onValueChange={(value) =>
+                  setActiveTab(value === tabPhotos ? "photos" : "stats")
+                }
               />
-              {activeTab === tabPhotos && (
+              {activeTab === "photos" && (
                 <DateNavigator
                   date={selectedDate}
                   onDateChange={setSelectedDate}
@@ -298,7 +300,7 @@ export default function ProgressScreen() {
           )}
 
           {/* ── Gallery tab ── */}
-          {activeView === "gallery" && activeTab === tabPhotos && (
+          {activeView === "gallery" && activeTab === "photos" && (
             <View style={{ gap: 16 }}>
               {/* Privacy toggle card */}
               <Box
@@ -343,7 +345,7 @@ export default function ProgressScreen() {
           )}
 
           {/* ── Stats tab ── */}
-          {activeView === "gallery" && activeTab === tabStats && (
+          {activeView === "gallery" && activeTab === "stats" && (
             <StatsTabView
               myId={user!.id}
               myFirstName={user?.firstName ?? "Me"}
@@ -357,7 +359,7 @@ export default function ProgressScreen() {
         </ScrollView>
 
         {/* FAB — photos tab */}
-        {activeView === "gallery" && activeTab === tabPhotos && (
+        {activeView === "gallery" && activeTab === "photos" && (
           <Fab
             size="lg"
             placement="bottom right"
@@ -369,7 +371,7 @@ export default function ProgressScreen() {
         )}
 
         {/* FAB — stats tab */}
-        {activeView === "gallery" && activeTab === tabStats && (
+        {activeView === "gallery" && activeTab === "stats" && (
           <Fab
             size="lg"
             placement="bottom right"
