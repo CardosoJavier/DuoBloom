@@ -345,7 +345,6 @@ export default function ProgressScreen() {
               partnerFirstName={partner?.firstName}
               partnerPrivacyOn={partnerSettings?.privacyMode ?? false}
               unitSystem={unitSystem}
-              colorScheme={colorScheme}
             />
           )}
         </ScrollView>

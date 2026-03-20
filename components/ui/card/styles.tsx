@@ -17,7 +17,7 @@ export const cardStyle = tva({
       bento:
         "bg-white dark:bg-background-900 rounded-[32px] shadow-sm border border-outline-50",
       widget:
-        "bg-background-widget border border-slate-200 p-6 rounded-3xl shadow-sm shadow-slate-200",
+        "bg-background-widget border border-slate-200 p-6 rounded-3xl shadow-sm shadow-slate-200 dark:border-slate-600",
     },
   },
 });

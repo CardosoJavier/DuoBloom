@@ -10,16 +10,20 @@ import { statsApi } from "@/api/stats-api";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
+import { DataTable, DataTableRow } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { useAppToast } from "@/hooks/use-app-toast";
 import {
   HealthSyncService,
   HealthWeightEntry,
 } from "@/services/HealthSyncService";
+import { useAppStore } from "@/store/appStore";
 import { ProgressStat, StatsHistoryPage, StatsSummary } from "@/types/progress";
 import { UnitSystem } from "@/types/user";
 
@@ -32,7 +36,6 @@ export interface StatsTabViewProps {
   partnerFirstName?: string;
   partnerPrivacyOn: boolean;
   unitSystem: UnitSystem;
-  colorScheme: "light" | "dark";
 }
 
 type ComparisonTarget = "mine" | "partner";
@@ -84,7 +87,7 @@ function formatTrend(trendPercent: number | null): string {
 
 function trendColorClass(trendPercent: number | null): string {
   if (trendPercent === null) return "text-typography-900 dark:text-white";
-  return trendPercent <= 0 ? "text-success-500" : "text-error-500";
+  return trendPercent <= 0 ? "text-success-400" : "text-error-500";
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -126,23 +129,15 @@ interface SyncBannerProps {
   isSyncing: boolean;
   onSync: () => void;
   t: (key: string) => string;
-  cardBg: string;
-  borderColor: string;
 }
 
-function SyncBanner({
-  isSyncing,
-  onSync,
-  t,
-  cardBg,
-  borderColor,
-}: Readonly<SyncBannerProps>) {
+function SyncBanner({ isSyncing, onSync, t }: Readonly<SyncBannerProps>) {
   const prompt =
     Platform.OS === "android"
       ? t("stats.sync_prompt_android")
       : t("stats.sync_prompt");
   return (
-    <Box className={`rounded-2xl border p-3 ${cardBg} ${borderColor}`}>
+    <Box className="rounded-2xl border p-3 bg-background-100 dark:bg-background-800 border-outline-200 dark:border-outline-700">
       <HStack className="items-center justify-between gap-2">
         <Text className="text-typography-700 dark:text-typography-200 text-sm flex-1">
           {prompt}
@@ -174,9 +169,6 @@ interface SummaryCardProps {
   isLoading: boolean;
   metric: StatMetric;
   unitSystem: UnitSystem;
-  colorScheme: "light" | "dark";
-  cardBg: string;
-  borderColor: string;
   t: (key: string) => string;
 }
 
@@ -185,11 +177,9 @@ function SummaryCard({
   isLoading,
   metric,
   unitSystem,
-  colorScheme,
-  cardBg,
-  borderColor,
   t,
 }: Readonly<SummaryCardProps>) {
+  const { colorScheme } = useAppStore();
   const currentLabel = formatCurrentValue(
     summary?.currentValue ?? null,
     metric,
@@ -209,17 +199,15 @@ function SummaryCard({
   const labelColor = colorScheme === "light" ? "#6b7280" : "#9ca3af";
 
   return (
-    <Box
-      className={`rounded-3xl border overflow-hidden ${cardBg} ${borderColor}`}
-    >
+    <WidgetCard>
       {isLoading ? (
         <Box className="h-48 items-center justify-center">
           <ActivityIndicator />
         </Box>
       ) : (
-        <VStack className="p-4 gap-4">
+        <VStack className="gap-4">
           <HStack className="gap-3">
-            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-800 p-3 gap-0.5">
+            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-100 p-3 gap-0.5">
               <Text className="text-typography-400 text-xs font-medium uppercase tracking-wide">
                 {t("stats.current")}
               </Text>
@@ -227,7 +215,7 @@ function SummaryCard({
                 {currentLabel}
               </Text>
             </Box>
-            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-800 p-3 gap-0.5">
+            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-100 p-3 gap-0.5">
               <Text className="text-typography-400 text-xs font-medium uppercase tracking-wide">
                 {t("stats.trend")}
               </Text>
@@ -264,69 +252,11 @@ function SummaryCard({
               />
             </Box>
           ) : (
-            <Box className="h-40 items-center justify-center">
-              <Text className="text-typography-400 text-sm text-center">
-                {t("stats.no_data")}
-              </Text>
-            </Box>
+            <EmptyState message={t("stats.no_data")} />
           )}
         </VStack>
       )}
-    </Box>
-  );
-}
-
-interface HistoryRowProps {
-  stat: ProgressStat & { delta: number | null };
-  metric: StatMetric;
-  unitSystem: UnitSystem;
-  cardBg: string;
-  borderColor: string;
-}
-
-function HistoryRow({
-  stat,
-  metric,
-  unitSystem,
-  cardBg,
-  borderColor,
-}: Readonly<HistoryRowProps>) {
-  const valueStr = formatStatValue(stat, metric, unitSystem);
-  const deltaStr = formatDelta(stat.delta, metric, unitSystem);
-  const isPositive = stat.delta !== null && stat.delta > 0;
-  const showDelta = stat.delta !== null && stat.delta !== 0;
-  const deltaBg = isPositive
-    ? "bg-error-100 dark:bg-error-900"
-    : "bg-success-100 dark:bg-success-900";
-  const deltaText = isPositive
-    ? "text-error-600 dark:text-error-300"
-    : "text-success-600 dark:text-success-300";
-
-  return (
-    <Box className={`rounded-2xl border px-4 py-3 ${cardBg} ${borderColor}`}>
-      <HStack className="items-center justify-between">
-        <VStack className="gap-0.5">
-          <Text className="text-typography-800 dark:text-typography-100 font-semibold text-sm">
-            {format(new Date(stat.recordedDate), "EEE, MMM d yyyy")}
-          </Text>
-          <Text className="text-typography-500 text-xs">
-            {format(new Date(stat.recordedDate), "MMMM yyyy")}
-          </Text>
-        </VStack>
-        <HStack className="items-center gap-2">
-          <Text className="text-typography-900 dark:text-white font-bold text-base">
-            {valueStr}
-          </Text>
-          {showDelta && (
-            <Box className={`px-2 py-0.5 rounded-full ${deltaBg}`}>
-              <Text className={`text-xs font-semibold ${deltaText}`}>
-                {deltaStr}
-              </Text>
-            </Box>
-          )}
-        </HStack>
-      </HStack>
-    </Box>
+    </WidgetCard>
   );
 }
 
@@ -338,7 +268,6 @@ export function StatsTabView({
   partnerFirstName,
   partnerPrivacyOn,
   unitSystem,
-  colorScheme,
 }: Readonly<StatsTabViewProps>) {
   const { t } = useTranslation();
   const toast = useAppToast();
@@ -352,9 +281,6 @@ export function StatsTabView({
 
   const targetId = target === "mine" ? myId : (partnerId ?? "");
   const showPrivacyGate = target === "partner" && partnerPrivacyOn;
-  const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
-  const borderColor =
-    colorScheme === "light" ? "border-outline-100" : "border-outline-600";
   const metricOptions = [t("stats.weight"), t("stats.body_fat")];
   const selectedMetricLabel =
     metric === "weight" ? t("stats.weight") : t("stats.body_fat");
@@ -450,16 +376,16 @@ export function StatsTabView({
             t={t}
           />
         )}
-        <Box
-          className={`rounded-3xl border p-8 items-center justify-center bg-background-0 gap-3 ${borderColor}`}
-        >
-          <Box className="w-14 h-14 rounded-full bg-background-100 items-center justify-center">
-            <Icon as={Lock} size="xl" className="text-typography-400" />
-          </Box>
-          <Text className="text-typography-400 text-sm text-center">
-            {t("stats.privacy_blocked")}
-          </Text>
-        </Box>
+        <WidgetCard>
+          <VStack className="items-center gap-3 py-4">
+            <Box className="w-14 h-14 rounded-full bg-background-100 items-center justify-center">
+              <Icon as={Lock} size="xl" className="text-typography-400" />
+            </Box>
+            <Text className="text-typography-400 text-sm text-center">
+              {t("stats.privacy_blocked")}
+            </Text>
+          </VStack>
+        </WidgetCard>
       </VStack>
     );
   }
@@ -488,8 +414,6 @@ export function StatsTabView({
           isSyncing={isSyncing}
           onSync={() => void handleSync()}
           t={t}
-          cardBg={cardBg}
-          borderColor={borderColor}
         />
       )}
 
@@ -498,17 +422,10 @@ export function StatsTabView({
         isLoading={summaryLoading}
         metric={metric}
         unitSystem={unitSystem}
-        colorScheme={colorScheme}
-        cardBg={cardBg}
-        borderColor={borderColor}
         t={t}
       />
 
-      <VStack className="gap-2">
-        <Text className="text-typography-400 dark:text-typography-500 font-bold text-xs tracking-widest px-1">
-          {t("stats.history")}
-        </Text>
-
+      <WidgetCard title={t("stats.history")}>
         {historyLoading && (
           <Box className="py-8 items-center">
             <ActivityIndicator />
@@ -516,27 +433,36 @@ export function StatsTabView({
         )}
 
         {!historyLoading && historyItems.length === 0 && (
-          <Box
-            className={`rounded-2xl border p-5 items-center ${cardBg} ${borderColor}`}
-          >
-            <Text className="text-typography-400 text-sm text-center">
-              {t("stats.no_data")}
-            </Text>
-          </Box>
+          <EmptyState message={t("stats.no_data")} />
         )}
 
         {!historyLoading && historyItems.length > 0 && (
           <>
-            {historyItems.map((stat) => (
-              <HistoryRow
-                key={stat.id}
-                stat={stat}
-                metric={metric}
-                unitSystem={unitSystem}
-                cardBg={cardBg}
-                borderColor={borderColor}
-              />
-            ))}
+            <DataTable>
+              {historyItems.map((stat) => {
+                const rawDelta =
+                  stat.delta !== null && stat.delta !== 0 ? stat.delta : null;
+                return (
+                  <DataTableRow
+                    key={stat.id}
+                    label={format(
+                      new Date(stat.recordedDate),
+                      "EEE, MMM d yyyy",
+                    )}
+                    sublabel={format(new Date(stat.recordedDate), "MMMM yyyy")}
+                    value={formatStatValue(stat, metric, unitSystem)}
+                    delta={
+                      rawDelta !== null
+                        ? formatDelta(rawDelta, metric, unitSystem)
+                        : undefined
+                    }
+                    deltaPositive={
+                      rawDelta !== null ? rawDelta <= 0 : undefined
+                    }
+                  />
+                );
+              })}
+            </DataTable>
 
             {hasNextPage && (
               <Button
@@ -554,7 +480,7 @@ export function StatsTabView({
             )}
           </>
         )}
-      </VStack>
+      </WidgetCard>
     </VStack>
   );
 }
