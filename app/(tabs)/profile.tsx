@@ -91,7 +91,7 @@ export default function ProfileScreen() {
           </VStack>
 
           {/* Partner Code */}
-          <Card className="bg-background-0 border border-background-300 p-6 rounded-2xl">
+          <Card variant="widget">
             <VStack space="md" className="items-center">
               <Text className="text-typography-400 font-medium tracking-wider text-xs uppercase">
                 {t("auth.partner_code")}
@@ -118,7 +118,7 @@ export default function ProfileScreen() {
           </Card>
 
           {/* Partner Status */}
-          <Card className="bg-background-0 border border-background-300 p-4 rounded-2xl">
+          <Card variant="widget">
             <HStack className="items-center justify-between">
               <HStack space="md" className="items-center">
                 <Box className="relative">
@@ -154,8 +154,8 @@ export default function ProfileScreen() {
           {/* Menu Actions */}
           <VStack space="md">
             <Button
-              variant="outline"
-              className="justify-between h-14 border border-background-200 rounded-xl bg-background-0"
+              variant="widget"
+              className="h-14"
               onPress={() => router.push("/profile/edit")}
             >
               <HStack space="md" className="items-center">
@@ -167,8 +167,8 @@ export default function ProfileScreen() {
             </Button>
 
             <Button
-              variant="outline"
-              className="justify-between h-14 border-background-200 rounded-xl bg-background-0"
+              variant="widget"
+              className="h-14"
               onPress={() => router.push("/profile/settings")}
             >
               <HStack space="md" className="items-center">

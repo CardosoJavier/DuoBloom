@@ -57,6 +57,8 @@ const buttonStyle = tva({
       outline:
         "bg-transparent border data-[hover=true]:bg-background-50 data-[active=true]:bg-transparent shadow-none",
       solid: "",
+      widget:
+        "justify-between bg-background-widget border border-slate-200 rounded-2xl shadow-sm shadow-slate-200",
     },
 
     size: {
