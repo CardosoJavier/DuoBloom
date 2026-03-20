@@ -3,13 +3,13 @@ import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { useAuthStore } from "@/store/authStore";
 import { ConsumedMeal } from "@/types/meals";
 import { useQuery } from "@tanstack/react-query";
 import { Utensils } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Card } from "../ui/card";
 
 const toLocalDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -111,19 +111,13 @@ export function MealsSummaryWidget() {
   );
 
   return (
-    <Card
-      variant="widget"
-      className="flex-1 rounded-[32px] overflow-hidden"
+    <WidgetCard
+      icon={<Utensils size={14} color="#9ca3af" />}
+      title={t("today.meals")}
+      className="flex-1"
       style={{ minHeight: 140 }}
     >
-      <HStack className="items-center gap-2">
-        <Utensils size={14} color="#9ca3af" />
-        <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
-          {t("today.meals")}
-        </Text>
-      </HStack>
-
-      <VStack className="gap-4 mt-4">
+      <VStack className="gap-4">
         <PersonRow
           name={t("today.me")}
           initial={user?.firstName?.[0] ?? "M"}
@@ -145,6 +139,6 @@ export function MealsSummaryWidget() {
           </Text>
         )}
       </VStack>
-    </Card>
+    </WidgetCard>
   );
 }

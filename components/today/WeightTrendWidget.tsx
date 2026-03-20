@@ -1,8 +1,8 @@
 import { statsApi } from "@/api/stats-api";
 import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { StatsSummary } from "@/types/progress";
 import { UnitSystem } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import { Card } from "../ui/card";
 
 interface WeightTrendWidgetProps {
   readonly userId: string;
@@ -79,64 +78,60 @@ export function WeightTrendWidget({
     .slice(-20)
     .map((p) => ({ value: p.value }));
 
-  return (
-    <Card
-      variant="widget"
-      className="flex-1 rounded-[32px] overflow-hidden"
-      style={{ minHeight: 160 }}
-    >
-      <VStack className="p-5 gap-2 flex-1">
-        <HStack className="items-center gap-1.5">
-          <TrendingUp size={13} color="#9ca3af" />
-          <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
-            {label}
-          </Text>
-        </HStack>
-        {isLoading ? (
-          <Box className="flex-1 items-center justify-center mt-4">
-            <ActivityIndicator size="small" />
-          </Box>
-        ) : (
-          <VStack className="gap-2 mt-1">
-            <Text className="text-typography-900 dark:text-white font-bold text-xl leading-tight">
-              {currentValue === null
-                ? t("today.no_weight_data")
-                : formatWeight(currentValue, unitSystem)}
-            </Text>
-            <TrendBadge trendPercent={trendPercent} />
-          </VStack>
+  const sparkline =
+    sparkData.length > 1 ? (
+      <Box
+        style={{ height: 44 }}
+        onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
+      >
+        {chartWidth > 0 && (
+          <LineChart
+            data={sparkData}
+            width={chartWidth}
+            height={44}
+            color={chartColor}
+            thickness={2}
+            curved
+            hideDataPoints
+            areaChart
+            startFillColor={chartColor}
+            endFillColor="transparent"
+            startOpacity={0.15}
+            endOpacity={0}
+            hideYAxisText
+            yAxisColor="transparent"
+            xAxisColor="transparent"
+            rulesColor="transparent"
+            backgroundColor="transparent"
+            initialSpacing={0}
+            endSpacing={0}
+          />
         )}
-      </VStack>
-      {sparkData.length > 1 && (
-        <Box
-          style={{ height: 44 }}
-          onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
-        >
-          {chartWidth > 0 && (
-            <LineChart
-              data={sparkData}
-              width={chartWidth}
-              height={44}
-              color={chartColor}
-              thickness={2}
-              curved
-              hideDataPoints
-              areaChart
-              startFillColor={chartColor}
-              endFillColor="transparent"
-              startOpacity={0.15}
-              endOpacity={0}
-              hideYAxisText
-              yAxisColor="transparent"
-              xAxisColor="transparent"
-              rulesColor="transparent"
-              backgroundColor="transparent"
-              initialSpacing={0}
-              endSpacing={0}
-            />
-          )}
+      </Box>
+    ) : undefined;
+
+  return (
+    <WidgetCard
+      icon={<TrendingUp size={13} color="#9ca3af" />}
+      title={label}
+      className="flex-1"
+      style={{ minHeight: 160 }}
+      footer={sparkline}
+    >
+      {isLoading ? (
+        <Box className="flex-1 items-center justify-center">
+          <ActivityIndicator size="small" />
         </Box>
+      ) : (
+        <VStack className="gap-2">
+          <Text className="text-typography-900 dark:text-white font-bold text-xl leading-tight">
+            {currentValue === null
+              ? t("today.no_weight_data")
+              : formatWeight(currentValue, unitSystem)}
+          </Text>
+          <TrendBadge trendPercent={trendPercent} />
+        </VStack>
       )}
-    </Card>
+    </WidgetCard>
   );
 }
