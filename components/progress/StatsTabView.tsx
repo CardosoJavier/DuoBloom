@@ -1,10 +1,9 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Lock, RefreshCw, Repeat } from "lucide-react-native";
+import { Lock, Repeat } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Platform } from "react-native";
-import { LineChart } from "react-native-gifted-charts";
 
 import { statsApi } from "@/api/stats-api";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -12,9 +11,10 @@ import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { DataTable, DataTableRow } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { HStack } from "@/components/ui/hstack";
+import { ChartPoint, GraphWidget } from "@/components/ui/graph-widget";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
+import { SyncBanner } from "@/components/ui/sync-banner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { WidgetCard } from "@/components/ui/widget-card";
@@ -23,8 +23,7 @@ import {
   HealthSyncService,
   HealthWeightEntry,
 } from "@/services/HealthSyncService";
-import { useAppStore } from "@/store/appStore";
-import { ProgressStat, StatsHistoryPage, StatsSummary } from "@/types/progress";
+import { ProgressStat, StatsHistoryPage } from "@/types/progress";
 import { UnitSystem } from "@/types/user";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -125,141 +124,6 @@ function TargetSelector({
   );
 }
 
-interface SyncBannerProps {
-  isSyncing: boolean;
-  onSync: () => void;
-  t: (key: string) => string;
-}
-
-function SyncBanner({ isSyncing, onSync, t }: Readonly<SyncBannerProps>) {
-  const prompt =
-    Platform.OS === "android"
-      ? t("stats.sync_prompt_android")
-      : t("stats.sync_prompt");
-  return (
-    <Box className="rounded-2xl border p-3 bg-background-100 dark:bg-background-800 border-outline-200 dark:border-outline-700">
-      <HStack className="items-center justify-between gap-2">
-        <Text className="text-typography-700 dark:text-typography-200 text-sm flex-1">
-          {prompt}
-        </Text>
-        <Button
-          size="sm"
-          className="rounded-xl bg-primary-500"
-          onPress={onSync}
-          isDisabled={isSyncing}
-        >
-          {isSyncing ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <HStack className="items-center gap-1">
-              <Icon as={RefreshCw} size="xs" className="text-white" />
-              <ButtonText className="text-white text-xs">
-                {t("stats.sync_to_cloud")}
-              </ButtonText>
-            </HStack>
-          )}
-        </Button>
-      </HStack>
-    </Box>
-  );
-}
-
-interface SummaryCardProps {
-  summary: StatsSummary | undefined;
-  isLoading: boolean;
-  metric: StatMetric;
-  unitSystem: UnitSystem;
-  t: (key: string) => string;
-}
-
-function SummaryCard({
-  summary,
-  isLoading,
-  metric,
-  unitSystem,
-  t,
-}: Readonly<SummaryCardProps>) {
-  const { colorScheme } = useAppStore();
-  const currentLabel = formatCurrentValue(
-    summary?.currentValue ?? null,
-    metric,
-    unitSystem,
-  );
-  const trendLabel = formatTrend(summary?.trendPercent ?? null);
-  const trendClass = trendColorClass(summary?.trendPercent ?? null);
-  const chartData = (summary?.chartPoints ?? []).map((p) => ({
-    value: p.value,
-    label: format(new Date(p.date), "M/d"),
-    dataPointText: "",
-  }));
-  const chartColor = colorScheme === "light" ? "#6366f1" : "#818cf8";
-  const chartBg = colorScheme === "light" ? "#ffffff" : "#1e2d3d";
-  const rulesColor = colorScheme === "light" ? "#e5e7eb" : "#374151";
-  const axisColor = colorScheme === "light" ? "#d1d5db" : "#4b5563";
-  const labelColor = colorScheme === "light" ? "#6b7280" : "#9ca3af";
-
-  return (
-    <WidgetCard>
-      {isLoading ? (
-        <Box className="h-48 items-center justify-center">
-          <ActivityIndicator />
-        </Box>
-      ) : (
-        <VStack className="gap-4">
-          <HStack className="gap-3">
-            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-100 p-3 gap-0.5">
-              <Text className="text-typography-400 text-xs font-medium uppercase tracking-wide">
-                {t("stats.current")}
-              </Text>
-              <Text className="text-typography-900 dark:text-white font-bold text-2xl">
-                {currentLabel}
-              </Text>
-            </Box>
-            <Box className="flex-1 rounded-2xl bg-background-50 dark:bg-background-100 p-3 gap-0.5">
-              <Text className="text-typography-400 text-xs font-medium uppercase tracking-wide">
-                {t("stats.trend")}
-              </Text>
-              <Text className={`font-bold text-2xl ${trendClass}`}>
-                {trendLabel}
-              </Text>
-            </Box>
-          </HStack>
-          {chartData.length > 1 ? (
-            <Box className="w-full overflow-hidden">
-              <LineChart
-                data={chartData}
-                width={280}
-                height={160}
-                color={chartColor}
-                thickness={2.5}
-                curved
-                hideDataPoints={chartData.length > 20}
-                dataPointsColor={chartColor}
-                startFillColor={chartColor}
-                endFillColor={chartBg}
-                startOpacity={0.3}
-                endOpacity={0}
-                areaChart
-                hideYAxisText={false}
-                rulesColor={rulesColor}
-                rulesType="solid"
-                xAxisColor={axisColor}
-                yAxisColor="transparent"
-                backgroundColor={chartBg}
-                noOfSections={4}
-                xAxisLabelTextStyle={{ color: labelColor, fontSize: 10 }}
-                yAxisTextStyle={{ color: labelColor, fontSize: 10 }}
-              />
-            </Box>
-          ) : (
-            <EmptyState message={t("stats.no_data")} />
-          )}
-        </VStack>
-      )}
-    </WidgetCard>
-  );
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function StatsTabView({
@@ -338,6 +202,18 @@ export function StatsTabView({
   const historyItems = historyData?.pages.flatMap((p) => p.items) ?? [];
   const latestStat: ProgressStat | null = historyItems[0] ?? null;
 
+  const chartData: ChartPoint[] = (summary?.chartPoints ?? []).map((p) => ({
+    value: p.value,
+    label: format(new Date(p.date), "M/d"),
+  }));
+  const currentLabel = formatCurrentValue(
+    summary?.currentValue ?? null,
+    metric,
+    unitSystem,
+  );
+  const trendLabel = formatTrend(summary?.trendPercent ?? null);
+  const trendClass = trendColorClass(summary?.trendPercent ?? null);
+
   const needsSync =
     target === "mine" &&
     metric === "weight" &&
@@ -413,16 +289,27 @@ export function StatsTabView({
         <SyncBanner
           isSyncing={isSyncing}
           onSync={() => void handleSync()}
-          t={t}
+          prompt={
+            Platform.OS === "android"
+              ? t("stats.sync_prompt_android")
+              : t("stats.sync_prompt")
+          }
+          syncLabel={t("stats.sync_to_cloud")}
         />
       )}
 
-      <SummaryCard
-        summary={summary}
+      <GraphWidget
         isLoading={summaryLoading}
-        metric={metric}
-        unitSystem={unitSystem}
-        t={t}
+        chartData={chartData}
+        panels={[
+          { title: t("stats.current"), value: currentLabel },
+          {
+            title: t("stats.trend"),
+            value: trendLabel,
+            valueClassName: trendClass,
+          },
+        ]}
+        emptyMessage={t("stats.no_data")}
       />
 
       <WidgetCard title={t("stats.history")}>
