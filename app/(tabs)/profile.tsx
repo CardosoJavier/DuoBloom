@@ -23,7 +23,7 @@ import { Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
-  const { user, logout, checkSyncStatus, partner, setPartner } = useAuthStore();
+  const { user, logout, partner, setPartner } = useAuthStore();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -123,19 +123,7 @@ export default function ProfileScreen() {
               <HStack space="md" className="items-center">
                 <Box className="relative">
                   <Box className="h-12 w-12 rounded-full bg-background-100 items-center justify-center overflow-hidden">
-                    {partner?.avatarUrl ? (
-                      <Icon
-                        as={User}
-                        size="md"
-                        className="text-typography-400"
-                      />
-                    ) : (
-                      <Icon
-                        as={User}
-                        size="md"
-                        className="text-typography-400"
-                      />
-                    )}
+                    <Icon as={User} size="md" className="text-typography-400" />
                   </Box>
                   <Box className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1 border-2 border-background-50">
                     <Icon as={Heart} size="xs" className="text-white w-3 h-3" />
