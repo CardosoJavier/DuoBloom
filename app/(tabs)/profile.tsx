@@ -91,13 +91,13 @@ export default function ProfileScreen() {
           </VStack>
 
           {/* Partner Code */}
-          <Card className="bg-background-100 border border-background-300 p-6 rounded-2xl">
+          <Card className="bg-background-0 border border-background-300 p-6 rounded-2xl">
             <VStack space="md" className="items-center">
               <Text className="text-typography-400 font-medium tracking-wider text-xs uppercase">
                 {t("auth.partner_code")}
               </Text>
               <HStack space="md" className="w-full items-center">
-                <Box className="flex-1 bg-background-0 p-4 rounded-xl items-center justify-center">
+                <Box className="flex-1 bg-background-100 p-4 rounded-xl items-center justify-center">
                   <Text className="text-typography-900 dark:text-typography-0 text-xl font-mono font-bold tracking-widest">
                     {user.pairCode}
                   </Text>
@@ -118,7 +118,7 @@ export default function ProfileScreen() {
           </Card>
 
           {/* Partner Status */}
-          <Card className="bg-background-100 border border-background-300 p-4 rounded-2xl">
+          <Card className="bg-background-0 border border-background-300 p-4 rounded-2xl">
             <HStack className="items-center justify-between">
               <HStack space="md" className="items-center">
                 <Box className="relative">
@@ -155,7 +155,7 @@ export default function ProfileScreen() {
           <VStack space="md">
             <Button
               variant="outline"
-              className="justify-between h-14 border border-background-200 rounded-xl bg-background-100"
+              className="justify-between h-14 border border-background-200 rounded-xl bg-background-0"
               onPress={() => router.push("/profile/edit")}
             >
               <HStack space="md" className="items-center">
@@ -168,7 +168,7 @@ export default function ProfileScreen() {
 
             <Button
               variant="outline"
-              className="justify-between h-14 border-background-200 rounded-xl bg-background-50"
+              className="justify-between h-14 border-background-200 rounded-xl bg-background-0"
               onPress={() => router.push("/profile/settings")}
             >
               <HStack space="md" className="items-center">

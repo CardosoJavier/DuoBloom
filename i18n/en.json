@@ -240,5 +240,22 @@
     "load_more": "Load More",
     "save_success": "Entry saved!",
     "save_error": "Failed to save entry."
+  },
+  "today": {
+    "greeting": "Hello, {{name}}",
+    "nutrition_streak_title": "Nutrition Streak",
+    "streak_days": "{{count}} day streak",
+    "streak_days_other": "{{count}} day streak",
+    "meals": "Meals",
+    "meals_today": "{{count}} today",
+    "me": "Me",
+    "partner": "Partner",
+    "weight_trend": "Weight Trend",
+    "hydration": "Hydration",
+    "hydration_coming_soon": "Coming soon",
+    "no_weight_data": "No data yet",
+    "no_partner_yet": "No partner linked",
+    "glasses_today": "Glasses today",
+    "my_trend": "My Trend"
   }
 }

@@ -20,7 +20,8 @@ let HKPermissions: any = null;
 if (Platform.OS === "ios") {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const mod = require("react-native-health");
-  AppleHealthKit = mod.default;
+  const kit = mod.default ?? mod;
+  AppleHealthKit = typeof kit?.initHealthKit === "function" ? kit : null;
   HKPermissions = mod.HealthKitPermissions;
 }
 

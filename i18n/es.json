@@ -241,5 +241,22 @@
     "load_more": "Cargar Más",
     "save_success": "¡Entrada guardada!",
     "save_error": "Error al guardar la entrada."
+  },
+  "today": {
+    "greeting": "Hola, {{name}}",
+    "nutrition_streak_title": "Racha de Nutrición",
+    "streak_days": "{{count}} día de racha",
+    "streak_days_other": "{{count}} días de racha",
+    "meals": "Comidas",
+    "meals_today": "{{count}} hoy",
+    "me": "Yo",
+    "partner": "Pareja",
+    "weight_trend": "Tendencia de Peso",
+    "hydration": "Hidratación",
+    "hydration_coming_soon": "Próximamente",
+    "no_weight_data": "Sin datos aún",
+    "no_partner_yet": "Sin pareja vinculada",
+    "glasses_today": "Vasos de agua hoy",
+    "my_trend": "Mi Tendencia"
   }
 }

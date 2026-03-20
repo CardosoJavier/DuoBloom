@@ -3,11 +3,18 @@ import { MealsView } from "@/components/meals/MealsView";
 import { StreakView } from "@/components/meals/StreakView";
 import { Box } from "@/components/ui/box";
 import { VStack } from "@/components/ui/vstack";
-import { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MealsScreen() {
+  const { view } = useLocalSearchParams<{ view?: string }>();
   const [activeTab, setActiveTab] = useState<string>("Meals");
+
+  useEffect(() => {
+    if (view === "streak") setActiveTab("Streak");
+    else if (view === "meals") setActiveTab("Meals");
+  }, [view]);
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
