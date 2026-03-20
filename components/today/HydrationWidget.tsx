@@ -5,6 +5,7 @@ import { VStack } from "@/components/ui/vstack";
 import { Droplets } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Card } from "../ui/card";
 
 const GLASSES_GOAL = 8;
 
@@ -15,8 +16,9 @@ export function HydrationWidget() {
   const progressPercent = (glassesConsumed / GLASSES_GOAL) * 100;
 
   return (
-    <Box
-      className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark overflow-hidden"
+    <Card
+      variant="widget"
+      className="flex-1 rounded-[32px] overflow-hidden"
       style={{ minHeight: 160 }}
     >
       <VStack className="p-5 gap-1 flex-1">
@@ -47,6 +49,6 @@ export function HydrationWidget() {
           style={{ width: `${progressPercent}%` }}
         />
       </Box>
-    </Box>
+    </Card>
   );
 }

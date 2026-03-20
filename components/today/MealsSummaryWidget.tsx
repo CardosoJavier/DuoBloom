@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Utensils } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Card } from "../ui/card";
 
 const toLocalDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -110,8 +111,9 @@ export function MealsSummaryWidget() {
   );
 
   return (
-    <Box
-      className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-5"
+    <Card
+      variant="widget"
+      className="flex-1 rounded-[32px] overflow-hidden"
       style={{ minHeight: 140 }}
     >
       <HStack className="items-center gap-2">
@@ -121,7 +123,7 @@ export function MealsSummaryWidget() {
         </Text>
       </HStack>
 
-      <VStack className="gap-3 mt-4">
+      <VStack className="gap-4 mt-4">
         <PersonRow
           name={t("today.me")}
           initial={user?.firstName?.[0] ?? "M"}
@@ -143,6 +145,6 @@ export function MealsSummaryWidget() {
           </Text>
         )}
       </VStack>
-    </Box>
+    </Card>
   );
 }

@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
+import { Card } from "../ui/card";
 
 interface WeightTrendWidgetProps {
   readonly userId: string;
@@ -79,8 +80,9 @@ export function WeightTrendWidget({
     .map((p) => ({ value: p.value }));
 
   return (
-    <Box
-      className="flex-1 rounded-[32px] border border-outline-100 dark:border-outline-800 bg-background-0 dark:bg-background-dark overflow-hidden"
+    <Card
+      variant="widget"
+      className="flex-1 rounded-[32px] overflow-hidden"
       style={{ minHeight: 160 }}
     >
       <VStack className="p-5 gap-2 flex-1">
@@ -96,7 +98,7 @@ export function WeightTrendWidget({
           </Box>
         ) : (
           <VStack className="gap-2 mt-1">
-            <Text className="text-typography-900 dark:text-white font-bold text-2xl leading-tight">
+            <Text className="text-typography-900 dark:text-white font-bold text-xl leading-tight">
               {currentValue === null
                 ? t("today.no_weight_data")
                 : formatWeight(currentValue, unitSystem)}
@@ -135,6 +137,6 @@ export function WeightTrendWidget({
           )}
         </Box>
       )}
-    </Box>
+    </Card>
   );
 }
