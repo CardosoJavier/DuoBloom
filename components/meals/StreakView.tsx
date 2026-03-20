@@ -18,11 +18,11 @@ import {
   StreakSubject,
 } from "@/types/streaks";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDaysIcon, Repeat } from "lucide-react-native";
+import { Repeat } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
-import { CalendarGrid } from "./CalendarGrid";
+import { NutritionStreakWidget } from "./NutritionStreakWidget";
 import { StreakWidgets } from "./StreakWidgets";
 
 const toDateKey = (date: Date): string => {
@@ -241,37 +241,13 @@ export function StreakView() {
           </VStack>
         ) : (
           <>
-            <Box className="rounded-[32px] border border-outline-200 dark:border-outline-800 bg-background-0 dark:bg-background-dark p-6 min-h-[500px]">
-              <HStack className="items-center gap-2 mb-4">
-                <Icon
-                  as={CalendarDaysIcon}
-                  className="text-primary-500 w-5 h-5"
-                />
-                <Text className="text-typography-900 dark:text-white font-bold text-lg">
-                  {t("streak.nutrition_streak")}
-                </Text>
-              </HStack>
-
-              <HStack className="items-end gap-2 mb-6 mt-2">
-                <Text className="text-typography-900 dark:text-white font-bold text-4xl leading-none tracking-tight">
-                  {monthlyData.completedDays}
-                </Text>
-                <Text className="text-typography-500 text-base font-medium mb-1">
-                  {t("streak.days_on_target")}
-                </Text>
-              </HStack>
-
-              {monthlyData.completedDays === 0 && (
-                <Text className="text-typography-500 mb-3">
-                  {t("streak.empty_month")}
-                </Text>
-              )}
-
-              <CalendarGrid
-                selectedDate={selectedDate}
-                completedSet={completedSet}
-              />
-            </Box>
+            <NutritionStreakWidget
+              completedDays={monthlyData.completedDays}
+              completedSet={completedSet}
+              selectedDate={selectedDate}
+              showEmptyMessage={monthlyData.completedDays === 0}
+              style={{ minHeight: 500 }}
+            />
 
             <StreakWidgets
               currentStreakDays={currentStreakDays}

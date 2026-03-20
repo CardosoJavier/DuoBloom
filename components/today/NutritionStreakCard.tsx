@@ -1,13 +1,8 @@
 import { getMonthlyMealCompletionDates } from "@/api/streak-api";
-import { CalendarGrid } from "@/components/meals/CalendarGrid";
-import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
-import { WidgetCard } from "@/components/ui/widget-card";
+import { NutritionStreakWidget } from "@/components/meals/NutritionStreakWidget";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 
 const toDateKey = (date: Date): string => {
   const year = date.getFullYear();
@@ -17,7 +12,6 @@ const toDateKey = (date: Date): string => {
 };
 
 export function NutritionStreakCard() {
-  const { t } = useTranslation();
   const { user } = useAuthStore();
 
   const now = new Date();
@@ -37,22 +31,11 @@ export function NutritionStreakCard() {
   });
 
   const completedSet = useMemo(() => new Set(completedDates), [completedDates]);
-  const daysOnTarget = completedDates.length;
   return (
-    <WidgetCard
-      icon={<CalendarDays size={14} color="#9ca3af" />}
-      title={t("today.nutrition_streak_title")}
-    >
-      <HStack className="items-baseline gap-2">
-        <Text className="text-typography-900 dark:text-white font-bold text-4xl leading-none">
-          {daysOnTarget}
-        </Text>
-        <Text className="text-typography-400 text-base">
-          {t("streak.days_on_target")}
-        </Text>
-      </HStack>
-
-      <CalendarGrid selectedDate={displayMonth} completedSet={completedSet} />
-    </WidgetCard>
+    <NutritionStreakWidget
+      completedDays={completedDates.length}
+      completedSet={completedSet}
+      selectedDate={displayMonth}
+    />
   );
 }
