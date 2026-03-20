@@ -1,6 +1,7 @@
 import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
 import { logNutritionDay, updateStreakState } from "@/api/streak-api";
 import { Box } from "@/components/ui/box";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { Text } from "@/components/ui/text";
 import { useAppToast } from "@/hooks/use-app-toast";
@@ -206,9 +207,10 @@ export function MealsView() {
 
     if (meals.length === 0) {
       return (
-        <Text className="text-typography-500 w-full text-center mt-10">
-          {t("meals.no_meals_found_today")}
-        </Text>
+        <EmptyState
+          message={t("meals.no_meals_found_today")}
+          className="mt-10"
+        />
       );
     }
 
@@ -267,20 +269,14 @@ export function MealsView() {
         {!isLoading && meals.length > 0 && partner && (
           <View className="w-full mt-6 gap-4">
             {userMeals.length === 0 && (
-              <Box className="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                <Text className="text-typography-500 text-center">
-                  {t("meals.user_no_meals")}
-                </Text>
-              </Box>
+              <EmptyState message={t("meals.user_no_meals")} />
             )}
             {partnerMeals.length === 0 && (
-              <Box className="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                <Text className="text-typography-500 text-center">
-                  {t("meals.partner_no_meals", {
-                    name: partner.firstName,
-                  })}
-                </Text>
-              </Box>
+              <EmptyState
+                message={t("meals.partner_no_meals", {
+                  name: partner.firstName,
+                })}
+              />
             )}
           </View>
         )}

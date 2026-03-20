@@ -15,13 +15,13 @@ import { AddStatsModal } from "@/components/progress/AddStatsModal";
 import { ComparisonView } from "@/components/progress/ComparisonView";
 import { PhotoUpdateSection } from "@/components/progress/PhotoUpdateSection";
 import { StatsTabView } from "@/components/progress/StatsTabView";
-import { Box } from "@/components/ui/box";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAppStore } from "@/store/appStore";
 import { useAuthStore } from "@/store/authStore";
@@ -198,11 +198,7 @@ export default function ProgressScreen() {
     }
   };
 
-  // ── Theme helpers ──────────────────────────────────────────────────────────
-
-  const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
-  const borderColor =
-    colorScheme === "light" ? "border-outline-100" : "border-outline-600";
+  // ── Derived values ────────────────────────────────────────────────────────
 
   const unitSystem = mySettings?.preferredUnitSystem ?? "KG";
   const latestMyPhoto = myPhotos[0] ?? null;
@@ -303,9 +299,7 @@ export default function ProgressScreen() {
           {activeView === "gallery" && activeTab === "photos" && (
             <View style={{ gap: 16 }}>
               {/* Privacy toggle card */}
-              <Box
-                className={`rounded-3xl border p-4 ${cardBg} ${borderColor}`}
-              >
+              <WidgetCard>
                 <HStack className="items-center justify-between">
                   <Text className="text-typography-800 font-semibold text-sm flex-1 mr-4 dark:text-typography-100">
                     {t("progress.privacy_toggle_label")}
@@ -317,14 +311,13 @@ export default function ProgressScreen() {
                     thumbColor="#ffffff"
                   />
                 </HStack>
-              </Box>
+              </WidgetCard>
 
               {/* My photos */}
               <PhotoUpdateSection
                 sectionTitle={t("progress.your_photos")}
                 photo={latestMyPhoto}
                 isLoading={myPhotosLoading}
-                colorScheme={colorScheme}
               />
 
               {/* Partner photos */}
@@ -338,7 +331,6 @@ export default function ProgressScreen() {
                   isPartner
                   partnerPrivacyOn={partnerSettings?.privacyMode ?? false}
                   partnerFirstName={partner.firstName ?? "Partner"}
-                  colorScheme={colorScheme}
                 />
               )}
             </View>

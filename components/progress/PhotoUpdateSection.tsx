@@ -5,11 +5,13 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
 
 import { Box } from "@/components/ui/box";
+import { EmptyState } from "@/components/ui/empty-state";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { ProgressPhoto } from "@/types/progress";
 
@@ -54,7 +56,6 @@ export interface PhotoUpdateSectionProps {
   isPartner?: boolean;
   partnerPrivacyOn?: boolean;
   partnerFirstName?: string;
-  colorScheme: "light" | "dark";
 }
 
 export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
@@ -64,35 +65,26 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
   isPartner = false,
   partnerPrivacyOn = false,
   partnerFirstName,
-  colorScheme,
 }) => {
   const { t } = useTranslation();
   const [activeView, setActiveView] = useState<"front" | "side" | "back">(
     "front",
   );
 
-  const cardBg = colorScheme === "light" ? "bg-white" : "bg-[#1e2d3d]";
-  const borderColor =
-    colorScheme === "light" ? "border-outline-100" : "border-outline-600";
-  const inactiveViewBg =
-    colorScheme === "light" ? "bg-background-100" : "bg-[#2a3d52]";
-
   // ── Partner privacy locked state ──────────────────────────────────────────
   if (isPartner && partnerPrivacyOn) {
     return (
-      <Box
-        className={`rounded-3xl border p-6 gap-3 items-center bg-background-0 ${borderColor}`}
+      <WidgetCard
+        icon={<Icon as={Lock} size="sm" className="text-typography-400" />}
+        title={sectionTitle}
       >
-        <Text className="text-typography-700 font-semibold text-base self-start dark:text-typography-100">
-          {sectionTitle}
-        </Text>
-        <Box className="w-14 h-14 rounded-full bg-background-100 items-center justify-center">
+        <Box className="w-14 h-14 rounded-full bg-background-100 items-center justify-center self-center">
           <Icon as={Lock} size="xl" className="text-typography-400" />
         </Box>
         <Text className="text-typography-400 text-sm text-center">
           {t("progress.privacy_card_message")}
         </Text>
-      </Box>
+      </WidgetCard>
     );
   }
 
@@ -123,15 +115,15 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
     }
     if (photo === null) {
       return (
-        <Box className="w-full aspect-[3/4] rounded-2xl bg-background-100 items-center justify-center">
-          <Text className="text-typography-400 text-sm text-center px-4">
-            {isPartner
+        <EmptyState
+          message={
+            isPartner
               ? t("progress.partner_no_photos", {
                   name: partnerFirstName ?? "Partner",
                 })
-              : t("progress.no_photos_today")}
-          </Text>
-        </Box>
+              : t("progress.no_photos_today")
+          }
+        />
       );
     }
     if (activePath !== null) {
@@ -140,78 +132,70 @@ export const PhotoUpdateSection: React.FC<PhotoUpdateSectionProps> = ({
     return null;
   };
 
-  return (
-    <Box
-      className={`rounded-3xl border overflow-hidden bg-background-0 ${borderColor}`}
-    >
-      {/* Header row */}
-      <HStack className="px-4 pt-4 pb-2 items-center justify-between">
-        <Text className="text-typography-700 font-semibold text-base dark:text-typography-100">
-          {sectionTitle}
-        </Text>
-        {photo !== null && (
-          <HStack className="gap-1">
-            {views.map((view) => (
-              <Pressable
-                key={view}
-                onPress={() => setActiveView(view)}
-                className={`px-3 py-1 rounded-full ${
-                  activeView === view ? "bg-primary-500" : inactiveViewBg
-                }`}
-              >
-                <Text
-                  className={`text-xs font-medium ${
-                    activeView === view ? "text-white" : "text-typography-500"
-                  }`}
-                >
-                  {t(`progress.${view}`)}
-                </Text>
-              </Pressable>
-            ))}
-          </HStack>
-        )}
+  const viewToggle =
+    photo !== null ? (
+      <HStack className="gap-1">
+        {views.map((view) => (
+          <Pressable
+            key={view}
+            onPress={() => setActiveView(view)}
+            className={`px-3 py-1 rounded-full ${
+              activeView === view
+                ? "bg-primary-500"
+                : "bg-background-100 dark:bg-[#2a3d52]"
+            }`}
+          >
+            <Text
+              className={`text-xs font-medium ${
+                activeView === view ? "text-white" : "text-typography-500"
+              }`}
+            >
+              {t(`progress.${view}`)}
+            </Text>
+          </Pressable>
+        ))}
       </HStack>
+    ) : undefined;
 
-      {/* Photo area */}
-      <Box className="px-4 pb-4">
-        {renderPhotoContent()}
+  return (
+    <WidgetCard title={sectionTitle} headerRight={viewToggle}>
+      {renderPhotoContent()}
 
-        {/* Metrics row */}
-        {photo !== null && (
-          <HStack className="mt-3 gap-6 justify-center">
-            {photo.weightKg !== null && (
-              <VStack className="items-center">
-                <Text className="text-typography-500 text-xs">
-                  {t("progress.weight_kg")}
-                </Text>
-                <Text className="text-typography-900 font-semibold text-sm">
-                  {photo.weightKg}
-                </Text>
-              </VStack>
-            )}
-            {photo.weightLb !== null && (
-              <VStack className="items-center">
-                <Text className="text-typography-500 text-xs">
-                  {t("progress.weight_lb")}
-                </Text>
-                <Text className="text-typography-900 font-semibold text-sm">
-                  {photo.weightLb}
-                </Text>
-              </VStack>
-            )}
-            {photo.bodyFat !== null && (
-              <VStack className="items-center">
-                <Text className="text-typography-500 text-xs">
-                  {t("progress.body_fat")}
-                </Text>
-                <Text className="text-typography-900 font-semibold text-sm">
-                  {photo.bodyFat}%
-                </Text>
-              </VStack>
-            )}
-          </HStack>
-        )}
-      </Box>
-    </Box>
+      {/* Metrics row */}
+      {photo !== null && (
+        <HStack className="gap-6 justify-center">
+          {photo.weightKg !== null && (
+            <VStack className="items-center">
+              <Text className="text-typography-500 text-xs">
+                {t("progress.weight_kg")}
+              </Text>
+              <Text className="text-typography-900 font-semibold text-sm">
+                {photo.weightKg}
+              </Text>
+            </VStack>
+          )}
+          {photo.weightLb !== null && (
+            <VStack className="items-center">
+              <Text className="text-typography-500 text-xs">
+                {t("progress.weight_lb")}
+              </Text>
+              <Text className="text-typography-900 font-semibold text-sm">
+                {photo.weightLb}
+              </Text>
+            </VStack>
+          )}
+          {photo.bodyFat !== null && (
+            <VStack className="items-center">
+              <Text className="text-typography-500 text-xs">
+                {t("progress.body_fat")}
+              </Text>
+              <Text className="text-typography-900 font-semibold text-sm">
+                {photo.bodyFat}%
+              </Text>
+            </VStack>
+          )}
+        </HStack>
+      )}
+    </WidgetCard>
   );
 };

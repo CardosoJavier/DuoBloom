@@ -9,6 +9,7 @@ interface WidgetCardProps {
   readonly title?: string;
   readonly subtitle?: string;
   readonly icon?: React.ReactNode;
+  readonly headerRight?: React.ReactNode;
   readonly footer?: React.ReactNode;
   readonly children?: React.ReactNode;
   readonly className?: string;
@@ -19,31 +20,37 @@ export function WidgetCard({
   title,
   subtitle,
   icon,
+  headerRight,
   footer,
   children,
   className,
   style,
 }: WidgetCardProps) {
-  const hasHeader = !!(title ?? subtitle ?? icon);
+  const hasHeader = !!(title ?? subtitle ?? icon ?? headerRight);
 
-  // p-0 overrides the Card widget base p-6; inner VStack controls the padding
   const baseClass = "p-0 overflow-hidden";
   const combinedClass = className
     ? [baseClass, className].join(" ")
     : baseClass;
+  const innerClass = footer
+    ? "pt-6 px-6 pb-6 gap-3 flex-1"
+    : "pt-6 px-6 pb-6 gap-3";
 
   return (
     <Card variant="widget" className={combinedClass} style={style}>
-      <VStack className="pt-6 px-6 pb-6 gap-3 flex-1">
+      <VStack className={innerClass}>
         {hasHeader && (
           <VStack className="gap-1">
-            <HStack className="items-center gap-2">
-              {icon}
-              {!!title && (
-                <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
-                  {title}
-                </Text>
-              )}
+            <HStack className="items-center justify-between gap-2">
+              <HStack className="items-center gap-2">
+                {icon}
+                {!!title && (
+                  <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
+                    {title}
+                  </Text>
+                )}
+              </HStack>
+              {!!headerRight && headerRight}
             </HStack>
             {!!subtitle && (
               <Text className="text-typography-400 text-xs">{subtitle}</Text>
