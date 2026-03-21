@@ -258,7 +258,9 @@ export function StatsTabView({
               <Icon as={Lock} size="xl" className="text-typography-400" />
             </Box>
             <Text className="text-typography-400 text-sm text-center">
-              {t("stats.privacy_blocked")}
+              {t("stats.privacy_blocked", {
+                name: partnerFirstName ?? "Partner",
+              })}
             </Text>
           </VStack>
         </WidgetCard>
