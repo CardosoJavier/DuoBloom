@@ -34,7 +34,7 @@ cssInterop(PrimitiveIcon, {
 });
 
 const inputStyle = tva({
-  base: "border-background-300 flex-row overflow-hidden content-center data-[hover=true]:border-outline-400 data-[focus=true]:border-primary-700 data-[focus=true]:hover:border-primary-700 data-[disabled=true]:opacity-40 data-[disabled=true]:hover:border-background-300 items-center",
+  base: "border-background-300 flex-row overflow-hidden content-center data-[hover=true]:border-outline-400 data-[focus=true]:border-primary-700 data-[focus=true]:hover:border-primary-700 data-[disabled=true]:opacity-50 data-[disabled=true]:hover:border-background-300 items-center",
 
   variants: {
     size: {
@@ -53,7 +53,7 @@ const inputStyle = tva({
 
       rounded:
         "rounded-full border data-[invalid=true]:border-error-700 data-[invalid=true]:hover:border-error-700 data-[invalid=true]:data-[focus=true]:border-error-700 data-[invalid=true]:data-[focus=true]:hover:border-error-700 data-[invalid=true]:data-[disabled=true]:hover:border-error-700 data-[focus=true]:web:ring-1 data-[focus=true]:web:ring-inset data-[focus=true]:web:ring-indicator-primary data-[invalid=true]:web:ring-1 data-[invalid=true]:web:ring-inset data-[invalid=true]:web:ring-indicator-error data-[invalid=true]:data-[focus=true]:hover:web:ring-1 data-[invalid=true]:data-[focus=true]:hover:web:ring-inset data-[invalid=true]:data-[focus=true]:hover:web:ring-indicator-error data-[invalid=true]:data-[disabled=true]:hover:web:ring-1 data-[invalid=true]:data-[disabled=true]:hover:web:ring-inset data-[invalid=true]:data-[disabled=true]:hover:web:ring-indicator-error",
-      soft: "bg-slate-100 dark:bg-background-0 rounded-2xl h-14 border border-transparent focus:border-primary-300 dark:focus:border-primary-500 data-[focus=true]:bg-white dark:data-[focus=true]:bg-background-0",
+      soft: "bg-background-100 dark:bg-background-100 rounded-2xl h-14 border border-transparent data-[focus=true]:border-primary-300 dark:data-[focus=true]:border-primary-500 data-[focus=true]:bg-background-50 dark:data-[focus=true]:bg-background-200",
     },
   },
 });
