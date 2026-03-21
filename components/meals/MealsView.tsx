@@ -2,7 +2,7 @@ import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
 import { logNutritionDay, updateStreakState } from "@/api/streak-api";
 import { Box } from "@/components/ui/box";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Fab, FabIcon } from "@/components/ui/fab";
+import { FabButton } from "@/components/ui/fab-button";
 import { Text } from "@/components/ui/text";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAuthStore } from "@/store/authStore";
@@ -10,7 +10,7 @@ import { ConsumedMeal } from "@/types/meals";
 import { supabase } from "@/util/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
-import { Plus } from "lucide-react-native";
+
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
@@ -282,14 +282,7 @@ export function MealsView() {
         )}
       </ScrollView>
 
-      <Fab
-        size="lg"
-        placement="bottom right"
-        className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
-        onPress={() => setIsModalOpen(true)}
-      >
-        <FabIcon as={Plus} className="text-white" />
-      </Fab>
+      <FabButton onPress={() => setIsModalOpen(true)} />
 
       <AddMealModal
         isOpen={isModalOpen}

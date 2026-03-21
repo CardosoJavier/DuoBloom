@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
-import { Columns2, LayoutGrid, Plus } from "lucide-react-native";
+import { Columns2, LayoutGrid } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RefreshControl, ScrollView, Switch, View } from "react-native";
@@ -15,7 +15,7 @@ import { AddStatsModal } from "@/components/progress/AddStatsModal";
 import { ComparisonView } from "@/components/progress/ComparisonView";
 import { PhotoUpdateSection } from "@/components/progress/PhotoUpdateSection";
 import { StatsTabView } from "@/components/progress/StatsTabView";
-import { Fab, FabIcon } from "@/components/ui/fab";
+import { FabButton } from "@/components/ui/fab-button";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
@@ -351,26 +351,12 @@ export default function ProgressScreen() {
 
         {/* FAB — photos tab */}
         {activeView === "gallery" && activeTab === "photos" && (
-          <Fab
-            size="lg"
-            placement="bottom right"
-            className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
-            onPress={() => setIsModalOpen(true)}
-          >
-            <FabIcon as={Plus} className="text-white" />
-          </Fab>
+          <FabButton onPress={() => setIsModalOpen(true)} />
         )}
 
         {/* FAB — stats tab */}
         {activeView === "gallery" && activeTab === "stats" && (
-          <Fab
-            size="lg"
-            placement="bottom right"
-            className="bg-primary-500 hover:bg-primary-600 active:bg-primary-700 shadow-lg absolute bottom-6 right-6"
-            onPress={() => setIsStatsModalOpen(true)}
-          >
-            <FabIcon as={Plus} className="text-white" />
-          </Fab>
+          <FabButton onPress={() => setIsStatsModalOpen(true)} />
         )}
       </VStack>
 
