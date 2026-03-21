@@ -1,12 +1,12 @@
 import { userApi } from "@/api/user-api";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { WidgetCard } from "@/components/ui/widget-card";
 import { useAuthStore } from "@/store/authStore";
 import * as Clipboard from "expo-clipboard";
 import { useRouter } from "expo-router";
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
           </VStack>
 
           {/* Partner Code */}
-          <Card variant="widget">
+          <WidgetCard>
             <VStack space="md" className="items-center">
               <Text className="text-typography-400 font-medium tracking-wider text-xs uppercase">
                 {t("auth.partner_code")}
@@ -115,10 +115,10 @@ export default function ProfileScreen() {
                 {t("auth.share_code_description")}
               </Text>
             </VStack>
-          </Card>
+          </WidgetCard>
 
           {/* Partner Status */}
-          <Card variant="widget">
+          <WidgetCard>
             <HStack className="items-center justify-between">
               <HStack space="md" className="items-center">
                 <Box className="relative">
@@ -137,7 +137,7 @@ export default function ProfileScreen() {
               </HStack>
               <Icon as={LinkIcon} className="text-typography-400" />
             </HStack>
-          </Card>
+          </WidgetCard>
 
           {/* Menu Actions */}
           <VStack space="md">
