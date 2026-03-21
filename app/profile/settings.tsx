@@ -1,14 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import {
-  Check,
-  Globe,
-  Monitor,
-  Moon,
-  Scale,
-  Sun,
-  X,
-} from "lucide-react-native";
+import { Globe, Monitor, Moon, Scale, Sun, X } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, TouchableOpacity } from "react-native";
@@ -18,7 +10,7 @@ import { progressApi } from "@/api/progress-api";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
+import { SelectionGroup } from "@/components/ui/selection-group";
 import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAppStore } from "@/store/appStore";
@@ -82,135 +74,44 @@ export default function AppSettingsScreen() {
 
         <ScrollView showsVerticalScrollIndicator={false}>
           <VStack space="2xl" className="mt-4">
-            {/* Language */}
-            <VStack space="md">
-              <Text className="text-typography-500 font-medium text-xs uppercase tracking-wider ml-1">
-                {t("settings.language")}
-              </Text>
-              <HStack space="md">
-                <TouchableOpacity
-                  onPress={() => setLanguage("en")}
-                  className={`flex-1 p-4 rounded-xl border ${
-                    language === "en"
-                      ? "bg-indigo-500/20 border-indigo-500"
-                      : "bg-background-50 border-outline-200"
-                  } flex-row justify-between items-center`}
-                >
-                  <Text
-                    className={`${language === "en" ? "text-indigo-400 font-bold" : "text-typography-700"}`}
-                  >
-                    English
-                  </Text>
-                  {language === "en" && (
-                    <Icon as={Check} size="sm" className="text-indigo-400" />
-                  )}
-                </TouchableOpacity>
+            <SelectionGroup
+              title={t("settings.language")}
+              options={[
+                { id: "en", label: "English" },
+                { id: "es", label: "Español" },
+              ]}
+              selected={language}
+              onSelect={(id) => setLanguage(id as "en" | "es")}
+              direction="horizontal"
+            />
 
-                <TouchableOpacity
-                  onPress={() => setLanguage("es")}
-                  className={`flex-1 p-4 rounded-xl border ${
-                    language === "es"
-                      ? "bg-indigo-500/20 border-indigo-500"
-                      : "bg-background-50 border-outline-200"
-                  } flex-row justify-between items-center`}
-                >
-                  <Text
-                    className={`${language === "es" ? "text-indigo-400 font-bold" : "text-typography-700"}`}
-                  >
-                    Español
-                  </Text>
-                  {language === "es" && (
-                    <Icon as={Check} size="sm" className="text-indigo-400" />
-                  )}
-                </TouchableOpacity>
-              </HStack>
-            </VStack>
+            <SelectionGroup
+              title={t("settings.unit_system")}
+              titleIcon={Scale}
+              options={[
+                { id: "KG", label: t("settings.unit_kg") },
+                { id: "LB", label: t("settings.unit_lb") },
+              ]}
+              selected={activeUnit}
+              onSelect={(unit) => unitMutation.mutate(unit as UnitSystem)}
+              direction="horizontal"
+            />
 
-            {/* Units */}
-            <VStack space="md">
-              <HStack space="sm" className="items-center ml-1">
-                <Icon as={Scale} size="xs" className="text-typography-500" />
-                <Text className="text-typography-500 font-medium text-xs uppercase tracking-wider">
-                  {t("settings.unit_system")}
-                </Text>
-              </HStack>
-              <HStack space="md">
-                {(["KG", "LB"] as UnitSystem[]).map((unit) => {
-                  const isActive = activeUnit === unit;
-                  return (
-                    <TouchableOpacity
-                      key={unit}
-                      onPress={() => unitMutation.mutate(unit)}
-                      className={`flex-1 p-4 rounded-xl border ${
-                        isActive
-                          ? "bg-indigo-500/20 border-indigo-500"
-                          : "bg-background-50 border-outline-200"
-                      } flex-row justify-between items-center`}
-                    >
-                      <Text
-                        className={`${isActive ? "text-indigo-400 font-bold" : "text-typography-700"}`}
-                      >
-                        {t(`settings.unit_${unit.toLowerCase()}`)}
-                      </Text>
-                      {isActive && (
-                        <Icon
-                          as={Check}
-                          size="sm"
-                          className="text-indigo-400"
-                        />
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </HStack>
-            </VStack>
-
-            {/* Appearance */}
-            <VStack space="md">
-              <Text className="text-typography-500 font-medium text-xs uppercase tracking-wider ml-1">
-                {t("settings.appearance")}
-              </Text>
-
-              <VStack space="sm">
-                {[
-                  { id: "light", icon: Sun, label: t("settings.light_mode") },
-                  { id: "dark", icon: Moon, label: t("settings.dark_mode") },
-                  {
-                    id: "system",
-                    icon: Monitor,
-                    label: t("settings.system_default"),
-                  },
-                ].map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    onPress={() =>
-                      setTheme(item.id as "light" | "dark" | "system")
-                    }
-                    className={`p-4 rounded-xl border ${
-                      theme === item.id
-                        ? "bg-indigo-500/20 border-indigo-500"
-                        : "bg-background-50 border-outline-200"
-                    } flex-row justify-between items-center`}
-                  >
-                    <HStack space="md" className="items-center">
-                      <Icon
-                        as={item.icon}
-                        size="sm"
-                        className={`${theme === item.id ? "text-indigo-400" : "text-typography-500"}`}
-                      />
-                      <Text
-                        className={`${theme === item.id ? "text-indigo-400 font-bold" : "text-typography-700"}`}
-                      >
-                        {item.label}
-                      </Text>
-                    </HStack>
-                    {theme === item.id && (
-                      <Icon as={Check} size="sm" className="text-indigo-400" />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </VStack>
-            </VStack>
+            <SelectionGroup
+              title={t("settings.appearance")}
+              options={[
+                { id: "light", icon: Sun, label: t("settings.light_mode") },
+                { id: "dark", icon: Moon, label: t("settings.dark_mode") },
+                {
+                  id: "system",
+                  icon: Monitor,
+                  label: t("settings.system_default"),
+                },
+              ]}
+              selected={theme}
+              onSelect={(id) => setTheme(id as "light" | "dark" | "system")}
+              direction="vertical"
+            />
           </VStack>
         </ScrollView>
       </VStack>
