@@ -78,7 +78,7 @@ function InitialLayout() {
 }
 
 export default function RootLayout() {
-  const { colorScheme, isThemeHydrated, hydrate } = useAppStore();
+  const { theme, colorScheme, isThemeHydrated, hydrate } = useAppStore();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -115,7 +115,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GluestackUIProvider mode={colorScheme}>
+      <GluestackUIProvider mode={theme}>
         <ThemeProvider value={DefaultTheme}>
           <InitialLayout />
           <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
