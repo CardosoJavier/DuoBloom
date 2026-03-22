@@ -1,18 +1,30 @@
+import i18n from "@/i18n";
+import { Language } from "@/types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Localization from "expo-localization";
 import { Appearance } from "react-native";
 import { create } from "zustand";
-import i18n from "@/i18n";
 
 type Theme = "light" | "dark" | "system";
 type ColorScheme = "light" | "dark";
 
+const SUPPORTED_LANGS = ["en", "es"];
+
+function resolveLanguage(lang: Language): string {
+  if (lang === "system") {
+    const deviceLang = Localization.getLocales()[0]?.languageCode ?? "en";
+    return SUPPORTED_LANGS.includes(deviceLang) ? deviceLang : "en";
+  }
+  return lang;
+}
+
 interface AppState {
   theme: Theme;
-  language: string;
+  language: Language;
   colorScheme: ColorScheme;
   isThemeHydrated: boolean;
   setTheme: (theme: Theme) => void;
-  setLanguage: (language: string) => void;
+  setLanguage: (language: Language) => void;
   hydrate: () => Promise<void>;
 }
 
@@ -21,37 +33,41 @@ const LANGUAGE_STORAGE_KEY = "app_language";
 
 export const useAppStore = create<AppState>((set, get) => ({
   theme: "system",
-  language: "en",
+  language: "system",
   colorScheme: Appearance.getColorScheme() ?? "light",
   isThemeHydrated: false,
 
   setTheme: async (theme: Theme) => {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
     const newColorScheme =
-      theme === "system" ? Appearance.getColorScheme() ?? "light" : theme;
+      theme === "system" ? (Appearance.getColorScheme() ?? "light") : theme;
     set({ theme, colorScheme: newColorScheme });
   },
 
-  setLanguage: async (language: string) => {
+  setLanguage: async (language: Language) => {
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-    i18n.changeLanguage(language);
+    i18n.changeLanguage(resolveLanguage(language));
     set({ language });
   },
 
   hydrate: async () => {
     try {
-      const storedTheme = (await AsyncStorage.getItem(THEME_STORAGE_KEY)) as Theme | null;
-      const storedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+      const storedTheme = (await AsyncStorage.getItem(
+        THEME_STORAGE_KEY,
+      )) as Theme | null;
+      const storedLanguage = (await AsyncStorage.getItem(
+        LANGUAGE_STORAGE_KEY,
+      )) as Language | null;
 
       const initialTheme = storedTheme || "system";
-      const initialLanguage = storedLanguage || "en";
+      const initialLanguage: Language = storedLanguage || "system";
 
       const initialColorScheme =
         initialTheme === "system"
-          ? Appearance.getColorScheme() ?? "light"
+          ? (Appearance.getColorScheme() ?? "light")
           : initialTheme;
 
-      i18n.changeLanguage(initialLanguage);
+      i18n.changeLanguage(resolveLanguage(initialLanguage));
 
       set({
         theme: initialTheme,

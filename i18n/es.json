@@ -135,6 +135,7 @@
     "light_mode": "Modo Claro",
     "dark_mode": "Modo Oscuro",
     "system_default": "Predeterminado del Sistema",
+    "system_language": "Idioma del Sistema",
     "unit_system": "Unidades",
     "unit_kg": "Kilogramos (kg)",
     "unit_lb": "Libras (lb)",

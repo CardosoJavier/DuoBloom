@@ -134,6 +134,7 @@
     "light_mode": "Light Mode",
     "dark_mode": "Dark Mode",
     "system_default": "System Default",
+    "system_language": "System Language",
     "unit_system": "Units",
     "unit_kg": "Kilograms (kg)",
     "unit_lb": "Pounds (lb)",

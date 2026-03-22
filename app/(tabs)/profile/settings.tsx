@@ -15,7 +15,7 @@ import { VStack } from "@/components/ui/vstack";
 import { useAppToast } from "@/hooks/use-app-toast";
 import { useAppStore } from "@/store/appStore";
 import { useAuthStore } from "@/store/authStore";
-import { UnitSystem } from "@/types/user";
+import { Language, UnitSystem } from "@/types/user";
 
 export default function AppSettingsScreen() {
   const { t } = useTranslation();
@@ -77,12 +77,17 @@ export default function AppSettingsScreen() {
             <SelectionGroup
               title={t("settings.language")}
               options={[
+                {
+                  id: "system",
+                  icon: Monitor,
+                  label: t("settings.system_language"),
+                },
                 { id: "en", label: "English" },
                 { id: "es", label: "Español" },
               ]}
               selected={language}
-              onSelect={(id) => setLanguage(id as "en" | "es")}
-              direction="horizontal"
+              onSelect={(id) => setLanguage(id as Language)}
+              direction="vertical"
             />
 
             <SelectionGroup

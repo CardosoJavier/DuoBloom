@@ -15,6 +15,8 @@ export interface BloomData {
 
 export type UnitSystem = "KG" | "LB";
 
+export type Language = "en" | "es" | "system";
+
 export interface UserSettings {
   id: string;
   userId: string;
