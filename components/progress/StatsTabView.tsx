@@ -152,11 +152,20 @@ export function StatsTabView({
   useEffect(() => {
     if (target !== "mine") return;
     void (async () => {
-      const granted = await HealthSyncService.requestPermissions();
+      const { granted, error } = await HealthSyncService.requestPermissions();
+      if (error === "SDK_UNAVAILABLE") {
+        toast.warning(t("stats.health_unavailable"));
+      } else if (error === "PERMISSION_DENIED") {
+        toast.info(t("stats.health_permission_denied"));
+      }
       if (!granted) return;
       const entry = await HealthSyncService.getLatestWeightEntry();
       setSdkWeightEntry(entry);
     })();
+    // toast and t are utility functions, not reactive state. useAppToast()
+    // returns a new object every render, so including it here would cause an
+    // infinite re-render loop identical to the one in useHealthData.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target]);
 
   const { data: summary, isLoading: summaryLoading } = useQuery({

@@ -241,7 +241,9 @@
     "privacy_blocked": "{{name}} tiene el modo privado activado.",
     "load_more": "Cargar Más",
     "save_success": "¡Entrada guardada!",
-    "save_error": "Error al guardar la entrada."
+    "save_error": "Error al guardar la entrada.",
+    "health_unavailable": "Los datos de salud no están disponibles en este dispositivo.",
+    "health_permission_denied": "Acceso a salud denegado. Actívalo en Configuración."
   },
   "today": {
     "greeting": "Hola, {{name}}",

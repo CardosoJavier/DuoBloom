@@ -240,7 +240,9 @@
     "privacy_blocked": "{{name}} has privacy mode on.",
     "load_more": "Load More",
     "save_success": "Entry saved!",
-    "save_error": "Failed to save entry."
+    "save_error": "Failed to save entry.",
+    "health_unavailable": "Health data is not available on this device.",
+    "health_permission_denied": "Health access was denied. Enable it in Settings."
   },
   "today": {
     "greeting": "Hello, {{name}}",

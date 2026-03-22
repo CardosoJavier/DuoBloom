@@ -10,7 +10,7 @@
  */
 
 import { ProgressStat } from "@/types/progress";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 
 // ── iOS ───────────────────────────────────────────────────────────────────────
 
@@ -30,8 +30,12 @@ if (Platform.OS === "ios") {
 let HealthConnect: any = null;
 
 if (Platform.OS === "android") {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  HealthConnect = require("react-native-health-connect");
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    HealthConnect = require("react-native-health-connect");
+  } catch {
+    // Module failed to link — treat Health Connect as unavailable.
+  }
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -46,22 +50,40 @@ export interface HealthBodyFatEntry {
   date: string; // 'YYYY-MM-DD'
 }
 
+export interface HealthStepsEntry {
+  steps: number;
+  date: string; // 'YYYY-MM-DD'
+}
+
+/** Reason why health permission was not granted. */
+export type HealthConnectionError = "SDK_UNAVAILABLE" | "PERMISSION_DENIED";
+
+export interface HealthPermissionResult {
+  granted: boolean;
+  error?: HealthConnectionError;
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const HealthSyncService = {
   /**
-   * Requests read/write permissions for Weight and Body Fat on both platforms.
-   * Safe to call on every tab focus — re-prompts only if not yet determined.
+   * Requests read/write permissions for Weight, Body Fat, and Steps on both
+   * platforms. Safe to call on every tab focus — re-prompts only if not yet
+   * determined.
+   *
+   * Never throws. Returns a structured result so callers can surface the right
+   * error message without crashing.
    */
-  requestPermissions: async (): Promise<boolean> => {
+  requestPermissions: async (): Promise<HealthPermissionResult> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return false;
+      if (!AppleHealthKit) return { granted: false, error: "SDK_UNAVAILABLE" };
       return new Promise((resolve) => {
         const permissions = {
           permissions: {
             read: [
               AppleHealthKit.Constants.Permissions.Weight,
               AppleHealthKit.Constants.Permissions.BodyFatPercentage,
+              AppleHealthKit.Constants.Permissions.Steps,
             ],
             write: [
               AppleHealthKit.Constants.Permissions.Weight,
@@ -70,28 +92,53 @@ export const HealthSyncService = {
           },
         };
         AppleHealthKit.initHealthKit(permissions, (err: any) => {
-          resolve(!err);
+          if (err) {
+            resolve({ granted: false, error: "PERMISSION_DENIED" });
+          } else {
+            resolve({ granted: true });
+          }
         });
       });
     }
 
     if (Platform.OS === "android") {
-      if (!HealthConnect) return false;
+      if (!HealthConnect) return { granted: false, error: "SDK_UNAVAILABLE" };
       try {
+        // Guard 1: Health Connect requires Android API 28+.
+        if ((Platform.Version as number) < 28) {
+          return { granted: false, error: "SDK_UNAVAILABLE" };
+        }
+
+        // Guard 2: OS-level check via Linking — does NOT invoke the SDK.
+        // On emulators and devices without Health Connect the healthconnect://
+        // scheme is unregistered, so canOpenURL returns false and we exit
+        // safely before any JVM-level SDK call that could bypass try/catch.
+        const isInstalled = await Linking.canOpenURL("healthconnect://");
+        if (!isInstalled) return { granted: false, error: "SDK_UNAVAILABLE" };
+
+        // Guard 3: SDK availability status (safe — HC is confirmed installed).
+        // SdkAvailabilityStatus: 1 = UNAVAILABLE, 2 = UPDATE_REQUIRED, 3 = AVAILABLE
+        const sdkStatus = await HealthConnect.getSdkStatus();
+        if (sdkStatus !== 3) {
+          return { granted: false, error: "SDK_UNAVAILABLE" };
+        }
         await HealthConnect.initialize();
         const result = await HealthConnect.requestPermission([
           { accessType: "read", recordType: "Weight" },
           { accessType: "write", recordType: "Weight" },
           { accessType: "read", recordType: "BodyFat" },
           { accessType: "write", recordType: "BodyFat" },
+          { accessType: "read", recordType: "Steps" },
         ]);
-        return result.length > 0;
+        if (result.length > 0) return { granted: true };
+        return { granted: false, error: "PERMISSION_DENIED" };
       } catch {
-        return false;
+        return { granted: false, error: "SDK_UNAVAILABLE" };
       }
     }
 
-    return false;
+    // Unsupported platform
+    return { granted: false, error: "SDK_UNAVAILABLE" };
   },
 
   /** Returns the single most-recent Weight entry from the native SDK. */
@@ -243,6 +290,117 @@ export const HealthSyncService = {
         // Non-fatal
       }
     }
+  },
+
+  /** Returns the total step count for a given calendar day (YYYY-MM-DD). */
+  getStepsForDate: async (date: string): Promise<number> => {
+    if (Platform.OS === "ios") {
+      if (!AppleHealthKit) return 0;
+      return new Promise((resolve) => {
+        const opts = {
+          date: new Date(date).toISOString(),
+          includeManuallyAdded: false,
+        };
+        AppleHealthKit.getStepCount(opts, (err: any, result: any) => {
+          if (err || !result) return resolve(0);
+          resolve(Math.round(result.value ?? 0));
+        });
+      });
+    }
+
+    if (Platform.OS === "android") {
+      if (!HealthConnect) return 0;
+      try {
+        const d = new Date(date);
+        const start = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate(),
+        ).toISOString();
+        const end = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate() + 1,
+        ).toISOString();
+        const result = await HealthConnect.readRecords("Steps", {
+          timeRangeFilter: {
+            operator: "between",
+            startTime: start,
+            endTime: end,
+          },
+        });
+        const records: any[] = result.records ?? [];
+        const total = records.reduce(
+          (sum: number, r: any) => sum + (r.count ?? 0),
+          0,
+        );
+        return Math.round(total);
+      } catch {
+        return 0;
+      }
+    }
+
+    return 0;
+  },
+
+  /**
+   * Returns step counts aggregated by calendar day for the given date range.
+   * Suitable for feeding charts directly.
+   */
+  getStepsForRange: async (
+    startDate: string,
+    endDate: string,
+  ): Promise<HealthStepsEntry[]> => {
+    if (Platform.OS === "ios") {
+      if (!AppleHealthKit) return [];
+      return new Promise((resolve) => {
+        const opts = {
+          startDate: new Date(startDate).toISOString(),
+          endDate: new Date(endDate).toISOString(),
+          includeManuallyAdded: false,
+        };
+        AppleHealthKit.getDailyStepCountSamples(
+          opts,
+          (err: any, results: any[]) => {
+            if (err || !Array.isArray(results)) return resolve([]);
+            resolve(
+              results.map((r) => ({
+                steps: Math.round(r.value ?? 0),
+                date: r.startDate?.slice(0, 10) ?? "",
+              })),
+            );
+          },
+        );
+      });
+    }
+
+    if (Platform.OS === "android") {
+      if (!HealthConnect) return [];
+      try {
+        const result = await HealthConnect.readRecords("Steps", {
+          timeRangeFilter: {
+            operator: "between",
+            startTime: new Date(startDate).toISOString(),
+            endTime: new Date(endDate).toISOString(),
+          },
+        });
+        const records: any[] = result.records ?? [];
+        // Aggregate individual intervals into calendar-day buckets
+        const byDay: Record<string, number> = {};
+        for (const r of records) {
+          const day = (r.startTime as string | undefined)?.slice(0, 10) ?? "";
+          if (!day) continue;
+          byDay[day] = (byDay[day] ?? 0) + (r.count ?? 0);
+        }
+        return Object.entries(byDay)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([d, steps]) => ({ date: d, steps: Math.round(steps) }));
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
   },
 
   /**
