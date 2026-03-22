@@ -1,4 +1,6 @@
 import { userApi } from "@/api/user-api";
+import { EditProfileModal } from "@/components/profile/edit";
+import { AppSettingsModal } from "@/components/profile/settings";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
@@ -17,7 +19,7 @@ import {
   Link as LinkIcon,
   User,
 } from "lucide-react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +28,8 @@ export default function ProfileScreen() {
   const { user, logout, partner, setPartner } = useAuthStore();
   const { t } = useTranslation();
   const router = useRouter();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     const refetchPartner = async () => {
@@ -144,7 +148,7 @@ export default function ProfileScreen() {
             <Button
               variant="widget"
               className="h-14"
-              onPress={() => router.push("/profile/edit")}
+              onPress={() => setIsEditOpen(true)}
             >
               <HStack space="md" className="items-center">
                 <ButtonText className="text-typography-900 dark:text-typography-0 text-base font-medium ml-2">
@@ -157,7 +161,7 @@ export default function ProfileScreen() {
             <Button
               variant="widget"
               className="h-14"
-              onPress={() => router.push("/profile/settings")}
+              onPress={() => setIsSettingsOpen(true)}
             >
               <HStack space="md" className="items-center">
                 <ButtonText className="text-typography-900 dark:text-typography-0 text-base font-medium ml-2">
@@ -175,6 +179,14 @@ export default function ProfileScreen() {
           </VStack>
         </VStack>
       </ScrollView>
+      <EditProfileModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+      />
+      <AppSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </SafeAreaView>
   );
 }

@@ -68,11 +68,6 @@ function InitialLayout() {
     >
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="profile/edit" options={{ presentation: "modal" }} />
-      <Stack.Screen
-        name="profile/settings"
-        options={{ presentation: "modal" }}
-      />
     </Stack>
   );
 }
