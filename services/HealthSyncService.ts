@@ -18,11 +18,15 @@ let AppleHealthKit: any = null;
 let HKPermissions: any = null;
 
 if (Platform.OS === "ios") {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const mod = require("react-native-health");
-  const kit = mod.default ?? mod;
-  AppleHealthKit = typeof kit?.initHealthKit === "function" ? kit : null;
-  HKPermissions = mod.HealthKitPermissions;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require("react-native-health");
+    const kit = mod.default ?? mod;
+    AppleHealthKit = typeof kit?.initHealthKit === "function" ? kit : null;
+    HKPermissions = mod.HealthKitPermissions;
+  } catch {
+    // Module failed to link — treat HealthKit as unavailable.
+  }
 }
 
 // ── Android ───────────────────────────────────────────────────────────────────
