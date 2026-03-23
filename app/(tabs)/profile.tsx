@@ -11,7 +11,6 @@ import { VStack } from "@/components/ui/vstack";
 import { WidgetCard } from "@/components/ui/widget-card";
 import { useAuthStore } from "@/store/authStore";
 import * as Clipboard from "expo-clipboard";
-import { useRouter } from "expo-router";
 import {
   ChevronRight,
   Copy,
@@ -27,7 +26,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { user, logout, partner, setPartner } = useAuthStore();
   const { t } = useTranslation();
-  const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -62,7 +60,6 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/(auth)/login");
   };
 
   if (!user) return null;

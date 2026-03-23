@@ -58,7 +58,7 @@ export default function ProgressScreen() {
     queryKey: ["progress-photos", user?.id, dateStr],
     queryFn: async () => {
       const result = await progressApi.getProgressPhotosForDate(
-        user!.id,
+        user?.id ?? "",
         dateStr,
       );
       if (!result.success) throw result.error;
@@ -72,7 +72,7 @@ export default function ProgressScreen() {
       queryKey: ["progress-photos", partner?.id, dateStr],
       queryFn: async () => {
         const result = await progressApi.getProgressPhotosForDate(
-          partner!.id,
+          partner?.id ?? "",
           dateStr,
         );
         if (!result.success) throw result.error;
@@ -84,7 +84,7 @@ export default function ProgressScreen() {
   const { data: mySettings } = useQuery({
     queryKey: ["user-settings", user?.id],
     queryFn: async () => {
-      const result = await progressApi.getSettings(user!.id);
+      const result = await progressApi.getSettings(user?.id ?? "");
       if (!result.success) throw result.error;
       return result.data;
     },
@@ -94,7 +94,7 @@ export default function ProgressScreen() {
   const { data: partnerSettings } = useQuery({
     queryKey: ["user-settings", partner?.id],
     queryFn: async () => {
-      const result = await progressApi.getSettings(partner!.id);
+      const result = await progressApi.getSettings(partner?.id ?? "");
       if (!result.success) throw result.error;
       return result.data;
     },
@@ -116,7 +116,10 @@ export default function ProgressScreen() {
       user?.id,
     );
     setPrivacyMode(newValue); // optimistic update
-    const result = await progressApi.updatePrivacyMode(user!.id, newValue);
+    const result = await progressApi.updatePrivacyMode(
+      user?.id ?? "",
+      newValue,
+    );
     if (result.success) {
       console.log(
         "[ProgressScreen.handlePrivacyToggle] Success — privacyMode:",
@@ -286,7 +289,7 @@ export default function ProgressScreen() {
           {/* ── Photos tab ── */}
           {activeView === "comparison" && (
             <ComparisonView
-              myId={user!.id}
+              myId={user?.id ?? ""}
               myFirstName={user?.firstName ?? "Me"}
               partnerId={partner?.id}
               partnerFirstName={partner?.firstName}
@@ -339,7 +342,7 @@ export default function ProgressScreen() {
           {/* ── Stats tab ── */}
           {activeView === "gallery" && activeTab === "stats" && (
             <StatsTabView
-              myId={user!.id}
+              myId={user?.id ?? ""}
               myFirstName={user?.firstName ?? "Me"}
               partnerId={partner?.id}
               partnerFirstName={partner?.firstName}
