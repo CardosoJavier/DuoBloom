@@ -9,7 +9,7 @@ export const LoadingSplash = () => {
     <Box className="flex-1 justify-center items-center bg-background-0">
       <VStack space="xl" className="items-center">
         <Image
-          source={require("@/assets/images/react-logo.png")}
+          source={require("@/assets/images/splash-icon.png")}
           style={{ width: 120, height: 120, marginBottom: 20 }}
           resizeMode="contain"
         />

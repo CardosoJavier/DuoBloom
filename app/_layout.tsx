@@ -11,6 +11,7 @@ import { AppState, AppStateStatus } from "react-native";
 import "react-native-reanimated";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { LoadingSplash } from "@/components/ui/LoadingSplash";
 import "@/global.css";
 import "@/i18n";
 import { useAppStore } from "@/store/appStore";
@@ -58,6 +59,10 @@ function InitialLayout() {
 
     handleNavigation();
   }, [isAuthenticated, isInitializing, isCheckingSync, segments]);
+
+  if (isInitializing || isCheckingSync) {
+    return <LoadingSplash />;
+  }
 
   return (
     <Stack
