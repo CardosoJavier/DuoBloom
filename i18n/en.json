@@ -259,6 +259,7 @@
     "sex_male": "Male",
     "sex_female": "Female",
     "activity_level": "Activity Level",
+    "activity_level_hint": "How much do you exercise outside of daily tasks? Include gym sessions, sports, or any structured training.",
     "activity_sedentary": "Sedentary (little or no exercise)",
     "activity_lightly_active": "Lightly Active (1–3 days/week)",
     "activity_moderately_active": "Moderately Active (3–5 days/week)",

@@ -227,6 +227,9 @@ export function MacroCalculatorView() {
                   {t("macros.activity_level")}
                 </FormControlLabelText>
               </FormControlLabel>
+              <Text className="text-typography-400 text-xs mb-1.5">
+                {t("macros.activity_level_hint")}
+              </Text>
               <Pressable
                 onPress={() => setIsActivityPickerOpen(true)}
                 className="h-[42px] rounded-xl px-3 items-center flex-row justify-between bg-background-100"

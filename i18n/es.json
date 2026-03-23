@@ -260,6 +260,7 @@
     "sex_male": "Hombre",
     "sex_female": "Mujer",
     "activity_level": "Nivel de Actividad",
+    "activity_level_hint": "¿Cuánto ejercicio haces fuera de las tareas diarias? Incluye sesiones de gimnasio, deportes o cualquier entrenamiento estructurado.",
     "activity_sedentary": "Sedentario (poco o sin ejercicio)",
     "activity_lightly_active": "Levemente Activo (1–3 días/semana)",
     "activity_moderately_active": "Moderadamente Activo (3–5 días/semana)",
