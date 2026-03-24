@@ -52,6 +52,27 @@ type MacroKey = keyof typeof MACRO_ITEM_COLORS;
 
 const MODE_KEYS: MacroMode[] = ["cut", "bulk", "recomp"];
 
+type UnitSystem = "metric" | "imperial";
+
+function lbsToKg(lbs: number): number {
+  return lbs * 0.453592;
+}
+
+// "5'10" format → cm
+function feetInchesToCm(value: string): number {
+  const [feetPart, inchesPart] = value.split("'");
+  const feet = parseInt(feetPart, 10) || 0;
+  const inches = parseInt(inchesPart ?? "0", 10) || 0;
+  return feet * 30.48 + inches * 2.54;
+}
+
+// Auto-formats raw digit input into feet'inches (e.g. "510" → "5'10")
+function formatImperialHeight(raw: string): string {
+  const digits = raw.replace(/[^0-9]/g, "");
+  if (digits.length <= 1) return digits;
+  return digits[0] + "'" + digits.slice(1, 3); // cap inches part at 2 digits
+}
+
 export function MacroCalculatorView() {
   const { t } = useTranslation();
 
@@ -68,6 +89,7 @@ export function MacroCalculatorView() {
   const [useCustomSurplus, setUseCustomSurplus] = useState(false);
   const [surplusPercent, setSurplusPercent] = useState("10");
   const [result, setResult] = useState<MacroCalculatorResult | null>(null);
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>("metric");
 
   const modeLabels = MODE_KEYS.map((m) => t(`macros.mode_${m}`));
   const activeModeLabel = t(`macros.mode_${mode}`);
@@ -78,18 +100,33 @@ export function MacroCalculatorView() {
     setResult(null);
   };
 
+  const handleUnitChange = (system: UnitSystem) => {
+    setUnitSystem(system);
+    setWeight("");
+    setHeight("");
+    setResult(null);
+  };
+
   const isFormValid =
-    parseFloat(weight) > 0 && parseFloat(height) > 0 && parseInt(age, 10) > 0;
+    parseFloat(weight) > 0 &&
+    (unitSystem === "imperial"
+      ? height.includes("'") && height.length >= 3
+      : parseFloat(height) > 0) &&
+    parseInt(age, 10) > 0;
 
   const handleCalculate = () => {
-    const w = parseFloat(weight);
-    const h = parseFloat(height);
+    const rawW = parseFloat(weight);
+    const rawH = parseFloat(height);
     const a = parseInt(age, 10);
     if (!isFormValid) return;
 
+    const weightKg = unitSystem === "imperial" ? lbsToKg(rawW) : rawW;
+    const heightCm =
+      unitSystem === "imperial" ? feetInchesToCm(height) : rawH;
+
     const input = {
-      weightKg: w,
-      heightCm: h,
+      weightKg,
+      heightCm,
       age: a,
       sex,
       activityLevel,
@@ -130,14 +167,46 @@ export function MacroCalculatorView() {
         />
 
         {/* Personal Info */}
-        <WidgetCard title={t("macros.personal_info")}>
+        <WidgetCard
+          title={t("macros.personal_info")}
+          headerRight={
+            <HStack space="xs">
+              {(["metric", "imperial"] as UnitSystem[]).map((sys) => {
+                const isActive = unitSystem === sys;
+                return (
+                  <Pressable
+                    key={sys}
+                    onPress={() => handleUnitChange(sys)}
+                    className={`px-3 h-7 rounded-lg items-center justify-center border ${
+                      isActive
+                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                        : "border-slate-200 dark:border-slate-600 bg-background-100"
+                    }`}
+                  >
+                    <Text
+                      className={`text-xs font-semibold ${
+                        isActive ? "text-primary-500" : "text-typography-400"
+                      }`}
+                    >
+                      {t(`macros.unit_${sys}`)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </HStack>
+          }
+        >
           <VStack space="md">
             {/* Weight + Height */}
             <HStack space="md">
               <FormControl className="flex-1">
                 <FormControlLabel>
                   <FormControlLabelText className="text-typography-500 text-xs">
-                    {t("macros.weight_kg")}
+                    {t(
+                      unitSystem === "metric"
+                        ? "macros.weight_kg"
+                        : "macros.weight_lbs",
+                    )}
                   </FormControlLabelText>
                 </FormControlLabel>
                 <Input variant="soft" size="md">
@@ -145,7 +214,7 @@ export function MacroCalculatorView() {
                     value={weight}
                     onChangeText={setWeight}
                     keyboardType="decimal-pad"
-                    placeholder="70"
+                    placeholder={unitSystem === "metric" ? "70" : "155"}
                   />
                 </Input>
               </FormControl>
@@ -153,15 +222,25 @@ export function MacroCalculatorView() {
               <FormControl className="flex-1">
                 <FormControlLabel>
                   <FormControlLabelText className="text-typography-500 text-xs">
-                    {t("macros.height_cm")}
+                    {t(
+                      unitSystem === "metric"
+                        ? "macros.height_cm"
+                        : "macros.height_ft",
+                    )}
                   </FormControlLabelText>
                 </FormControlLabel>
                 <Input variant="soft" size="md">
                   <InputField
                     value={height}
-                    onChangeText={setHeight}
-                    keyboardType="decimal-pad"
-                    placeholder="175"
+                    onChangeText={(text) => {
+                      if (unitSystem === "imperial") {
+                        setHeight(formatImperialHeight(text));
+                      } else {
+                        setHeight(text);
+                      }
+                    }}
+                    keyboardType="number-pad"
+                    placeholder={unitSystem === "metric" ? "175" : "5'10"}
                   />
                 </Input>
               </FormControl>
