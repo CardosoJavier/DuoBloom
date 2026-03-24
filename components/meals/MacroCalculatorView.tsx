@@ -121,8 +121,7 @@ export function MacroCalculatorView() {
     if (!isFormValid) return;
 
     const weightKg = unitSystem === "imperial" ? lbsToKg(rawW) : rawW;
-    const heightCm =
-      unitSystem === "imperial" ? feetInchesToCm(height) : rawH;
+    const heightCm = unitSystem === "imperial" ? feetInchesToCm(height) : rawH;
 
     const input = {
       weightKg,
