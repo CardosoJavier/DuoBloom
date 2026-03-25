@@ -45,7 +45,7 @@ export function WidgetCard({
               <HStack className="items-center gap-2">
                 {icon}
                 {!!title && (
-                  <Text className="text-typography-500 uppercase font-bold tracking-wider text-xs">
+                  <Text className="text-typography-800 uppercase font-bold tracking-wider text-xs dark:text-typography-200">
                     {title}
                   </Text>
                 )}

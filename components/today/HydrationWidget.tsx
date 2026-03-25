@@ -39,7 +39,7 @@ export function HydrationWidget() {
             /{GLASSES_GOAL}
           </Text>
         </HStack>
-        <Text className="text-typography-400 text-xs">
+        <Text className="text-typography-600 text-xs dark:text-typography-300">
           {t("today.glasses_today")}
         </Text>
       </VStack>

@@ -61,14 +61,14 @@ function lbsToKg(lbs: number): number {
 // "5'10" format → cm
 function feetInchesToCm(value: string): number {
   const [feetPart, inchesPart] = value.split("'");
-  const feet = parseInt(feetPart, 10) || 0;
-  const inches = parseInt(inchesPart ?? "0", 10) || 0;
+  const feet = Number.parseInt(feetPart, 10) || 0;
+  const inches = Number.parseInt(inchesPart ?? "0", 10) || 0;
   return feet * 30.48 + inches * 2.54;
 }
 
 // Auto-formats raw digit input into feet'inches (e.g. "510" → "5'10")
 function formatImperialHeight(raw: string): string {
-  const digits = raw.replace(/[^0-9]/g, "");
+  const digits = raw.replaceAll(/[^0-9]/g, "");
   if (digits.length <= 1) return digits;
   return digits[0] + "'" + digits.slice(1, 3); // cap inches part at 2 digits
 }
@@ -108,16 +108,16 @@ export function MacroCalculatorView() {
   };
 
   const isFormValid =
-    parseFloat(weight) > 0 &&
+    Number.parseFloat(weight) > 0 &&
     (unitSystem === "imperial"
       ? height.includes("'") && height.length >= 3
-      : parseFloat(height) > 0) &&
-    parseInt(age, 10) > 0;
+      : Number.parseFloat(height) > 0) &&
+    Number.parseInt(age, 10) > 0;
 
   const handleCalculate = () => {
-    const rawW = parseFloat(weight);
-    const rawH = parseFloat(height);
-    const a = parseInt(age, 10);
+    const rawW = Number.parseFloat(weight);
+    const rawH = Number.parseFloat(height);
+    const a = Number.parseInt(age, 10);
     if (!isFormValid) return;
 
     const weightKg = unitSystem === "imperial" ? lbsToKg(rawW) : rawW;
@@ -131,9 +131,9 @@ export function MacroCalculatorView() {
       activityLevel,
       mode,
       deficitPercent:
-        mode === "cut" ? parseFloat(deficitPercent) || 20 : undefined,
+        mode === "cut" ? Number.parseFloat(deficitPercent) || 20 : undefined,
       surplusPercent:
-        mode === "bulk" ? parseFloat(surplusPercent) || 10 : undefined,
+        mode === "bulk" ? Number.parseFloat(surplusPercent) || 10 : undefined,
     };
 
     if (mode === "cut") setResult(calculateCut(input));
@@ -246,7 +246,7 @@ export function MacroCalculatorView() {
             </HStack>
 
             {/* Age + Sex */}
-            <HStack space="md">
+            <HStack space="md" className="items-center">
               <FormControl className="flex-1">
                 <FormControlLabel>
                   <FormControlLabelText className="text-typography-500 text-xs">
@@ -301,11 +301,11 @@ export function MacroCalculatorView() {
             {/* Activity Level */}
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText className="text-typography-500 text-xs">
+                <FormControlLabelText className="text-typography-600 text-xs dark:text-typography-400">
                   {t("macros.activity_level")}
                 </FormControlLabelText>
               </FormControlLabel>
-              <Text className="text-typography-400 text-xs mb-1.5">
+              <Text className="text-typography-400 text-xs mb-1.5 dark:text-typography-600">
                 {t("macros.activity_level_hint")}
               </Text>
               <Pressable
