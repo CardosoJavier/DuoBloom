@@ -14,21 +14,37 @@ import { Linking, Platform } from "react-native";
 
 // ── iOS ───────────────────────────────────────────────────────────────────────
 
-let AppleHealthKit: any = null;
-let HKPermissions: any = null;
+let _appleHealthKit: any = undefined;
 
-if (Platform.OS === "ios") {
+function getAppleHealthKit(): any {
+  if (_appleHealthKit !== undefined) return _appleHealthKit;
+  if (Platform.OS !== "ios") {
+    _appleHealthKit = null;
+    return null;
+  }
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require("react-native-health");
-    const kit = mod.default ?? mod;
-    AppleHealthKit = typeof kit?.initHealthKit === "function" ? kit : null;
-    HKPermissions = mod.HealthKitPermissions;
-  } catch {
-    // Module failed to link — treat HealthKit as unavailable.
-  }
-}
+    const { NativeModules } = require("react-native");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const libMod = require("react-native-health");
 
+    // react-native-health uses Object.assign({}, NativeModules.AppleHealthKit, { Constants })
+    // but with New Architecture (JSI), native module methods are non-enumerable prototype
+    // properties that Object.assign silently skips. Access the native module directly and
+    // attach the JS-side Constants that the library provides correctly.
+    const nativeKit = NativeModules?.AppleHealthKit;
+    const constants = libMod.Constants;
+    if (nativeKit && constants) {
+      nativeKit.Constants = constants;
+      _appleHealthKit = nativeKit;
+    } else {
+      _appleHealthKit = null;
+    }
+  } catch {
+    _appleHealthKit = null;
+  }
+  return _appleHealthKit;
+}
 // ── Android ───────────────────────────────────────────────────────────────────
 
 let HealthConnect: any = null;
@@ -69,6 +85,40 @@ export interface HealthPermissionResult {
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
+function requestIosPermissions(): Promise<HealthPermissionResult> {
+  const kit = getAppleHealthKit();
+  if (!kit)
+    return Promise.resolve({ granted: false, error: "SDK_UNAVAILABLE" });
+  return new Promise((resolve) => {
+    kit.isAvailable((_availErr: any, available: boolean) => {
+      if (!available) {
+        resolve({ granted: false, error: "SDK_UNAVAILABLE" });
+        return;
+      }
+      const permissions = {
+        permissions: {
+          read: [
+            kit.Constants.Permissions.Weight,
+            kit.Constants.Permissions.BodyFatPercentage,
+            kit.Constants.Permissions.Steps,
+          ],
+          write: [
+            kit.Constants.Permissions.Weight,
+            kit.Constants.Permissions.BodyFatPercentage,
+          ],
+        },
+      };
+      kit.initHealthKit(permissions, (err: any) => {
+        if (err) {
+          resolve({ granted: false, error: "PERMISSION_DENIED" });
+        } else {
+          resolve({ granted: true });
+        }
+      });
+    });
+  });
+}
+
 export const HealthSyncService = {
   /**
    * Requests read/write permissions for Weight, Body Fat, and Steps on both
@@ -80,36 +130,14 @@ export const HealthSyncService = {
    */
   requestPermissions: async (): Promise<HealthPermissionResult> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return { granted: false, error: "SDK_UNAVAILABLE" };
-      return new Promise((resolve) => {
-        const permissions = {
-          permissions: {
-            read: [
-              AppleHealthKit.Constants.Permissions.Weight,
-              AppleHealthKit.Constants.Permissions.BodyFatPercentage,
-              AppleHealthKit.Constants.Permissions.Steps,
-            ],
-            write: [
-              AppleHealthKit.Constants.Permissions.Weight,
-              AppleHealthKit.Constants.Permissions.BodyFatPercentage,
-            ],
-          },
-        };
-        AppleHealthKit.initHealthKit(permissions, (err: any) => {
-          if (err) {
-            resolve({ granted: false, error: "PERMISSION_DENIED" });
-          } else {
-            resolve({ granted: true });
-          }
-        });
-      });
+      return requestIosPermissions();
     }
 
     if (Platform.OS === "android") {
       if (!HealthConnect) return { granted: false, error: "SDK_UNAVAILABLE" };
       try {
         // Guard 1: Health Connect requires Android API 28+.
-        if ((Platform.Version as number) < 28) {
+        if (Platform.Version < 28) {
           return { granted: false, error: "SDK_UNAVAILABLE" };
         }
 
@@ -148,10 +176,11 @@ export const HealthSyncService = {
   /** Returns the single most-recent Weight entry from the native SDK. */
   getLatestWeightEntry: async (): Promise<HealthWeightEntry | null> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return null;
+      const kit = getAppleHealthKit();
+      if (!kit) return null;
       return new Promise((resolve) => {
         const opts = { unit: "gram" };
-        AppleHealthKit.getLatestWeight(opts, (err: any, result: any) => {
+        kit.getLatestWeight(opts, (err: any, result: any) => {
           if (err || !result) return resolve(null);
           // HealthKit returns grams; convert to kg
           const kg = (result.value ?? 0) / 1000;
@@ -190,18 +219,16 @@ export const HealthSyncService = {
   /** Returns the single most-recent Body Fat entry from the native SDK. */
   getLatestBodyFatEntry: async (): Promise<HealthBodyFatEntry | null> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return null;
+      const kit = getAppleHealthKit();
+      if (!kit) return null;
       return new Promise((resolve) => {
-        AppleHealthKit.getLatestBodyFatPercentage(
-          {},
-          (err: any, result: any) => {
-            if (err || !result) return resolve(null);
-            resolve({
-              percentage: result.value ?? 0,
-              date: result.endDate?.slice(0, 10) ?? "",
-            });
-          },
-        );
+        kit.getLatestBodyFatPercentage({}, (err: any, result: any) => {
+          if (err || !result) return resolve(null);
+          resolve({
+            percentage: result.value ?? 0,
+            date: result.endDate?.slice(0, 10) ?? "",
+          });
+        });
       });
     }
 
@@ -235,7 +262,8 @@ export const HealthSyncService = {
   /** Writes a weight measurement to the native Health SDK. */
   writeWeightEntry: async (weightKg: number, date: string): Promise<void> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return;
+      const kit = getAppleHealthKit();
+      if (!kit) return;
       await new Promise<void>((resolve) => {
         const sample = {
           value: weightKg * 1000, // HealthKit expects grams
@@ -243,7 +271,7 @@ export const HealthSyncService = {
           startDate: new Date(date).toISOString(),
           endDate: new Date(date).toISOString(),
         };
-        AppleHealthKit.saveWeight(sample, () => resolve());
+        kit.saveWeight(sample, () => resolve());
       });
     }
 
@@ -269,14 +297,15 @@ export const HealthSyncService = {
     date: string,
   ): Promise<void> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return;
+      const kit = getAppleHealthKit();
+      if (!kit) return;
       await new Promise<void>((resolve) => {
         const sample = {
           value: percentage,
           startDate: new Date(date).toISOString(),
           endDate: new Date(date).toISOString(),
         };
-        AppleHealthKit.saveBodyFatPercentage(sample, () => resolve());
+        kit.saveBodyFatPercentage(sample, () => resolve());
       });
     }
 
@@ -299,13 +328,14 @@ export const HealthSyncService = {
   /** Returns the total step count for a given calendar day (YYYY-MM-DD). */
   getStepsForDate: async (date: string): Promise<number> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return 0;
+      const kit = getAppleHealthKit();
+      if (!kit) return 0;
       return new Promise((resolve) => {
         const opts = {
           date: new Date(date).toISOString(),
           includeManuallyAdded: false,
         };
-        AppleHealthKit.getStepCount(opts, (err: any, result: any) => {
+        kit.getStepCount(opts, (err: any, result: any) => {
           if (err || !result) return resolve(0);
           resolve(Math.round(result.value ?? 0));
         });
@@ -356,25 +386,23 @@ export const HealthSyncService = {
     endDate: string,
   ): Promise<HealthStepsEntry[]> => {
     if (Platform.OS === "ios") {
-      if (!AppleHealthKit) return [];
+      const kit = getAppleHealthKit();
+      if (!kit) return [];
       return new Promise((resolve) => {
         const opts = {
           startDate: new Date(startDate).toISOString(),
           endDate: new Date(endDate).toISOString(),
           includeManuallyAdded: false,
         };
-        AppleHealthKit.getDailyStepCountSamples(
-          opts,
-          (err: any, results: any[]) => {
-            if (err || !Array.isArray(results)) return resolve([]);
-            resolve(
-              results.map((r) => ({
-                steps: Math.round(r.value ?? 0),
-                date: r.startDate?.slice(0, 10) ?? "",
-              })),
-            );
-          },
-        );
+        kit.getDailyStepCountSamples(opts, (err: any, results: any[]) => {
+          if (err || !Array.isArray(results)) return resolve([]);
+          resolve(
+            results.map((r) => ({
+              steps: Math.round(r.value ?? 0),
+              date: r.startDate?.slice(0, 10) ?? "",
+            })),
+          );
+        });
       });
     }
 
