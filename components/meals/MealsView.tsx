@@ -1,303 +1,385 @@
-import { addConsumedMeal, getConsumedMeals } from "@/api/meals-api";
-import { logNutritionDay, updateStreakState } from "@/api/streak-api";
-import { Box } from "@/components/ui/box";
-import { EmptyState } from "@/components/ui/empty-state";
-import { FabButton } from "@/components/ui/fab-button";
-import { Text } from "@/components/ui/text";
-import { useAppToast } from "@/hooks/use-app-toast";
-import { useAuthStore } from "@/store/authStore";
-import { ConsumedMeal } from "@/types/meals";
-import { supabase } from "@/util/supabase";
-import { useQueryClient } from "@tanstack/react-query";
-import * as Crypto from "expo-crypto";
-
-import React, { useEffect, useState } from "react";
+import { useAppStore } from "@/store/appStore";
+import {
+  DailyNutritionGoal,
+  FoodItem,
+  MealSection,
+  MealType,
+} from "@/types/food-log";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { Circle, G, Svg } from "react-native-svg";
 import { DateNavigator } from "../DateNavigator";
-import { IdentifiedImage } from "../IdentifiedImage";
-import { AddMealModal } from "./AddMealModal";
-import { EditMealModal } from "./EditMealModal";
+import { Box } from "../ui/box";
+import { HStack } from "../ui/hstack";
+import { Pressable } from "../ui/pressable";
+import { Text } from "../ui/text";
+import { VStack } from "../ui/vstack";
+import { WidgetCard } from "../ui/widget-card";
+import { AddFoodModal } from "./AddFoodModal";
 
-const toLocalDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
+// ── Mock data ──────────────────────────────────────────────────────────────────
+
+const MOCK_GOAL: DailyNutritionGoal = {
+  kcal: 2000,
+  macros: { proteinG: 150, carbsG: 200, fatG: 65 },
 };
+
+const MOCK_SECTIONS: MealSection[] = [
+  {
+    type: "breakfast",
+    items: [
+      { id: "1", name: "Oatmeal", kcal: 150, protein: 5, carbs: 37, fat: 2.5 },
+      { id: "2", name: "Banana", kcal: 105, protein: 1.3, carbs: 27, fat: 0.3 },
+    ],
+  },
+  { type: "lunch", items: [] },
+  { type: "dinner", items: [] },
+  { type: "snacks", items: [] },
+];
+
+// ── CaloriesDonut ──────────────────────────────────────────────────────────────
+
+interface CaloriesDonutProps {
+  readonly eaten: number;
+  readonly goal: number;
+  readonly isDark: boolean;
+}
+
+function CaloriesDonut({ eaten, goal, isDark }: CaloriesDonutProps) {
+  const { t } = useTranslation();
+  const size = 76;
+  const strokeWidth = 7;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(eaten / goal, 1);
+  const strokeDashoffset = circumference * (1 - progress);
+  const cx = size / 2;
+  const cy = size / 2;
+
+  const trackColor = isDark ? "#374151" : "#E5E7EB";
+  const progressColor = isDark ? "#818cf8" : "#6366f1";
+
+  return (
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size}>
+        <G transform={`rotate(-90, ${cx}, ${cy})`}>
+          <Circle
+            cx={cx}
+            cy={cy}
+            r={radius}
+            stroke={trackColor}
+            strokeWidth={strokeWidth}
+            fill="transparent"
+          />
+          <Circle
+            cx={cx}
+            cy={cy}
+            r={radius}
+            stroke={progressColor}
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+          />
+        </G>
+      </Svg>
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text className="text-typography-900 dark:text-typography-50 font-bold text-base leading-tight">
+          {eaten}
+        </Text>
+        <Text className="text-typography-400 text-[9px] leading-tight">
+          {t("meals.kcal_eaten")}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+// ── MacroBar ───────────────────────────────────────────────────────────────────
+
+interface MacroBarProps {
+  readonly label: string;
+  readonly current: number;
+  readonly goal: number;
+  readonly fillClass: string;
+}
+
+function MacroBar({ label, current, goal, fillClass }: MacroBarProps) {
+  const pct = Math.min((current / goal) * 100, 100);
+
+  return (
+    <HStack className="items-center gap-2">
+      <Text className="text-typography-400 text-xs w-14" numberOfLines={1}>
+        {label}
+      </Text>
+      <Text className="text-typography-500 text-xs w-16">
+        {Math.round(current * 10) / 10}/{goal}g
+      </Text>
+      <View className="flex-1 h-1.5 bg-background-200 dark:bg-background-700 rounded-full overflow-hidden">
+        <View
+          className={`h-full rounded-full ${fillClass}`}
+          style={{ width: `${pct}%` }}
+        />
+      </View>
+    </HStack>
+  );
+}
+
+// ── CaloriesSummaryCard ────────────────────────────────────────────────────────
+
+interface CaloriesSummaryCardProps {
+  readonly goal: DailyNutritionGoal;
+  readonly totalEaten: number;
+  readonly totalProtein: number;
+  readonly totalCarbs: number;
+  readonly totalFat: number;
+  readonly isDark: boolean;
+}
+
+function CaloriesSummaryCard({
+  goal,
+  totalEaten,
+  totalProtein,
+  totalCarbs,
+  totalFat,
+  isDark,
+}: CaloriesSummaryCardProps) {
+  const { t } = useTranslation();
+  const remaining = Math.max(goal.kcal - totalEaten, 0);
+
+  return (
+    <WidgetCard className="mb-4">
+      <HStack className="items-center justify-between gap-4">
+        <VStack className="flex-1 gap-1">
+          <Text className="text-typography-400 text-xs uppercase tracking-wider font-semibold">
+            {t("meals.calories_remaining")}
+          </Text>
+          <Text className="text-typography-900 dark:text-typography-50 font-bold text-4xl leading-tight">
+            {remaining}
+          </Text>
+          <Text className="text-typography-400 text-xs">
+            {t("meals.goal_kcal", { count: goal.kcal })}
+          </Text>
+        </VStack>
+
+        <CaloriesDonut eaten={totalEaten} goal={goal.kcal} isDark={isDark} />
+      </HStack>
+
+      <VStack className="gap-2 mt-2">
+        <MacroBar
+          label={t("macros.protein")}
+          current={totalProtein}
+          goal={goal.macros.proteinG}
+          fillClass="bg-blue-500"
+        />
+        <MacroBar
+          label={t("macros.carbs")}
+          current={totalCarbs}
+          goal={goal.macros.carbsG}
+          fillClass="bg-orange-400"
+        />
+        <MacroBar
+          label={t("macros.fat")}
+          current={totalFat}
+          goal={goal.macros.fatG}
+          fillClass="bg-rose-400"
+        />
+      </VStack>
+    </WidgetCard>
+  );
+}
+
+// ── FoodItemRow ────────────────────────────────────────────────────────────────
+
+interface FoodItemRowProps {
+  readonly item: FoodItem;
+  readonly isLast: boolean;
+}
+
+function FoodItemRow({ item, isLast }: FoodItemRowProps) {
+  const macroSummary = `${item.protein}gP · ${item.carbs}gC · ${item.fat}gF`;
+
+  return (
+    <Pressable>
+      <HStack
+        className={`items-center justify-between py-2.5 ${
+          isLast
+            ? ""
+            : "border-b border-background-100 dark:border-background-700"
+        }`}
+      >
+        <VStack className="flex-1 gap-0.5">
+          <Text className="text-typography-800 dark:text-typography-100 text-sm font-medium">
+            {item.name}
+          </Text>
+          <Text className="text-typography-400 text-xs">{macroSummary}</Text>
+        </VStack>
+        <Text className="text-typography-500 text-sm font-medium ml-4">
+          {item.kcal} kcal
+        </Text>
+      </HStack>
+    </Pressable>
+  );
+}
+
+// ── MealSectionCard ────────────────────────────────────────────────────────────
+
+interface MealSectionCardProps {
+  readonly section: MealSection;
+  readonly sectionLabel: string;
+  readonly isExpanded: boolean;
+  readonly isDark: boolean;
+  readonly onToggle: () => void;
+  readonly onAddFoodPress: (type: MealType) => void;
+}
+
+function MealSectionCard({
+  section,
+  sectionLabel,
+  isExpanded,
+  isDark,
+  onToggle,
+  onAddFoodPress,
+}: MealSectionCardProps) {
+  const { t } = useTranslation();
+  const totalKcal = section.items.reduce((sum, i) => sum + i.kcal, 0);
+  const ChevronIcon = isExpanded ? ChevronDown : ChevronRight;
+
+  return (
+    <WidgetCard>
+      <Pressable onPress={onToggle}>
+        <HStack className="items-center justify-between">
+          <Text className="text-typography-800 dark:text-typography-100 font-semibold text-base">
+            {sectionLabel}
+          </Text>
+          <HStack className="items-center gap-2">
+            {totalKcal > 0 && (
+              <Text className="text-typography-400 text-sm">
+                {totalKcal} kcal
+              </Text>
+            )}
+            <ChevronIcon size={16} color={isDark ? "#9ca3af" : "#6b7280"} />
+          </HStack>
+        </HStack>
+      </Pressable>
+
+      {isExpanded && (
+        <VStack className="mt-1">
+          {section.items.map((item, idx) => (
+            <FoodItemRow
+              key={item.id}
+              item={item}
+              isLast={idx === section.items.length - 1}
+            />
+          ))}
+
+          <Pressable
+            onPress={() => onAddFoodPress(section.type)}
+            className="mt-2"
+          >
+            <HStack className="items-center justify-center py-2.5 border border-dashed border-background-300 dark:border-background-600 rounded-xl">
+              <Text className="text-primary-500 text-sm font-medium">
+                {t("meals.add_food")}
+              </Text>
+            </HStack>
+          </Pressable>
+        </VStack>
+      )}
+    </WidgetCard>
+  );
+}
+
+// ── MealsView ──────────────────────────────────────────────────────────────────
 
 export function MealsView() {
   const { t } = useTranslation();
-  const { user, partner } = useAuthStore();
-  const toast = useAppToast();
-  const queryClient = useQueryClient();
+  const { colorScheme } = useAppStore();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedMeal, setSelectedMeal] = useState<ConsumedMeal | null>(null);
-  const [meals, setMeals] = useState<ConsumedMeal[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [sections] = useState<MealSection[]>(MOCK_SECTIONS);
+  const [goal] = useState<DailyNutritionGoal>(MOCK_GOAL);
+  const [activeMealType, setActiveMealType] = useState<MealType | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Set<MealType>>(
+    new Set<MealType>(["breakfast", "lunch", "dinner", "snacks"]),
+  );
 
-  useEffect(() => {
-    fetchMeals();
-  }, [selectedDate, user?.id]);
+  const isDark = colorScheme === "dark";
 
-  const fetchMeals = async () => {
-    if (!user?.id) return;
+  const { totalEaten, totalProtein, totalCarbs, totalFat } = useMemo(() => {
+    const allItems = sections.flatMap((s) => s.items);
+    return {
+      totalEaten: allItems.reduce((s, i) => s + i.kcal, 0),
+      totalProtein: allItems.reduce((s, i) => s + i.protein, 0),
+      totalCarbs: allItems.reduce((s, i) => s + i.carbs, 0),
+      totalFat: allItems.reduce((s, i) => s + i.fat, 0),
+    };
+  }, [sections]);
 
-    setIsLoading(true);
-    console.log("[MealsView] fetchMeals started for date:", selectedDate);
-    const startOfDay = new Date(selectedDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(selectedDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    console.log("[MealsView] Calling getConsumedMeals...");
-    const result = await getConsumedMeals(
-      startOfDay.toISOString(),
-      endOfDay.toISOString(),
-    );
-
-    if (result.success && result.data) {
-      console.log(`[MealsView] Got ${result.data.length} meals.`);
-      setMeals(result.data);
-    } else {
-      console.warn(
-        "[MealsView] Failed to fetch meals or no data.",
-        result.error,
-      );
-      setMeals([]);
-    }
-
-    setIsLoading(false);
-  };
-
-  const handleAddMeal = async (mealInfo: {
-    name: string;
-    calories: number;
-    uri: string;
-  }) => {
-    if (!user?.id || !mealInfo.uri) return;
-
-    setIsLoading(true);
-    console.log("[MealsView] handleAddMeal started for:", mealInfo.name);
-
-    try {
-      // 1. Generate path
-      const uuid = Crypto.randomUUID();
-      const path = `meals/${user.id}/${uuid}.jpg`;
-      console.log("[MealsView] Generated storage path:", path);
-
-      // 2. Request Signed Upload URL
-      console.log("[MealsView] Requesting signed upload URL...");
-      const { data: uploadUrlData, error: uploadUrlError } =
-        await supabase.storage.from("user_media").createSignedUploadUrl(path);
-
-      if (uploadUrlError || !uploadUrlData) {
-        console.error(
-          "[MealsView] Error getting signed upload URL:",
-          uploadUrlError,
-        );
-        toast.error(t("common.error"), t("meals.upload_url_error"));
-        setIsLoading(false);
-        return;
-      }
-      console.log("[MealsView] Got signed upload URL successfully.");
-
-      // 3. Upload to Storage
-      console.log("[MealsView] Uploading file to storage...");
-      // Bypass ArrayBuffer base64 conversion.
-      // Use FormData to leverage React Native's native fetch payload handling
-      const formData = new FormData();
-      formData.append("file", {
-        uri: mealInfo.uri,
-        name: `${uuid}.jpg`,
-        type: "image/jpeg",
-      } as any);
-
-      const { error: uploadError } = await supabase.storage
-        .from("user_media")
-        .uploadToSignedUrl(path, uploadUrlData.token, formData);
-
-      if (uploadError) {
-        console.error("[MealsView] Error uploading to storage:", uploadError);
-        toast.error(t("common.error"), t("meals.upload_failed"));
-        setIsLoading(false);
-        return;
-      }
-      console.log("[MealsView] File uploaded to storage successfully.");
-
-      // 4. Database Persistence
-      console.log("[MealsView] Persisting meal to database...");
-      try {
-        const result = await addConsumedMeal({
-          user_id: user.id,
-          name: mealInfo.name,
-          kcal: mealInfo.calories,
-          consumption_date: new Date().toISOString(),
-          photo_url: path, // Only store the path
-        });
-
-        if (!result.success) {
-          throw new Error(result.error?.message || "DB Save Failed");
-        }
-        console.log("[MealsView] Meal persisted to database successfully.");
-
-        // 5. Log the day and update streak state (fire-and-forget; non-blocking)
-        const consumptionDateKey = toLocalDateString(new Date());
-        logNutritionDay(user.id, consumptionDateKey)
-          .then(() => updateStreakState(user.id, consumptionDateKey))
-          .then(() => {
-            queryClient.invalidateQueries({ queryKey: ["streak-month"] });
-            queryClient.invalidateQueries({
-              queryKey: ["streak-state", user.id],
-            });
-          })
-          .catch((err) =>
-            console.warn("[MealsView] Non-critical streak update failed:", err),
-          );
-      } catch (dbError) {
-        // 5. Rollback Logic
-        console.error(
-          "[MealsView] Database error. Rolling back storage file...",
-          dbError,
-        );
-        await supabase.storage.from("user_media").remove([path]);
-        console.log("[MealsView] Storage rollback complete.");
-        toast.error(t("common.error"), t("meals.db_save_failed"));
-        setIsLoading(false);
-        return;
-      }
-
-      console.log(
-        "[MealsView] Meal added successfully. Refreshing meals list...",
-      );
-      await fetchMeals();
-    } catch (e: any) {
-      console.error("[MealsView] Unexpected error in handleAddMeal:", e);
-      toast.error(t("common.error"), e.message || "Unknown error");
-      setIsLoading(false);
-    }
-  };
-
-  const getAvatarForUser = (userId: string) => {
-    if (userId === user?.id) {
-      return (
-        user?.avatarUrl ||
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80"
-      ); // Fallback User Avatar
-    }
-    if (userId === partner?.id) {
-      return (
-        partner?.avatarUrl ||
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80"
-      ); // Fallback Partner Avatar
-    }
-    return undefined;
-  };
-
-  const userMeals = meals.filter((m) => m.user_id === user?.id);
-  const partnerMeals = meals.filter((m) => m.user_id === partner?.id);
-
-  const renderMealsContent = () => {
-    if (isLoading) {
-      return <ActivityIndicator size="large" className="mt-10" />;
-    }
-
-    if (meals.length === 0) {
-      return (
-        <EmptyState
-          message={t("meals.no_meals_found_today")}
-          className="mt-10"
-        />
-      );
-    }
-
-    return (
-      <View className="flex-row flex-wrap justify-between">
-        {meals.map((meal) => (
-          <View key={meal.id} className="w-[48%] mb-4">
-            <Pressable
-              onPress={() => {
-                if (meal.user_id === user?.id) {
-                  console.log(
-                    "[MealsView] Opening edit modal for meal:",
-                    meal.id,
-                  );
-                  setSelectedMeal(meal);
-                  setIsEditModalOpen(true);
-                }
-              }}
-            >
-              <IdentifiedImage
-                uri={meal.photo_url}
-                avatarUri={getAvatarForUser(meal.user_id)}
-                title={meal.name}
-                subtitle={`${meal.kcal || 0} kcal | ${new Date(
-                  meal.consumption_date,
-                ).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}`}
-              />
-            </Pressable>
-          </View>
-        ))}
-      </View>
-    );
-  };
+  const toggleSection = useCallback((type: MealType) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
+  }, []);
 
   return (
-    <Box className="flex-1 bg-background-0 relative">
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+    <Box className="flex-1 bg-background-0">
+      <ScrollView
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <DateNavigator
           date={selectedDate}
-          onDateChange={(newDate) => setSelectedDate(newDate)}
-          className="mb-8"
+          onDateChange={(d) => setSelectedDate(d)}
+          className="mb-6"
         />
 
-        <Text
-          size="xl"
-          className="font-bold text-typography-900 dark:text-white mb-4"
-        >
-          {t("meals.shared_meals")}
-        </Text>
+        <CaloriesSummaryCard
+          goal={goal}
+          totalEaten={totalEaten}
+          totalProtein={totalProtein}
+          totalCarbs={totalCarbs}
+          totalFat={totalFat}
+          isDark={isDark}
+        />
 
-        {renderMealsContent()}
-
-        {!isLoading && meals.length > 0 && partner && (
-          <View className="w-full mt-6 gap-4">
-            {userMeals.length === 0 && (
-              <EmptyState message={t("meals.user_no_meals")} />
-            )}
-            {partnerMeals.length === 0 && (
-              <EmptyState
-                message={t("meals.partner_no_meals", {
-                  name: partner.firstName,
-                })}
-              />
-            )}
-          </View>
-        )}
+        <VStack className="gap-3">
+          {sections.map((section) => (
+            <MealSectionCard
+              key={section.type}
+              section={section}
+              sectionLabel={t(`meals.${section.type}`)}
+              isExpanded={expandedSections.has(section.type)}
+              isDark={isDark}
+              onToggle={() => toggleSection(section.type)}
+              onAddFoodPress={setActiveMealType}
+            />
+          ))}
+        </VStack>
       </ScrollView>
 
-      <FabButton onPress={() => setIsModalOpen(true)} />
-
-      <AddMealModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleAddMeal}
-      />
-
-      <EditMealModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedMeal(null);
+      <AddFoodModal
+        isOpen={activeMealType !== null}
+        mealType={activeMealType}
+        onClose={() => setActiveMealType(null)}
+        onSelectFood={(_item, _type) => {
+          setActiveMealType(null);
         }}
-        meal={selectedMeal}
-        onSuccess={fetchMeals}
       />
     </Box>
   );

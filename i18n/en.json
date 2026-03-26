@@ -49,7 +49,18 @@
     "delete_confirm_title": "Delete Meal",
     "delete_confirm_message": "Are you sure you want to delete this meal?",
     "meal_name": "Meal Name",
-    "meal_calories": "Calories"
+    "meal_calories": "Calories",
+    "calories_remaining": "Calories Remaining",
+    "goal_kcal": "Goal: {{count}} kcal",
+    "kcal_eaten": "eaten",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "snacks": "Snacks",
+    "add_food": "+ Add Food",
+    "add_food_to": "Add Food to {{meal}}",
+    "search_placeholder": "Search food or scan barcode...",
+    "search_no_results": "No results found"
   },
   "streak": {
     "my_streak": "Myself",
